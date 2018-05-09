@@ -1,0 +1,7 @@
+---
+layout: post
+title:  "测试中文"
+date:   2018-05-09 10:50:35 +0800
+categories: jekyll update
+---
+测试中文。
