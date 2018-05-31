@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "系统控制和仿真专题" 
+title: "算法复杂度" 
 ---
 # 1、系统的形式化描述
 
@@ -91,13 +91,13 @@ $$(X, E, f, \Gamma, x_0)$$
 
 where
 
-$X$: a countable state space;
+$X$: a state space;
 
-$E$: a countable event set;
+$E$: an event set;
 
 $f:X \times E  \rightarrow X$: a state transition function and is generally a partial function on its domain;
 
-$\Gamma:X \rightarrow 2^E$ the feasible event function $\Gamma(x)$ is the set of all events $e$ for which $f(x,e)$ is defined and it is called the feasible event set; 
+$\Gamma:X \rightarrow 2^E$ a feasible event function, $\Gamma(x)$ is the set of all events $e$ for which $f(x,e)$ is defined and it is called the feasible event set; 
 
 $x_0$: the initial state.
 
@@ -153,37 +153,37 @@ $y_i$ is undefined and $N_i = 0$ for all $i \notin \Gamma(x_0)$.
 
 #### 3) Stochastic Timed Automaton
 
-In order to avoid notational confusion between random variables and sets (both usually represented by upper-case letters), $\chi$ and $\epsilon$ are used to denote the state space and the event set of the underlying automaton respectively.
+In order to avoid notational confusion between random variables and sets (both usually represented by upper-case letters), $\mathcal{X}$ and $\mathcal{E}$ are used to denote the state space and the event set of the underlying automaton respectively.
 
-In addition, a random variable notation paralleling the one used for the timed automaton are adopted: $X$ is the current state; $E$ is the most recent event (causing the transition into state $X$); $T$ is the most recent event time (corresponding to event E); $N_i$ is the current score of event $i$; $Y_i$ is the current clock value of event $i$.
+In addition, a random variable notation paralleling the one used for the timed automaton are adopted: $X$ is the current state; $E$ is the most recent event (causing the transition into state $X$); $T$ is the most recent event time (corresponding to event $E$); $N_i$ is the current score of event $i$; $Y_i$ is the current clock value of event $i$.
 
 A stochastic timed automaton is a six-tuple 
 
-$$(\chi, \epsilon, \Gamma, p, p_0, G)$$
+$$(\mathcal{X}, \mathcal{E}, \Gamma, p, p_0, G)$$
 
 where
 
-$\chi$: a countable state space;
+$\mathcal{X}$: a state space;
 
-$\epsilon$: a countable event set;
+$\mathcal{E}$: an event set;
 
-$\Gamma(x)$: a set of feasible events, defined for all $x \in \chi$ with $\Gamma(x) \subseteq \epsilon$;
+$\Gamma(x)$: a feasible event function, defined for all $x \in \\mathcal{X}$ with $\Gamma(x) \subseteq \mathcal{E}$;
 
-$p(x' \| x,e')$: a state transition probability, defined for all $x,x' \in \chi, e' \in \epsilon$, and such that $p(x' \| x,e') = 0$ for all $e' \notin \Gamma(x)$;
+$p(x' \| x,e')$: a state transition probability, defined for all $x,x' \in \mathcal{X}, e' \in \mathcal{E}, and such that $p(x' \| x,e') = 0$ for all $e' \notin \Gamma(x)$;
 
-$p_0(x)$: the pmf ($P(X_0 = x), x \in \chi$) of the initial state $X_0$;
+$p_0(x)$: the pmf ($P(X_0 = x), x \in \mathcal{X}$) of the initial state $X_0$;
 
-$G = \\{G_i: i \in \epsilon\\}$: a stochastic clock structure.
+$G = \\{G_i: i \in \mathcal{E}\\}$: a stochastic clock structure.
 
 The automaton generates a stochastic state sequence $\\{X_0, X_1, \ldots\\}$ through a transition mechanism (based on observations $X = x, E' = e'$):
 
-$$X' = x' \text{with probability} p(x' \| x,e')$$ 
+$$X' = x' \text{ with probability } p(x' | x,e')$$ 
 
-and it is driben by a stochastic event sequence $\\{(E_1,T_1), (E_2,T_2), \ldots\\$ generated through
+and it is driben by a stochastic event sequence $\\{(E_1,T_1), (E_2,T_2), \ldots\\}$ generated through
 
 $$E' = arg \min\limits_{i \in \Gamma(X)}Y_i$$
 
-with the stochastic clock values $Y_i, i \in \epsilon$, defined by
+with the stochastic clock values $Y_i, i \in \mathcal{E}$, defined by
 
 $$
 Y'_i = 
@@ -204,8 +204,8 @@ and the event scores $N_i, i \in \epsilon$, are defined by
 $$
 N'_i = 
 \begin{cases}
-N_i + 1 \ \text{if} i = E' \text{or} i \notin \Gamma(X) \\
-N_i \ \text{otherwise}
+N_i + 1 \text{ if } i = E' \text{ or } i \notin \Gamma(X) \\
+N_i \text{ otherwise}
 \end{cases}
 $$
 
