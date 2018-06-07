@@ -39,7 +39,7 @@ $g:X \times U \times T \rightarrow Y$：输出函数，定义系统如何通过�
 
 # 4、时变动态系统与非时变动态系统
 
-如果动态系统的输出函数 $g$ 是与时间无关的，则该动态系统为非时变动态系统，否则为时变动态系统。
+如果动态系统的状态转移函数 $f$ 和输出函数 $g$ 均是与时间无关的，则该动态系统为非时变动态系统，否则为时变动态系统。
 
 # 5、确定型动态系统与随机型动态系统
 
@@ -169,7 +169,7 @@ $\mathcal{E}$: an event set;
 
 $\Gamma(x)$: a feasible event function, defined for all $x \in \\mathcal{X}$ with $\Gamma(x) \subseteq \mathcal{E}$;
 
-$p(x' \| x,e')$: a state transition probability, defined for all $x,x' \in \mathcal{X}, e' \in \mathcal{E}, and such that $p(x' \| x,e') = 0$ for all $e' \notin \Gamma(x)$;
+$p(x' \| x,e')$: a state transition probability, defined for all $x,x' \in \mathcal{X}, e' \in \mathcal{E}$, and such that $p(x' \| x,e') = 0$ for all $e' \notin \Gamma(x)$;
 
 $p_0(x)$: the pmf ($P(X_0 = x), x \in \mathcal{X}$) of the initial state $X_0$;
 

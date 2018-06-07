@@ -2,291 +2,167 @@
 layout: post
 title: "算法复杂度" 
 ---
-# 1、系统的形式化描述
+# 1、算法的定义
 
-一个系统可以通过以下八元组来形式化描述：
+算法一般是对计算机来说的，具体指定义良好的指令序列，它将输入数据转换成输出结果。
 
-$$S=(T,U,\Omega,X,x_0,f,Y,g)$$
+# 2、数量级标记
+
+设$f$和$g$是从$\mathbb{N}$到$\mathbb{N}$的两个函数。
+
+1）如果存在常数$c$使得$\frac{f(n)}{g(n)} \leq c$对充分大的$n$恒成立，则称$f(n)=O(g(n))$，也称$g(n)=\Omega(g(n))$；
+
+2）如果$f(n)=O(g(n))$且$g(n)=O(f(n))$，则称$f(n)=\Theta (g(n))$；
+
+3）如果对任意$\epsilon > 0$均有$\frac{f(n)}{g(n)} \leq \epsilon$对充分大的$n$恒成立，则称$f(n)=o(g(n))$，也称$g(n)=\omega(g(n))$。
+
+对于输入规模为$n$的的算法，其计算复杂度由易到难排名如下：
+
+1）$O(1)$，常数时间；
+
+2）$O(\log n)$，对数时间；
+
+3）$O((\log n)^c)$，多对数时间；
+
+4）$O(n)$，线性时间；
+
+5）$O(n\log n)$，线性对数时间；
+
+6）$O(n^c)$，多项式时间；
+
+7）$O(c^n)$，指数时间；
+
+8）$O(n!)$，阶乘时间。
+
+# 3、图灵机
+
+图灵机是一种抽象的机器，它定义了一种计算模型。按照CT论点（Church-Turing thesis），任何可被物理实现的计算装置均可以被图灵机模拟，也就是说任何其他计算模型上的可计算问题的集合不会比图灵机上可计算问题的集合更大。而在计算效率方面，强CT论点更是断言，任何可物理实现的计算模型均可以被图灵机以多项式倍的代价来模拟，也就是说任何其他模型的$t$个计算步骤可以用图灵机的$t^c$个步骤来模拟，其中$c$是不依赖于模型输入规模的常数。然而，强CT论点是存在争议的，因为目前出现的量子计算机模型似乎不能被图灵机高效模拟。但另一方面，目前也不清楚量子计算机能否被物理实现。下面将给出图灵机的具体定义。
+
+## 3.1 确定型图灵机
+
+### 3.1.1 基本定义
+
+一个确定型图灵机构造出一台假想的机器，由四个部分组成：一条无限长的存储带（tape）、一个读写头（head）、一个状态寄存器（register）以及一套控制规则（table）。存储带分成许多小方格，每小格可存储一个位数（0或1），也可以是空白的。机器的运作是逐步进行的，每一步可以由以下三个步骤构成：
+
+1）机器获取寄存器存储的状态以及当前读写头对准方格的字符，根据控制规则决定接下来的操作；
+
+2）机器对方格进行操作，可以保持原有的字符也可以写入另一个字符；
+
+3）机器操作读写头向右或向左移动一个方格。
+
+由上可知，在给定初始状态和输入后，机器的行为自始至终是由控制规则（table）来决定的。当到达某些状态时，机器结束运行，计算结束。
+
+可以通过以下七元组来形式化描述一个典型的确定型图灵机：
+
+$$M=(Q,\Sigma,\Gamma,q_0,q_{accept},q_{reject},\delta)$$
 
 其中，
 
-$T$：时间集，描述系统变化的时间坐标；
+$Q$：状态集，包含$M$的寄存器种可能出现的所有状态。
 
-$U$：输入集，代表外部环境对系统的作用；
+$\Sigma$：输入字母集，包含$M$的输入信息中允许出现的所有字符，一般只包括0和1。
 
-$\Omega$：输入段集，描述某个时间段内的输入信息，是 $(U,T)$ 的一个子集；
+$\Gamma$：带字母表，包含$M$的存储带上允许出现的所有符号。其中，$\Sigma \subset \Gamma$。同时，$\Gamma$中还包含一个特定的“空白符”，记为$\square$。
 
-$X$：内部状态集，表示系统内部状态属性；
+$q_0 \in Q$：初始状态。
 
-$\textbf{x}_0 \in X$：系统的初始状态；
+$A \subseteq Q$：接受状态集。
 
-$f:X \times \Omega \rightarrow X$：状态转移函数，定义系统内部状态是如何变化的；
+$$\delta:(Q \backslash A) \times \Gamma \rightarrow Q \times \Gamma \times \{L,R\}$$：转移函数，定义系统内部格局是如何变化的，其中$L$、$R$分别表示读写头是向左移还是向右移。需要注意的是，转移函数可以是一个部分函数，即某些情况下$\delta$可能没有定义，如果对于输入$x$在运行中出现非接受状态且下一个操作没有定义的情况，则称$M$拒绝$x$。
 
-$Y$：输出集，系统通过它作用于环境；
+初始的时候将输入字符串从第0号格子开始从左至右依次填写到存储带上的格子中，其他格子保持空白。读写头指向第0号格子，且寄存器存储的状态为$q_0$。$M$开始运行后，按照转移函数$\delta$所描述的控制规则进行计算。若在某时刻，读写头所指的是第0号格子，但根据转移函数下一步将继续向左移，这时它停在原地不动，即读写头始终不移出纸带的左边界。若在某时刻根据转移函数进入了状态$q \in F$，则$M$立刻停机并将存储带上的内容输出；如果某时刻$M$出现下一操作没有定义的情况，则拒绝$x$。需要注意的是，$M$可能进入循环状态，永远不停机。
 
-$g:X \times U \times T \rightarrow Y$：输出函数，定义系统如何通过当前状态和输入得到输出。
+令$$f:\{0,1\}^* \rightarrow \{0,1\}^*$$表示一个任意定义在二进制字串上的函数，如果将$f$的输入$x \in \\{0,1\\}^*$作为$M$的输入字符串，当$M$处于接受状态时，将$f(x)$写在其存储带上，我们就称$M$计算$f$。设$T:\mathbb{N} \rightarrow \mathbb{N}$，如果$M$在任意输入$x$上计算$f(x)$时最多只需要$T(\|x\|)$个步骤，则称$M$在$O(T(n))$时间内计算$f$（$n$代表输入的规模）。计算过程也可以表示为$M(x) = f(x)$。
 
+上面图灵机的定义有以下几个事实：
 
-# 2、系统的状态空间
+1）该模型对定义中几乎所有微调均是鲁棒的。改变图灵机的带字母表并不会改变其计算能力，我们显然可以用带字母表为$\\{0,1\\}$的图灵机模拟带字母表为任意有限集合$\Gamma$的图灵机；如果我们允许图灵机的存储带两端都可以无限伸展，这并不能增加图灵机的计算能力，因为我们显然可以用只有存储带一端能无限伸展的图灵机来模拟这种存储带两端都可以无限伸展的图灵机；如果我们允许图灵机的读写头在某一步保持原地不动，那也不会增加其计算能力，因为我们可以用向左移一次再向右移一次来代理在原地不动；加入拒绝状态并不会改变其计算能力，对于拒绝的情况，我们可以用转移函数未定义来表示；该模型最基本的形式能够模拟其最复杂的形式执行计算，最多运行时间会慢多项式倍。
 
-系统在时间 $t_0$ 的内部状态必须提供所有必要信息，使得根据这些信息和输入 $\textbf{u}(t)(t \geq t_0)$ 足以得到输出 $\textbf{y}(t)(t \geq t_0)$。构成内部状态的分量又叫作状态变量（State Variable），内部状态的集合又叫状态空间（State Space）。
+2）采用一定的规范编码，每个图灵机（即算法）都可以表示为一个位串（bit string）。因此，一个图灵机可能是另一个图灵机的输入——这使得软件和硬件之间的界限非常柔性。我们可以用$M_{\alpha}$来代表可以用位串$\alpha$来表示的图灵机。
 
+3）对于任何一个给定位串表示的图灵机$M_{\alpha}$，存在通用图灵机$U$可以模拟执行其计算操作，且模拟过程是高效的。例如，给定位串对$(\alpha,x)$，通用图灵机$U$可以模拟$M_{\alpha}$在输入$x$上的操作过程，如果$M_{\alpha}$的运行时间为$T(\|x\|)$，则$U$的运行时间为$O(T(\|x\|)\log T(\|x\|))$ （该问题的证明涉及到将任意多带图灵机转换成单带图灵机，可以通过对多带图灵机上每条带上的信息进行特殊编码，使得符号移动具有较低的平摊代价，从而实现高效转换）。
 
-# 3、静态系统与动态系统
+4）简单利用前面两个事实可以证明，存在不能被任何图灵机计算的函数。可以定义函数$$UC: \{0,1\}^* \rightarrow \{0,1\}$$，对于任意$$\alpha \in \{0,1\}^*$$，如果$M_{\alpha}(\alpha) = 1$，则$UC(\alpha) = 0$；否则（若$M_{\alpha}(\alpha)$输出其他值或进入无限循环）$UC(\alpha) = 1$。可以验证，$UC$是不可被任何图灵机计算的，否则使用表示该图灵机的位串作为输入会产生自相矛盾。
 
-如果系统的内部状态 $\textbf{x}$ 是固定不变的，且输出函数 $g$ 与时间无关，则系统为静态系统，否则为动态系统。
+### 3.1.2 格局与语言
 
+图灵机当前的格局可以用符号$uqv$表示，其中$q$表示当前状态，$u$和$v$是带字母表$\Gamma$上的两个字符串，$uv$代表当前带上的存储内容，读写头当前指向的位置是$v$的第一个符号，$v$的最后一个符号后面的方格里全是空白符。根据控制规则，可以从当前格局产生下一格局。
 
-# 4、时变动态系统与非时变动态系统
+如果图灵机$M$对于$x$是可计算的，存在格局序列$\\{C_1,C_2,...,C_k\\}$使得：
 
-如果动态系统的输出函数 $g$ 是与时间无关的，则该动态系统为非时变动态系统，否则为时变动态系统。
+1）$C_1$是$M$在输入$x$上的起始格局，即$q_0x$；
 
-# 5、确定型动态系统与随机型动态系统
+2）每个$C_i$产生$C_{i+1}$；
 
-如果动态系统的输出 $\textbf{y}(t)$ 至少有一个分量是随机变量，则称该动态系统为随机型动态系统，否则称为确定型动态系统。引起系统的随机性的有可能来自三个方面：随机初始状态 $\textbf{x}_0$、随机输入 $\textbf{u}(t)$ 或随机状态转移函数 $f$。
+3）$C_k$是接受格局。
 
-# 6、时间驱动与事件驱动的动态系统
+则，称满足条件的的$x$的集合为$M$的语言，或被$M$识别的语言，记为$L(M)$。
 
-## 6.1 时间驱动的动态系统
+如果一个语言能被某一图灵机识别，则称该语言是图灵可识别的（Turing recognizable）。
 
-时间驱动的动态系统是指内部状态变量随时间连续变化的系统，可以表示为如下方程：
+对于所有输入都停机（要么接受，要么拒绝，永不循环）的图灵机，称作判定器（decider）。
 
-$$\dot{\textbf{x}}(t) = f(\textbf{x}(t),\textbf{u}(t),t), \textbf{x}(t_0) = \textbf{x}_0$$
+如果一个语言能被某一判定器识别，则称该语言是图灵可判定的（Turing decidable）。
 
-$$\textbf{y}(t) = g(\textbf{x}(t),\textbf{u}(t),t)$$
+显然的是，一个语言可判定，那么它是可识别的（判定器是个图灵机），而它的补集也是在同等计算能力下可判定的（把判定器的接受和拒绝条件互换即可）。实际上，一个语言可判定当且仅当它和它的补都是可识别的。识别与判定的关键差异，在于图灵机中是否有循环：如果一个图灵机有循环，那么它对应的语言是可识别不可判定的；如果没有循环，那么它对应的语言是可识别且可判定的。
 
-经典的系统控制理论正是基于上述系统数学模型来进行研究的。
 
-对于闭环控制系统，控制函数可以表示为：
+## 3.2 非确定型图灵机
 
-$$\textbf{u}(t) = \gamma (\textbf{r}(t), \textbf{x}(t), t)$$
+对于非确定型图灵机，其转移函数可以表示为：
 
-其中 $\textbf{r}(t)$ 表示系统的参考输出，即期望系统的行为。
+$$\delta:(Q \backslash F) \times \Gamma \rightarrow 2^{Q \times \Gamma \times \{L,R\}}$$
 
-对于最优控制问题，可以表示为如下：
+$M$将从其结果中任意选择一个元素当作控制规则进行操作，然后进行下一步计算。
 
-$$
-\begin{align}
-\label{1}	\max\limits_{\textbf{u}(t) \in \Omega}\ & \int_{t_0}^{t_1} L(\textbf{x}(t),\textbf{u}(t),t) dt + \varphi (\textbf{x}(t_1), t_1) \\
-\label{2}	s.t.\ & \dot{\textbf{x}}(t) = f(\textbf{x}(t), \textbf{u}(t),t), \textbf{x}(t_0) = \textbf{x}_0 \\
-\label{3}	& \Psi (\textbf{x}(t_1), t_1) = \textbf{0} 
-\end{align}
-$$
+非确定型图灵机$M$在输入字符串$x$上的计算过程可以表示为一棵树，不同的分支对应着该步计算的不同可能性。某些分支可能会进入循环，但只要有一个分支可以进入接受或拒绝格局，我们就说$M$在输入$x$上可停机。需要注意的是，我们规定$M$必须是没有自相矛盾的，即不能有一个分支接受而另一个分支拒绝，或者两个分支同时接受但输出结果不一样，这样存在自相矛盾的非确定型图灵机是不合法的。
 
-其表示的意义为：在满足系统方程 \eqref{2} 的约束条件下，在容许的控制域 $\Omega$ 中确定一个最优控制律 $\textbf{u}^*(t)$，使系统状态 $\textbf{x}(t)$ 从已知初始状态 $$\textbf{x}_0$$ 转移到要求的目标集 \eqref{3}，并使性能指标 \eqref{1} 达到极大值。
+如果对于任意输入$x \in \\{0,1\\}^*$，均存在一个非确定型选择序列，也即存在一个分支，使得非确定型图灵机$M$在$T(\|x\|)$个步骤内可以达到接受格局，则称$M$可计算$x$，且运行时间为$O(T(n))$。
 
-## 6.2 事件驱动的动态系统
+类似地，对于非确定型图灵机，可以定义其可识别和可判定的语言。
 
-事件驱动的动态系统是指内部状态变量在某些离散的时间点上发生离散变化的系统。这些离散的状态转移被称作“事件”，因此事件驱动的动态系统又被称作离散事件动态系统（Discrete Event Dynamic System, DEDS）。系统仿真理论和随机过程理论正是基于该类动态系统来进行研究的。
+对于非确定型图灵机$M$，可构造一个确定型图灵机$M'$如下：
 
-### 6.2.1 离散事件动态系统的形式化描述
+1）令$k=1$；
 
-根据研究的粒度，可以从三个层面来对离散事件动态系统进行形式化描述，分别为：Automaton、Timed Automaton、Stochastic Timed Automaton。
+2）以深度优先规则模拟$M$的每个分支的计算，但每个分支最多只计算$k$步，如果某个分支在$k$步内可以停机，则$M'$也停机，并将该分支的计算结果作为输出；
 
-#### 1) Automaton
+3）若没有停机，令$k$增加1，跳转到上一步继续执行。
 
-An automaton is a five-tuple 
+显然$M'$和$M$是等价的。
 
-$$(X, E, f, \Gamma, x_0)$$
+**定理：** 每一个非确定型图灵机都等价于一个确定型图灵机。
 
-where
+**定理：** 如果语言$L$被非确定型图灵机在多项式时间$P(n)$内计算，则语言$L$一定能被一个确定型图灵机以时间复杂度为$O(c^{P(n)})$所计算（$c$是一个不依赖于输入规模的常数，在这可理解为分支的最大数量）。
 
-$X$: a state space;
 
-$E$: an event set;
+# 4、P问题、NP问题、NP难题、NP完全问题
 
-$f:X \times E  \rightarrow X$: a state transition function and is generally a partial function on its domain;
+**定义：** 如果对于问题$p'$存在多项式时间算法，问题$p$就存在多项式时间算法，那么就称问题$p$被多项式归约到问题$p'$，记作$p \propto p'$。
 
-$\Gamma:X \rightarrow 2^E$ a feasible event function, $\Gamma(x)$ is the set of all events $e$ for which $f(x,e)$ is defined and it is called the feasible event set; 
+在复杂度理论中，优化问题和判定问题有个明显的区别：判定问题需要输出一个是或否的答案，而优化问题需要输出一个满足约束条件且使目标最优的决策值。然而对于所有优化问题，都有一个相关联的判定问题。例如，在调度问题$F_m \|\| C_{max}$中，目标是要最小化制造期，而与其相关联的判定问题为：是否存在一个调度，使得制造期小于某个给定的值$z$。事实上，优化问题和其相关联的判定问题是紧密联系在一起的：如果对于优化问题存在多项式时间算法，那么对于与其关联的判定问题就存在一个多项式时间算法，反之亦然。也就是说，优化问题和判定问题相互归约，它们是难度等价的。
 
-$x_0$: the initial state.
+我们接下来重点关注判定问题。
 
-The automaton operates as follows. It starts in the initial state $x_0$ and upon the occurence of an event $e \in \Gamma(x_0)$ it will make a transition to state $f(x_0,e) \in X$. This process then continues based on the transitions for which $f$ is defined.
+判断一个字符串是否属于一个语言，我们不关心它在图灵机上的输出，只关心它是被接受还是被拒绝。因此，一个语言其实代表一类判定问题的集合，而这类判定问题的求解过程正是判断一个字符串是否属于这个语言的过程。如果一个语言可被确定型图灵机判定，则说明这类判定问题都是确定可解的。如果该语言可以被确定型图灵机在多项式时间内判定，则该类判定问题也是在多项式时间内可解的。
 
-#### 2) Timed Automaton
 
-A timed automaton is a six-tuple
+**定义：$DTIME$类。** 设$T:\mathbb{N} \rightarrow \mathbb{N}$和$L\subseteq \\{0,1\\}^*$，如果存在运行时间为$O(T(n))$的确定型图灵机可判定$L$，则$L \in DTIME(T(n))$。
 
-$$(X, E, f, \Gamma, x_0, \textbf{V})$$
+基于上面的定义，P问题可以表示为$\bigcup_{c\in \mathbb{N}}DTIME(n^c)$，即在多项式时间内可以求解的判定问题。
 
-where $(X, E, f, \Gamma, x_0)$ is an automaton and $\textbf{V} = \\{\textbf{v}_i: i \in E\\}$ is a clock structure. 
 
-The automaton generates a state sequence $x' = f(x,e')$ driven by an event sequence $\\{(e_1,t_1), (e_2,t_2), \ldots\\}$ generated through
+**定义：$NTIME$类。** 设$T:\mathbb{N} \rightarrow \mathbb{N}$和$L\subseteq \\{0,1\\}^*$，如果存在运行时间为$O(T(n))$的非确定型图灵机可判定$L$，则$L \in NTIME(T(n))$。
 
-$$e' = arg \min\limits_{i \in \Gamma(x)}y_i$$
+基于上面的定义，NP问题可以表示为$\bigcup_{c\in \mathbb{N}}NTIME(n^c)$。
 
-with the clock values $y_i, i \in E$, defined by
+NP问题还可以表示为可以在多项式时间内验证的判定问题：
 
-$$
-y'_i = 
-\begin{cases} 
-y_i - y^* \  \text{if} i \neq e' \text{and} i \in \Gamma(x) \\ 
-v_{i,N_i + 1} \ \text{if} i = e' \text{or} i \notin \Gamma(x)
-\end{cases}
-\
-i \in \Gamma(x')
-$$
+语言$$ L\subseteq \{0,1\}^* $$是一个NP问题，如果存在多项式$p:\mathbb{N} \rightarrow \mathbb{N}$和运行时间为多项式的确定型图灵机$M$（称为语言$L$的一个验证器），使得对于任意$x \in \\{0,1\\}^*$有
 
-where the interevent time $y^*$ is defined as 
+$$x\in L \Leftrightarrow \exists u \in\{0,1\}^{p(|x|)} \text{满足} M(x,u) = 1$$
 
-$$y^* = \min\limits_{i \in \Gamma(x)}y_i$$
+在上式中，称$u$是$x$关于语言$L$和验证器$M$的一个证据。可以理解为，对于一个NP问题，总是存在一种多项式规模（相对于输入规模）的猜想（即那个证据），基于该猜想可以在多项式时间内求解该问题（即验证）。
 
-and the event scores $N_i, i \in E$, are defined by
+**定义：** 如果对任意判定问题$p' \in NP$均有$p' \propto p$，则称$p$是NP难题；如果$p$是NP难题且$p \in NP$，则称$p$是NP完全的。
 
-$$
-N'_i = 
-\begin{cases}
-N_i + 1 \ \text{if} i = e' \text{or} i \notin \Gamma(x) \\
-N_i \ \text{otherwise}
-\end{cases}
-$$
-
-In addition, event times $t$ are updated through
-
-$$t' = t + y^*$$ 
-
-and inital conditions are:
-
-$y_i = v_{i,1}$ and $N_i = 1$ for all $i \in \Gamma(x_0)$;
-
-$y_i$ is undefined and $N_i = 0$ for all $i \notin \Gamma(x_0)$.
-
-#### 3) Stochastic Timed Automaton
-
-In order to avoid notational confusion between random variables and sets (both usually represented by upper-case letters), $\mathcal{X}$ and $\mathcal{E}$ are used to denote the state space and the event set of the underlying automaton respectively.
-
-In addition, a random variable notation paralleling the one used for the timed automaton are adopted: $X$ is the current state; $E$ is the most recent event (causing the transition into state $X$); $T$ is the most recent event time (corresponding to event $E$); $N_i$ is the current score of event $i$; $Y_i$ is the current clock value of event $i$.
-
-A stochastic timed automaton is a six-tuple 
-
-$$(\mathcal{X}, \mathcal{E}, \Gamma, p, p_0, G)$$
-
-where
-
-$\mathcal{X}$: a state space;
-
-$\mathcal{E}$: an event set;
-
-$\Gamma(x)$: a feasible event function, defined for all $x \in \\mathcal{X}$ with $\Gamma(x) \subseteq \mathcal{E}$;
-
-$p(x' \| x,e')$: a state transition probability, defined for all $x,x' \in \mathcal{X}, e' \in \mathcal{E}, and such that $p(x' \| x,e') = 0$ for all $e' \notin \Gamma(x)$;
-
-$p_0(x)$: the pmf ($P(X_0 = x), x \in \mathcal{X}$) of the initial state $X_0$;
-
-$G = \\{G_i: i \in \mathcal{E}\\}$: a stochastic clock structure.
-
-The automaton generates a stochastic state sequence $\\{X_0, X_1, \ldots\\}$ through a transition mechanism (based on observations $X = x, E' = e'$):
-
-$$X' = x' \text{ with probability } p(x' | x,e')$$ 
-
-and it is driben by a stochastic event sequence $\\{(E_1,T_1), (E_2,T_2), \ldots\\}$ generated through
-
-$$E' = arg \min\limits_{i \in \Gamma(X)}Y_i$$
-
-with the stochastic clock values $Y_i, i \in \mathcal{E}$, defined by
-
-$$
-Y'_i = 
-\begin{cases} 
-Y_i - Y^* \  \text{if} i \neq E' \text{and} i \in \Gamma(X) \\ 
-V_{i,N_i + 1} \ \text{if} i = E' \text{or} i \notin \Gamma(X)
-\end{cases}
-\
-i \in \Gamma(X')
-$$
-
-where the interevent time $Y^*$ is defined as 
-
-$$Y^* = \min\limits_{i \in \Gamma(X)}Y_i$$
-
-and the event scores $N_i, i \in \epsilon$, are defined by
-
-$$
-N'_i = 
-\begin{cases}
-N_i + 1 \text{ if } i = E' \text{ or } i \notin \Gamma(X) \\
-N_i \text{ otherwise}
-\end{cases}
-$$
-
-and
-
-$$\\{V_{i,k} \sim G_i\\}$$
-
-In addition, event times $T$ are updated through
-
-$$T' = T + Y^*$$ 
-
-and inital conditions are:
-
-$X_0 \sim p_0(x)$ and
-
-$Y_i = V_{i,1}$ and $N_i = 1$ for all $i \in \Gamma(X_0)$;
-
-$Y_i$ is undefined and $N_i = 0$ for all $i \notin \Gamma(X_0)$.
-
-### 6.2.2 离散事件仿真
-
-对于离散事件仿真的实现，主要有两种方法：通用的 Event Scheduling Scheme 和主要面向有实体流动的 Process Interaction Scheme。
-
-#### 1) Event Scheduling Scheme
-
-a) Initialization
-
-The INITIALIZE function sets the STOP_CONDITION, the STATE to $x_0$, and the simulation TIME to $0$ (except in unusual circumstances when TIME may be initially set at some positive value). The RANDOM VARIATE GENERATOR provides event lifetimes for all feasible events at the initial state, and the SCHEDULED EVENT LIST ($L$) is initialized, with all entries sorted in increasing order of scheduled times.
-
-b) Scanning SCHEDULED EVENT LIST and advancing TIME
-
-Step 1: Remove the first entry $(e_1,t_1)$ from the SCHEDULED EVENT LIST.
-	
-Step 2: Update the simulation TIME by advancing it to the new event time $t_1$.
-
-Step 3: Update the STATE according to the state transition function, $x' = f(x,e_1)$.
-
-Step 4: Delete from the SCHEDULED EVENT LIST any entries corresponding to infeasible events in the new state, that is, delete all $(e_k, t_k) \in L$ such that $e_k \notin \Gamma(x')$.
-	
-Step 5: Add to the SCHEDULED EVENT LIST any feasible event which is not already scheduled (possibly including the triggering event removed in Step 1). The scheduled event time for some such $i$ is given by $(TIME + v_i)$, where TIME was set in Step 2 and $v_i$ is a lifetime obtained from the RANDOM VARIATE GENERATOR.
-
-Step 6: Reorder the updated SCHEDULED EVENT LIST based on a smallest-scheduled-time-first scheme.
-
-The procedure then repeats with Step 1 for the new ordered list until the STOP_CONDITION return true.
-
-During the simulation process, DATA REGISTERS are used for collecting data for estimation purposes. And a REPORT GENERATOR is used for estimating various quantities of interest upon completion of a simulation run.
-
-#### 2) Process Interaction Scheme
-
-A large class of DES consists of resource contention environments, where resources must be shared among many users. In such environments, it is often convenient to think of "entities" as undergoing a PROCESS as they flow through the DES. This PROCESS is a sequence of events separated by time intervals. During such a time interval, an entity is either receiving service at some resource or waiting for service. 
-
-In the process interaction scheme, the behavior of the DES is described through several such processes, one for each type of entity of interest. Each type of entity contains particular attributes and functions. Attributes are information characterizing the entity and its state. Functions are instantaneous actions or time delays experienced by entities.
-
-In general, we present a PROCESS as a sequence of functions of a entity. A function is one of two types:
-
-1. Logic functions: Instantaneous actions taken by the entity that triggers this function in its process. 
-
-2. Time delay functions: The entity is held by that function for some period of time.
-
-There are two types of time delay functions:
-
-a. Condition delay: The delay depends on the STATE of the system.
-
-b. Non-condition delay: The delay is fixed, usually determined by a number obtained by the RANDOM VARIATE GENERATOR. 
-
-The procedure of the process interaction scheme is as follows:
-
-a) Initialization
-
-The INITIALIZE function sets the STOP_CONDITION, the STATE to $x_0$, and the simulation TIME to $0$ (except in unusual circumstances when TIME may be initially set at some positive value). The RANDOM VARIATE GENERATOR provides arrival times for all mobile entities, and the FUTURE EVENT LIST (FEL) is initialized, with all entries sorted in increasing order of activation times (i.e., arrival times).
-
-b) Scanning FEL and advancing TIME
-
-Step 1: Scan all records in FEL;
-
-Step 2: Set simulation TIME = earlist_activation_time;
-
-Step 3: Move all records with activation_time equal to TIME from FEL to Current EVENT LIST (CEL);
-
-c) Scanning CEL
-
-Step 4: Scan all records in CEL in order of their priority levels. If some entity's condition satified, proceed its functions (and update the STATE) as many as possible. If some entity non-conditionally delayed, file a new record with the next activation time for the entity in FEL and remove the old record rom CEL.   
-
-The procedure then repeats with Step 1 for the new FEL until the STOP_CONDITION return true.
