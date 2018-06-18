@@ -32,7 +32,7 @@ Every subspace contains the zero vector $\mathbf{0}$, for if $\mathbf{a}$ is an 
 
 Let $\\{\mathbf{a}_1,\mathbf{a}_2,...,\mathbf{a}_k\\}$ be arbitrary vectors in $\mathbb{R}^n$. The set of all their linear combinations is called the span of $\\{\mathbf{a}_1,\mathbf{a}_2,...,\mathbf{a}_k\\}$ and is denoted
 
-$$span[\mathbf{a}_1,\mathbf{a}_2,...,\mathbf{a}_k] = \left \{\sum\limits_{i=1}^{k}\alpha_i\mathbf{a}_i | \alpha_1,\alpha_1,...,\alpha_k \in \mathbb{R}\right \} $$
+$$span[\mathbf{a}_1,\mathbf{a}_2,...,\mathbf{a}_k] = \left \{\sum\limits_{i=1}^{k}\alpha_i\mathbf{a}_i \Big| \alpha_1,\alpha_2,...,\alpha_k \in \mathbb{R}\right \} $$
 
 The span of any set of vectors is a subspace.
 
@@ -460,7 +460,9 @@ $$\{\mathbf{x} \in \mathbb{R}^n | \mathbf{A}\mathbf{x} = \mathbf{b}\}$$
 
 for some matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$ and vector $\mathbf{b} \in \mathbb{R}^m$. A linear variety is a subspace if and only if $\mathbf{b} = \mathbf{0}$. If $\mathbf{A} = \mathbf{O}$, the linear variety is $\mathbb{R}^n$. If $dim\mathcal{N}(\mathbf{A}) = r$, we say that the linear variety has dimension $r$. If the dimension of the linear variety is less than $n$, then it is the intersection of a finite number of hyperplanes.
 
-## 3.3 凸集
+## 3.3 凸集与凸函数
+
+### 3.3.1 凸集
 
 A set $\Theta \in \mathbb{R}^n$ is convex if for all $\mathbf{u},\mathbf{v} \in \Theta$, the line segment between $\mathbf{u}$ and $\mathbf{v}$ is in $\Theta$. Note that $\Theta$ is convex if and only if $\alpha\mathbf{u} + (1 - \alpha)\mathbf{v} \in \Theta$ for all $\mathbf{u},\mathbf{v} \in \Theta$ and $\alpha \in (0,1)$.
 
@@ -482,6 +484,31 @@ is also convex.
 
 A point $\mathbf{x}$ in a convex set $\Theta$ is said to be an extreme point of $\Theta$ if there are no two distinct points $\mathbf{u}$ and $\mathbf{v}$ in $\Theta$ such that $\mathbf{x} = \alpha\mathbf{u} + (1 - \alpha)\mathbf{v}$ for some $\alpha \in (0,1)$.
 
+### 3.3.2 凸函数
+
+__Definition:__ The epigraph of a function $f: \Omega\rightarrow\mathbb{R}\ (\Omega\subset\mathbb{R}^n)$, denoted $epi(f)$, is the set of points in $\Omega\times\mathbb{R}$ given by 
+
+$$epi(f) = \left\{ \begin{bmatrix}\mathbf{x} \\ \beta\end{bmatrix} \Big| \mathbf{x}\in\Omega, \beta\in\mathbb{R}, \beta\geq f(\mathbf{x}) \right\}$$
+
+The epigraph of a function $f$ is simply the set of points in $\Omega\times\mathbb{R}$ on or above the graph of $f$.
+
+__Definition:__ A function $f: \Omega\rightarrow\mathbb{R}\ (\Omega\subset\mathbb{R}^n)$, is convex on $\Omega$ if its epigraph is a convex set. 
+
+__Theorem:__ If a function $f: \Omega\rightarrow\mathbb{R}\ (\Omega\subset\mathbb{R}^n)$, is convex on $\Omega$, then $\Omega$ must be a convex set.
+
+__Theorem:__ If a function $f: \Omega\rightarrow\mathbb{R}\ (\Omega\subset\mathbb{R}^n)$, is convex on $\Omega$ if and only if for all $\mathbf{x,y}\in\Omega$ and all $\alpha \in (0,1)$, we have
+
+$$f(\alpha\mathbf{x}+(1-\alpha)\mathbf{y}) \leq \alpha f(\mathbf{x}) + (1-\alpha)f(\mathbf{y})$$
+
+__Theorem:__ Suppose that $$f_1$$ and $$f_2$$ are convex funcitons. Then, for any $a\geq 0$, the function $$af_1$$ is a convex. Moreover, $$f_1+f_2$$ is convex.
+
+__Definition:__ A function $f: \Omega\rightarrow\mathbb{R}\ (\Omega\subset\mathbb{R}^n)$, is strictly convex on convex set $\Omega$ if and only if for all $\mathbf{x,y}\in\Omega$ and all $\alpha \in (0,1)$, we have
+
+$$f(\alpha\mathbf{x}+(1-\alpha)\mathbf{y}) < \alpha f(\mathbf{x}) + (1-\alpha)f(\mathbf{y})$$
+
+__Definition:__ A function $f: \Omega\rightarrow\mathbb{R}\ (\Omega\subset\mathbb{R}^n)$, is (strictly) concave on convex set $\Omega$ if $-f$ is (strictly) convex.
+
+
 ## 3.4 邻域
 
 A neighborhood of a point $\mathbf{x} \in \mathbb{R}^n$ is the set
@@ -498,7 +525,7 @@ A set $S$ is said to be open if it contains a neighborhood of each of its points
 
 A set $S$ is said to be closed if it contains its boundary. We can see that a set is closed if and only if its complement is open.
 
-A set that is contained in a ball of finite radius is said to be bounded. A set if compact if it is both closed and bounded. 
+A set that is contained in a ball of finite radius is said to be bounded. A set is compact if it is both closed and bounded. 
 
 Compact sets are important in optimization problems.
 
