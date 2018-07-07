@@ -34,15 +34,15 @@ G_t &= r_{t+1} + \gamma r_{t+2} + \gamma^2r_{t+3} + \cdots \\
 \end{align}
 $$
 
-定义在策略$\pi$下，状态$s$的状态值函数为：
+定义在平稳策略$\pi$下，状态$s$的状态值函数为：
 
 $$V_{\pi}(s) = E_{\pi}(G_t\mid s_t=s) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k+1}\mid s_t=s)$$
 
-于是对于策略$\pi$，其总的回报期望为$\sum_{s\in S}V_{\pi}(s)$，因此最优策略（可以证明，当$n$为$+\infty$时，最优平稳策略也是最优策略，而当$n$为有限值时，最优平稳策略不一定是最优策略）定义为：
+于是对于平稳策略$\pi$，其总的回报期望为$\sum_{s\in S}V_{\pi}(s)$，因此最优平稳策略（可以证明，当$n$为$+\infty$时，最优平稳策略也是最优策略，而当$n$为有限值时，最优平稳策略不一定是最优策略）定义为：
 
 $$\pi^* = arg\max_{\pi} \sum_{s\in S}V_{\pi}(s)$$
 
-最优策略所对应的状态值函数，称为最优状态值函数：
+最优平稳策略所对应的状态值函数，称为最优状态值函数：
 
 $$V^*(s) = V_{\pi^*}(s) (\forall s\in S)$$
 
@@ -55,12 +55,12 @@ $$V^*(s) = V_{\pi^*}(s) = \max_{\pi}V_{\pi}(s) (\forall s\in S)$$
 
 $$Q_{\pi}(s,a) = E_{\pi}(G_t\mid s_t=s,a_t=a) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k+1}\mid s_t=s, a_t =a )$$
 
-$Q_{\pi}(s,a)$表示当处于状态$s$时执行动作$a$后遵循策略$\pi$的价值。状态-动作值函数与状态值函数的关系可以表示为：
+$Q_{\pi}(s,a)$表示当处于状态$s$时执行动作$a$后遵循平稳策略$\pi$的价值。状态-动作值函数与状态值函数的关系可以表示为：
 
 $$Q_{\pi}(s,a) = \sum_{s' \in S}P_{a}(s,s')(R_{a}(s,s') + \gamma V_{\pi}(s'))$$
 
 
-类似地，定义$$Q^*(s,a)$$为处于状态$s$时执行动作$a$后遵循最优策略$$\pi^*$$的期望累计奖励，即最优状态-动作值函数：
+类似地，定义$$Q^*(s,a)$$为处于状态$s$时执行动作$a$后遵循最优平稳策略$$\pi^*$$的期望累计奖励，即最优状态-动作值函数：
 
 $$Q^*(s,a) = Q_{\pi^*}(s,a) (\forall s\in S,a\in A)$$
 
@@ -114,13 +114,13 @@ $$V_{\pi}(s) = \sum_{s' \in S}P_{\pi(s)}(s,s')(R_{\pi(s)}(s,s') + \gamma V_{\pi}
 
 2）迭代： 
 
-策略评估：$$\forall s \in S, V(s) = \sum_{s' \in S}P_{\pi(s)}(s,s')(R_{\pi(s)}(s,s') + \gamma V(s'))$$；
+策略评估：$$\forall s \in S, V(s) = \sum_{s' \in S}P_{\pi(s)}(s,s')(R_{\pi(s)}(s,s') + \gamma V(s'))$$（也可以先单独对该步进行迭代，直到得到满意的对$\pi$的评估）；
 
 策略改进：$$\forall s \in S, \pi'(s) = arg \max_{a\in A_s}\sum_{s' \in S}P_a(s,s')(R_a(s,s') + \gamma V(s'))$$；
 
 3）终止条件判断：如果$$\forall s \in S, \pi'(s) = \pi(s)$$，则终止迭代并输出$\pi$作为最优策略；否则令$\pi = \pi'$，继续迭代。
 
-策略迭代不断收敛，一直到不可能继续改进策略为止，因此可以确保所得策略是最优的，但是，策略迭代的计算复杂度较高。
+策略迭代不断收敛，一直到不可能继续改进策略为止，因此可以确保所得策略是最优的。
 
 
 ## 1.4 状态值迭代
@@ -144,6 +144,10 @@ $$ V^*(s) = \max_{a \in A_s} \left\{ \sum_{s' \in S}P_a(s,s')(R_a(s,s') + \gamma
 $$\forall s \in S, \pi'(s) = arg \max_{a\in A_s}\sum_{s' \in S}P_a(s,s')(R_a(s,s') + \gamma V'(s'))$$
 
 已经证明该迭代方法收敛于正确的$V^*$值。
+
+## 1.5 策略迭代与状态值迭代的比较
+
+对于每一次迭代的复杂度来说，策略迭代比状态值迭代要高，但是策略迭代的收敛速度更快。因此当模型的状态空间较小时，最好选用策略迭代方法；而当状态空间较大时，状态值迭代的总计算量要更小一些。
 
 
 
@@ -182,7 +186,7 @@ $$
 
 如果按照这种流程，为了完成对当前策略的评估，即得到接近真实的$Q_{\pi}$函数，理论上我们需要观测无穷多个episodes。
 
-为了避免无限次的episodes，可以放弃在返回到policy improvement之前才完成policy evaluation过程，而是在每个policy evaluation步骤中，都进行policy improvement让$Q$向$Q_{\pi_k}$ 逼近，但并不期望可以在很多步后就非常接近于$Q_{\pi_k}$。
+为了避免无限次的episodes，可以放弃在返回到policy improvement之前才完成policy evaluation过程，而是在每个policy evaluation步骤中，都进行policy improvement让$Q$向$Q_{\pi_k}$ 逼近。
 
 以下是exploring starts方法的具体执行流程：
 
@@ -256,7 +260,7 @@ $$P^{\pi} = \prod_{i=t}^{T-1}\pi(s_i,a_i)P_{a_i}(s_i,s_{i+1})$$
 
 $$\frac{P^{\pi}}{P^{\pi'}} = \frac{\prod_{i=t}^{T-1}\pi(s_i,a_i)P_{a_i}(s_i,s_{i+1})}{\prod_{i=t}^{T-1}\pi'(s_i,a_i)P_{a_i}(s_i,s_{i+1})} = \prod_{i=t}^{T-1}\frac{\pi(s_i,a_i)}{\pi'(s_i,a_i)}$$
 
-可以看出，该重要性采样比值仅依赖于两个策略，而于模型本身无关。
+可以看出，该重要性采样比值仅依赖于两个策略，而与模型本身无关。
 
 还是按照on-policy方法的例子，假设$\pi$是原始策略，$\pi'$是$\pi$的$\epsilon$-贪心策略$\pi^{\epsilon}$ ，则$\pi(s_i,a_i)$对于$a_i=\pi(s_i)$为1，其余为0，而$\pi^{\epsilon}(s_i,a_i)$对于$a_i=\pi(s_i)$为$1-\epsilon+\frac{\epsilon}{\mid A_{s_i}\mid}$，其余$a_i\in A_{s_i}$为$\frac{\epsilon}{\mid A_{s_i}\mid}$，于是就能利用$\pi^{\epsilon}$产生的轨迹来评估和优化$\pi$了。
 
@@ -288,6 +292,14 @@ $$\forall s \in S, \forall a\in A_s, Q(s,a)=\text{arbitrary}, \pi(s)=arg\max_{a\
 
 $$Q_{\pi}(s,a) = \sum_{s' \in S}P_{a}(s,s')(R_{a}(s,s') + \gamma Q_{\pi}(s',\pi(s')))$$
 
+根据贝尔曼方程，当取得最优策略时，$Q^*$函数具有如下形式：
+
+$$\begin{align}
+Q^*(s,a) =  \sum_{s' \in S}P_a(s,s')(R_a(s,s')+\gamma\max_{a' \in A_{s'}} Q^*(s',a'))
+\end{align}
+$$
+
+
 假设在时间$t$时，状态为$s$，执行的动作是$a$，而在$t+1$时刻得到了状态$s'$，我们可以用指数平滑的方式来更新值函数估计$Q_{\pi}(s,a)$：
 
 $$\begin{equation}\label{td}Q_{\pi}^{(t+1)}(s,a) = Q_{\pi}^{(t)}(s,a) + \alpha(R_{a}(s,s') + \gamma Q_{\pi}^{(t)}(s',\pi(s')) - Q_{\pi}^{(t)}(s,a))
@@ -313,7 +325,7 @@ $$\forall s \in S, \forall a\in A_s, Q(s,a)=\text{arbitrary}, \pi^{\epsilon}(s,a
 
 $$Q(s,a) = Q(s,a) + \alpha(r + \gamma Q(s',a') - Q(s,a))$$
 
-求得状态$s$下的最优动作为$a^* = arg\max_{a'' \in A_s}Q(s,a'')$，且对所有$a''\in A_s$，更新策略：
+求得状态$s$下的最优动作为$a^* = arg\max_{a'' \in A_s}Q(s,a'')$，且对所有$a'' \in A_s$，更新策略：
 
 $$\pi^{\epsilon}(s,a'') = \begin{cases}1-\epsilon + \frac{\epsilon}{\mid A_s\mid} & a'' = a^* \\
 \frac{\epsilon}{\mid A_s\mid} & a'' \neq a^* \\
@@ -353,7 +365,7 @@ $$Q(s,a) = Q(s,a) + \alpha(r + \gamma Q(s',a') - Q(s,a))$$
 
 当状态空间非常大，甚至是连续的时，原来传统的强化学习方法不再有效。这个时候可以直接针对值函数进行学习。因为无模型情况下，学习$Q$函数是更有效的方式，我们首先进行编码$[s,a]^T = \mathbf{x} \in \mathbb{R}^n$，然后用$Q_{\boldsymbol{\theta}}(\mathbf{x})$（其中$\boldsymbol{\theta}$为参数向量）来近似值函数，这样的值函数求解被称为值函数近似（value function approximation）。
 
-我们考虑最简单的情形，即将近似值函数表示为线性形式：
+可以用最简单的情形来示例，即将近似值函数表示为线性形式：
 
 $$Q_{\boldsymbol{\theta}}(\mathbf{x}) = \boldsymbol{\theta}^T\mathbf{x}$$
 
@@ -411,5 +423,6 @@ $$\pi^{\epsilon}(s,a'') = \begin{cases}1-\epsilon + \frac{\epsilon}{\mid A_s\mid
 ## 5.2 逆强化学习
 
 在很多实际任务中，设计奖励函数往往比较困难，从人类专家提供的范例数据中反推出奖励函数可以解决该问题，这就是逆强化学习（inverse reinforcement learning）。在逆强化学习中，我们知道状态空间、动态空间，并且与直接模仿学习类似，有一个人类专家的范例决策轨迹数据集。逆强化学习的基本思想是：欲使机器做出与范例一致的行为，等价于在某个奖励函数的环境中求解最优策略，该最优策略所产生的轨迹与范例数据一致。换言之，我们要寻找某种奖励函数使得范例数据是最优的，然后即可使用这个奖励函数来训练强化学习策略。
+
 
 
