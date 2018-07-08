@@ -48,9 +48,9 @@ $$P(A \cap B) = P(A)P(B)$$
 
 **Bayes定理：** 设$\\{A_1, A_2, \cdots\\}$为样本空间的一个划分，$B$为任意事件，则对$i=1,2,\cdots$，有
 
-$$P(A_i | B) = \frac{P(B | A_i)P(A_i)}{\sum_{j=1}^{\infty}P(B | A_j)P(A_j)}$$
+$$P(A_i | B) = \frac{P(A_i)P(B | A_i)}{\sum_{j=1}^{\infty}P(B | A_j)P(A_j)}$$
 
-上式又叫贝叶斯公式，其中$P(A_j)$表示可能导致结果$B$的原因$A_j$的**先验概率**（prior probability），$P(B \| A_j)$表示由原因$A_j$导致结果$B$发生的**似然概率**（likelihood probability），而$P(A_i \| B)$表示结果$B$发生后可能是原因$A_j$导致的**后验概率**（posterior probability）。
+上式又叫贝叶斯公式，其中$P(A_j)$表示可能导致结果$B$的原因$A_j$的**先验概率**（prior probability），$P(B \| A_j)$表示由原因$A_j$导致结果$B$发生的**似然概率**（likelihood probability），$$\sum_{j=1}^{\infty}P(B \mid A_j)P(A_j)=P(B)$$是观测到结果$B$发生的**边缘概率**（marginal probability），又称**证据**（evidence），而$P(A_i \| B)$表示结果$B$发生后可能是原因$A_j$导致的**后验概率**（posterior probability）。
 
 
 # 2、随机变量
