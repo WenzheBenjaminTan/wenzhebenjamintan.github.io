@@ -83,7 +83,9 @@ $$f_{\boldsymbol{\theta}}(x) = a + bx$$
 
 $$f_{\boldsymbol{\theta}}(\mathbf{x}) = \sum_{j=1}^b\theta_j\phi_j(\mathbf{x}) = \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x})$$
 
-上面的模型称为线性形式，更一般地，可将多维模型表示为层级形式：
+上面的模型形式称为线性形式。
+
+更一般地，可将多维模型表示为层级形式：
 
 $$f_{\boldsymbol{\theta}}(\mathbf{x}) = \sum_{j=1}^b\alpha_j\phi(\mathbf{x};\boldsymbol{\beta}_j)$$
 
@@ -114,11 +116,11 @@ $$\phi(\mathbf{x};\boldsymbol{\beta}) = \frac{1}{1+\exp(-\mathbf{x}^T\boldsymbol
 
 我们用线性形式的模型来说明最小二乘法。回归损失函数定义为观察值与估计值之差的平方和：
 
-$$J(\boldsymbol{\theta}) = \frac{1}{2}\sum_{i=1}^N(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))^2$$
+$$J(\boldsymbol{\theta}) = \sum_{i=1}^N(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))^2$$
 
 目的是找到一组参数$\boldsymbol{\theta}$，使得损失函数最小。根据极小值必要条件，可得：
 
-$$\frac{\partial J}{\partial \boldsymbol{\theta}} = \sum_{i=1}^N(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))\boldsymbol{\phi}(\mathbf{x}_i) =\mathbf{0}$$
+$$\frac{\partial J}{\partial \boldsymbol{\theta}} = 2\sum_{i=1}^N(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))\boldsymbol{\phi}(\mathbf{x}_i) =\mathbf{0}$$
 
 可得最小二乘解为：
 
@@ -151,6 +153,8 @@ $$
 \end{align}
 $$
 
-为简单起见，参数$\boldsymbol{\theta}$通常初始化为零向量来表示当前最佳估计，协方差矩阵$\mathbf{P}$通常初始化为一个相对较大的对角矩阵来表征参数估计过程中的不确定性。
+为简单起见，参数$\boldsymbol{\theta}$通常初始化为零向量来表示当前最佳估计，协方差矩阵$\mathbf{P}$通常初始化为一个相对较大的对角矩阵来表征参数估计过程中的不确定性。应该注意到协方差矩阵$\mathbf{P}$是一个正定对称矩阵，如果由于重复计算RLS而产生的数值误差导致$\mathbf{P}$矩阵不再正定对称，则算法将发散。现已有一些改进算法能够确保$\mathbf{P}$矩阵保持正定，通常是采用$\mathbf{P}$矩阵进行Cholesky分解或UDU分解的二次方根法。
+
+通过观察递归式可看出，参数估计是通过之前的估计值与一个更新步长和当前预测误差的乘积相加来实现参数估计的更新。在机器学习中的几乎所有算法都采用这种结构，包括针对层级形式进行参数估计的后向传播算法。
 
 
