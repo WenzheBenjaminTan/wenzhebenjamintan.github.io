@@ -127,9 +127,9 @@ $$\begin{align}
 
 $$\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t + \alpha\gamma^t G_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}_t}(s_t,a_t)$$
 
-利用上述这种更新方法来更新参数的策略梯度法叫做REINFORCE法，也是最基本的一种方法。但这种方法的方差很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$G_t$。所以更常见的一种做法是引入一个基准（baseline）$b(s)$，于是有：
+利用上述这种更新方法来更新参数的策略梯度法叫做REINFORCE法，也是最基本的一种方法。但这种方法的方差很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$G_t$。收敛速度也慢，如果$$G_t$$总是大于0，会使得所有行动的概率密度都向正的方向“拉拢”。所以更常见的一种做法是引入一个基准（baseline）$b(s)$，于是有：
 
-$$\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t + \alpha\gamma^t (G_t-b(S_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}_t}(s_t,a_t)$$
+$$\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t + \alpha\gamma^t (G_t-b(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}_t}(s_t,a_t)$$
 
 至于$b(s)$是什么，取决于算法的设计，但一般的做法是取$b(s) = V_{\boldsymbol{w}}(s)$。容易得到，这种情况下参数的更新主要取决于在状态$s_t$下执行动作$a_t$所得总奖励相对于状态均值的优势，如果有优势，则更新后的参数会增加执行该动作的概率；如果没有劣势，则更新后的参数会减少执行该动作的概率。
 
@@ -239,7 +239,7 @@ $$\Delta\boldsymbol{\rho} \propto \frac{\partial \log p_{\boldsymbol{\rho}}(a\mi
 
 其中$z$表示一局棋最终所获的收益，胜为+1，负为-1，平0。
 
-具体训练方式是：随机选择之前迭代轮的策略网络和当前的策略网络进行对弈，并利用策略梯度法（该方法属于REINFORCE基本算法）来更新参数，最终得到增强的策略网络$p_{\boldsymbol{\rho}}$。$p_{\boldsymbol{\rho}}$与$p_{\boldsymbol{\sigma}}$在结构上是完全相同的。增强后的$p_{\boldsymbol{\rho}}$与$p_{\boldsymbol{\sigma}}$对抗时胜率超过了80%。
+具体训练方式是：随机选择之前迭代轮的策略网络和当前的策略网络进行对弈，并利用策略梯度法（该方法属于REINFORCE算法）来更新参数，最终得到增强的策略网络$p_{\boldsymbol{\rho}}$。$p_{\boldsymbol{\rho}}$与$p_{\boldsymbol{\sigma}}$在结构上是完全相同的。增强后的$p_{\boldsymbol{\rho}}$与$p_{\boldsymbol{\sigma}}$对抗时胜率超过了80%。
 
 在第三阶段，主要关注的是对当前棋局的价值评估。具体通过最小化估值网络输出$v_{\boldsymbol{\theta}}(s)$和收益$z$（通过增强后的$p_{\boldsymbol{\rho}}$自我对弈得到）之间的均方误差来训练估值网络（该方法属于蒙特卡洛方法）：
 
