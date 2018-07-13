@@ -21,7 +21,7 @@ $P_a(s,s') = P(s_{t+1}=s' \mid s_t=s,a_t=a)$表示状态$s$下采用动作$a$后
 
 $R_a(s,s')$是实现前述状态转移后得到的奖励，在有的的模型中，奖励函数只与状态转移有关，而与动作无关，即可以表示为$R(s,s')$；
 
-$\gamma \in [0,1]$是奖励折扣系数，代表未来奖励的重要程度。
+$\gamma \in (0,1]$是奖励折扣系数，代表未来奖励的重要程度。
 
 
 考虑$n$为$+\infty$的情况，这时候没法用传统动态规划递归求解了。一般来说，强化学习只关心**平稳确定型策略**$\pi$，即这个策略与当前所在时刻$t$无关，而只与当前的状态$s_t$有关，且通过当前状态能确定性地得到动作$a_t=\pi(s_t)$。对于有限的状态集$S$和行为集$A$，共可能有$$\mid A \mid^{\mid S \mid}$$种平稳确定型策略。
@@ -57,6 +57,8 @@ $$Q^{\pi}(s,a) = E_{\pi}(G_t\mid s_t=s,a_t=a) = E_{\pi}(\sum_{k=0}^{+\infty}\gam
 
 $Q^{\pi}(s,a)$表示当处于状态$s$时执行动作$a$后遵循平稳策略$\pi$的价值。状态-动作值函数与状态值函数的关系可以表示为：
 
+$$V^{\pi}(s) = Q^{\pi}(s,\pi(s))$$
+
 $$Q^{\pi}(s,a) = \sum_{s' \in S}P_{a}(s,s')(R_{a}(s,s') + \gamma V^{\pi}(s'))$$
 
 
@@ -69,6 +71,13 @@ $$Q^*(s,a) = Q^{\pi^*}(s,a) (\forall s\in S,a\in A)$$
 $$Q^*(s,a) = Q^{\pi^*}(s,a) = \max_{\pi}Q^{\pi}(s,a) (\forall s\in S,a\in A)$$
 
 ## 1.2 贝尔曼方程（Bellman's equation）
+
+将状态值函数和状态-动作值函数分别写成递归的形式，就得到了贝尔曼方程：
+
+$$V^{\pi}(s) = \sum_{s' \in S}P_{\pi(s)}(s,s')(R_{\pi(s)}(s,s') + \gamma V^{\pi}(s'))$$
+
+$$Q^{\pi}(s,a) = \sum_{s' \in S}P_{a}(s,s')(R_{a}(s,s') + \gamma Q^{\pi}(s',\pi(s')))$$
+
 
 根据动态规划的递归方程，可以得到：
 
@@ -84,9 +93,9 @@ Q^*(s,a) =  \sum_{s' \in S}P_a(s,s')(R_a(s,s')+\gamma\max_{a' \in A_{s'}} Q^*(s'
 \end{align}
 $$
 
-以上两个方程都可以称为贝尔曼方程。
+以上两个方程称为最优贝尔曼方程。
 
-贝尔曼方程揭示了非最优策略的改进方式：将策略选择的动作改变为当前最优的动作。设当前策略为$\pi$，我们选择下一策略为$\pi'(s) = arg \max_{a\in A_s}Q^{\pi}(s,a) (\forall s\in S)$。容易得出：
+最优贝尔曼方程揭示了非最优策略的改进方式：将策略选择的动作改变为当前最优的动作。设当前策略为$\pi$，我们选择下一策略为$\pi'(s) = arg \max_{a\in A_s}Q^{\pi}(s,a) (\forall s\in S)$。容易得出：
 
 $$\begin{align}
 V^{\pi}(s) &\leq Q^{\pi}(s,\pi'(s)) \\
@@ -96,7 +105,7 @@ V^{\pi}(s) &\leq Q^{\pi}(s,\pi'(s)) \\
 \end{align}
 $$
 
-不断重复上述迭代，直到$\pi'$与$\pi$一致，不再发生变化，此时就满足贝尔曼方程，即找到了最优策略。
+不断重复上述迭代，直到$\pi'$与$\pi$一致，不再发生变化，此时就满足最优贝尔曼方程，即找到了最优策略。
 
 另一方面，如果我们获得了$Q^*(s,a) (\forall s\in S,a\in A)$的值，那么也可以得到最优策略：
 
@@ -104,7 +113,7 @@ $$\pi^*(s) = arg \max_{a\in A_s}Q^*(s,a) (\forall s\in S)$$
 
 ## 1.3 策略迭代
 
-在策略$\pi$作用下，状态值函数可以递归地表示为：
+由贝尔曼方程，在策略$\pi$作用下，状态值函数可以递归地表示为：
 
 $$V^{\pi}(s) = \sum_{s' \in S}P_{\pi(s)}(s,s')(R_{\pi(s)}(s,s') + \gamma V^{\pi}(s'))$$
 
@@ -127,7 +136,7 @@ $$V^{\pi}(s) = \sum_{s' \in S}P_{\pi(s)}(s,s')(R_{\pi(s)}(s,s') + \gamma V^{\pi}
 
 策略迭代在每次迭代改进策略后都需要重新进行策略评估，这通常比较耗时。由\eqref{1}可知，策略改进与状态值函数的改进是一致的，因此，可将策略改进视为状态值函数的改善。
 
-由贝尔曼方程，可知
+由最优贝尔曼方程，可知
 
 $$ V^*(s) = \max_{a \in A_s} \left\{ \sum_{s' \in S}P_a(s,s')(R_a(s,s') + \gamma V^*(s')) \right\} $$
 
@@ -143,7 +152,7 @@ $$ V^*(s) = \max_{a \in A_s} \left\{ \sum_{s' \in S}P_a(s,s')(R_a(s,s') + \gamma
 
 $$\forall s \in S, \pi'(s) = arg \max_{a\in A_s}\sum_{s' \in S}P_a(s,s')(R_a(s,s') + \gamma V'(s'))$$
 
-已经证明该迭代方法收敛于正确的$V^*$值。
+已经证明该迭代方法收敛于正确的$V^*$值，从而输出的策略也收敛于最优策略。
 
 ## 1.5 策略迭代与状态值迭代的比较
 
@@ -167,7 +176,9 @@ $$ < s_0,a_0,r_1,s_1,a_1,r_2,s_2,a_2,r_3,...> $$
 
 然后，对轨迹中出现的每一对“状态-动作”，记录其后获得的奖励之和（分为first-visit和every-visit两种记录方法），作为该“状态-动作”对的一次累积奖励采样值（记为一次return）。多次采样得到多条轨迹后，将每个“状态-动作”对的returns进行平均，就得到该策略下状态-动作值函数的估计。
 
-有一个复杂的地方在于，有可能在采样过程中很多“状态-动作”对从未出现过，这样就没有returns来进行平均，因此也无法对这些“状态-动作”对进行评估。一种解决方法是exploring starts，顾名思义，该方法通过episode的起点来做exploration，也就是每一对state-action都会以非零的概率被选中作为episode的起点。exploring starts方法很多时候可能会受问题或环境的约束无法实现。另外一种方法是将确定型的策略改成非确定型策略，使得该策略对每个状态来说，所有动作被选中的概率都是非零的。
+所有的无模型学习方法都面临一个困境：它们的目标是学习一系列优化动作的奖励值，然而为了寻找优化的动作，它们不能总选择最优化的动作，而需要探索新的动作，因此，这些学习过程都会有一个利用（exploitation）与探索（exploration）之间的权衡。具体到蒙特卡洛方法来说，有可能在采样过程中很多“状态-动作”对从未出现过，这样就没有returns来进行平均，因此也无法对这些“状态-动作”对进行评估。
+
+一种解决方法是exploring starts，顾名思义，该方法通过episode的起点来做exploration，也就是每一对state-action都会以非零的概率被选中作为episode的起点。exploring starts方法很多时候可能会受问题或环境的约束无法实现。另外一种方法是将确定型的策略改成非确定型策略，使得该策略对每个状态来说，所有动作被选中的概率都是非零的。
 
 ### 3.1.1 起点探索（exploring starts）方法
 
@@ -231,10 +242,9 @@ $$\pi^{\epsilon}(s,a) = \begin{cases}1-\epsilon + \frac{\epsilon}{\mid A_s\mid} 
 \frac{\epsilon}{\mid A_s\mid} & a \neq a^* \\
 \end{cases}$$
 
+可以证明若采用$\epsilon$-soft 策略（即保证每个动作都可能被选择），经过足够多的迭代，其可收敛到$\epsilon$-soft空间下的最优策略（次优）。
 
 ### 3.1.3 异策略（off-policy）方法
-
-所有的无模型学习方法都面临一个困境：它们的目标是学习一系列优化动作的奖励值，然而为了寻找优化的动作，它们不能总选择最优化的动作，而需要探索新的动作，因此，这些学习过程都会有一个利用（exploitation）与探索（exploration）之间的权衡。
 
 同策略方法在迭代过程中优化的是策略$\pi^{\epsilon}$，而引入$\pi^{\epsilon}$是为了探索，不是为了最终使用；实际上我们希望改进的是原始策略。
 
@@ -277,7 +287,7 @@ $$\forall s \in S, \forall a\in A_s, Q(s,a)=\text{arbitrary}, \pi(s)=arg\max_{a\
 
 基于$s_0$，根据当前策略$\pi$的$\epsilon$-贪心策略$\pi^{\epsilon}$，生成一个episode；
 
-对于每个出现在该episode中的$(s,a)$，计算其累积奖励，并根据$(s,a)$在轨迹中出现的时间$t$计算权重$\prod_{i=t}^{T-1}\frac{\pi(s_i,a_i)}{\pi^{\epsilon}(s_i,a_i)}$，将加权后的奖励添加到$Returns(s,a)$中，并更新状态-动作值$Q(s,a)=average(Returns(s,a))$；
+对于每个出现在该episode中的$(s,a)$，计算其累积奖励，并根据$(s,a)$在轨迹中出现的时间$t$计算权重$\prod_{i=t}^{T-1}\frac{\pi(s_i,a_i)}{\pi^{\epsilon}(s_i,a_i)}$，将权重以及加权后的奖励添加到$Returns(s,a)$中，更新状态-动作值$Q(s,a)=weightedAverage(Returns(s,a))$；
 
 对于每个出现在episode中的状态$s$，更新策略$\pi(s) = arg\max_{a\in A_s}Q(s,a)$。
 
@@ -288,11 +298,11 @@ $$\forall s \in S, \forall a\in A_s, Q(s,a)=\text{arbitrary}, \pi(s)=arg\max_{a\
 
 蒙特卡洛强化学习算法基于采样轨迹进行策略优化，克服了模型未知给策略估计造成的困难。但此类算法都是在完成一个episode的采样轨迹后再更新策略的值估计，而前面介绍的基于动态规划的策略迭代和值迭代可以在每执行一步策略后就进行值函数更新。两者相比，蒙特卡洛方法的效率要低得多（因为求一个episode的采样轨迹时间本身较长），这里的主要问题是蒙特卡洛方法没有充分利用强化学习任务的MDP结构。而时序差分学习则结合了动态规划与蒙特卡洛方法的思想，能够做到更高效的无模型学习。
 
-根据动态规划思想，我们首先将策略$\pi$作用下的$Q^{\pi}$函数写成如下递归形式：
+根据贝尔曼方程，我们首先将策略$\pi$作用下的$Q^{\pi}$函数写成如下递归形式（贝尔曼方程）：
 
 $$Q^{\pi}(s,a) = \sum_{s' \in S}P_{a}(s,s')(R_{a}(s,s') + \gamma Q^{\pi}(s',\pi(s')))$$
 
-根据贝尔曼方程，当取得最优策略时，$Q^*$函数具有如下形式：
+根据最优贝尔曼方程，当取得最优策略时，$Q^*$函数具有如下形式：
 
 $$\begin{align}
 Q^*(s,a) =  \sum_{s' \in S}P_a(s,s')(R_a(s,s')+\gamma\max_{a' \in A_{s'}} Q^*(s',a'))
@@ -307,9 +317,9 @@ $$\begin{equation}\label{td}Q^{\pi}_{t+1}(s,a) = Q^{\pi}_{t}(s,a) + \alpha(R_{a}
 
 其中指数平滑系数$\alpha$称为更新步长。
 
-### 3.2.1 SARSA算法
+### 3.2.1 Sarsa算法
 
-使用\eqref{td}，采用on-policy方法，对$\epsilon$-贪心策略进行执行和优化，就得到了SARSA算法。具体流程如下：
+使用\eqref{td}，采用on-policy方法，对$\epsilon$-贪心策略进行执行和优化，就得到了Sarsa算法。具体流程如下：
 
 1）初始化：
 
@@ -334,6 +344,8 @@ $$\pi^{\epsilon}(s,a'') = \begin{cases}1-\epsilon + \frac{\epsilon}{\mid A_s\mid
 \end{cases}$$
 
 更新当前状态和当前动作：$s=s',a=a'$。
+
+若采用$\epsilon$-soft 策略，当更新步长$\alpha > 0$随时间递减，经过足够多的迭代，其可收敛到$\epsilon$-soft空间下的最优策略（次优）。
 
 ### 3.2.2 Q-learning 算法
 
@@ -421,64 +433,15 @@ $$\forall s \in S$$，更新策略$\pi(s) = arg\max_{a'' \in A_s}Q(s,a'')$；
 Q($\lambda$)学习一般来说比Q学习收敛速率高一些，但复杂度也要高，具体选择哪个应该根据实际情况进行考虑。
 
 
-# 4、值函数近似
-
-当状态空间非常大，甚至是连续的时，原来传统的强化学习方法不再有效。这个时候可以直接针对值函数进行学习。因为无模型情况下，学习$Q$函数是更有效的方式，我们首先进行编码$[s,a]^T = \mathbf{x} \in \mathbb{R}^n$，然后用$Q_{\boldsymbol{\theta}}(\mathbf{x})$（其中$\boldsymbol{\theta}$为参数向量）来近似值函数，这样的值函数求解被称为值函数近似（value function approximation）。
-
-可以用最简单的情形来示例，即将近似值函数表示为线性形式：
-
-$$Q_{\boldsymbol{\theta}}(\mathbf{x}) = \boldsymbol{\theta}^T\mathbf{x}$$
-
-我们希望通过上式来近似真实的值函数$Q^{\pi}$，近似程度可以用最小二乘误差来度量：
-
-$$e_{\boldsymbol{\theta}} = E_{\pi}((Q^{\pi}(\mathbf{x})-Q_{\boldsymbol{\theta}}(\mathbf{x}))^2)$$
-
-为了使误差最小化，采用梯度下降法，对误差求负导数：
-
-$$-\frac{\partial e_{\boldsymbol{\theta}}}{\partial\boldsymbol{\theta}} = 2E_{\pi}((Q^{\pi}(\mathbf{x})-Q_{\boldsymbol{\theta}}(\mathbf{x}))\mathbf{x})$$
-
-于是，对于每得到一个样本，可按如下更新规则更新：
-
-$$\boldsymbol{\theta} = \boldsymbol{\theta} + \alpha (Q^{\pi}(\mathbf{x})-Q_{\boldsymbol{\theta}}(\mathbf{x}))\mathbf{x}$$
-
-我们并不知道策略的真实值函数$Q_{\pi}(\mathbf{x})$，但可借助时序差分学习，用当前值函数的估计$r+\gamma Q(s',a')$，因此更新规则可以修改为：
-
-$$\boldsymbol{\theta} = \boldsymbol{\theta} + \alpha (r+\gamma \boldsymbol{\theta}^T[s',a']^T-\boldsymbol{\theta}^T[s,a]^T)[s,a]^T$$
-
-使用线性值函数近似来替代Q-learning算法中的值函数，即可得如下算法：
-
-1）初始化：
-
-$$\boldsymbol{\theta}=\mathbf{0}, \forall s \in S, \forall a\in A_s, \pi(s,a)=\text{arbitrary}$$；
-
-设定初始状态$s$；
-
-2）迭代：
-
-基于$s$，根据当前策略$\pi$的$\epsilon$-贪心策略$\pi^{\epsilon}$，生成一个动作$a$；
-
-基于$s$和$a$，观测奖励$r$和下一状态$s'$；
-
-根据$\pi$生成下一贪心动作$a'$；
-
-更新$\boldsymbol{\theta}$：
-
-$$\boldsymbol{\theta} = \boldsymbol{\theta} + \alpha (r+\gamma \boldsymbol{\theta}^T[s',a']^T-\boldsymbol{\theta}^T[s,a]^T)[s,a]^T$$
-
-更新策略$\pi(s) = arg\max_{a'' \in A_s}\boldsymbol{\theta}^T[s,a'']^T$；
-
-更新当前状态：$s=s'$。
-
-
-# 5、模仿学习
+# 4、模仿学习
 
 在强化学习的经典任务设置中，机器所能获得的反馈信息仅有每步决策后的奖励，但是在现实任务中，往往能够得到人类专家的决策过程范例。从这样的范例中学习，称为“模仿学习（imitation learning）”。
 
-## 5.1 直接模仿学习
+## 4.1 直接模仿学习
 
 直接模仿学习是指直接对人类专家的“状态-动作”对进行学习，即把状态作为特征，动作作为标记，然后对数据集使用分类（对于离散动作）或回归（对于连续动作）算法即可学得策略模型。学得的这个策略模型可作为机器进行强化学习的初始策略，再通过强化学习方法基于环境反馈进行改进，从而获得更好的策略。
 
-## 5.2 逆强化学习
+## 4.2 逆强化学习
 
 在很多实际任务中，设计奖励函数往往比较困难，从人类专家提供的范例数据中反推出奖励函数可以解决该问题，这就是逆强化学习（inverse reinforcement learning）。在逆强化学习中，我们知道状态空间、动态空间，并且与直接模仿学习类似，有一个人类专家的范例决策轨迹数据集。逆强化学习的基本思想是：欲使机器做出与范例一致的行为，等价于在某个奖励函数的环境中求解最优策略，该最优策略所产生的轨迹与范例数据一致。换言之，我们要寻找某种奖励函数使得范例数据是最优的，然后即可使用这个奖励函数来训练强化学习策略。
 
