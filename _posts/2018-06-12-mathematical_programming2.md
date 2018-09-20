@@ -140,11 +140,11 @@ $$\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - \alpha_k (D^2f(\mathbf{x}^{(k)}) + \mu
 
 假定$\mathbf{x}$为$n$维向量，欲寻找$\mathbf{x}$的某个取值$\mathbf{x}^*$，使得目标函数$f(\mathbf{x})$最小且同时满足$h(\mathbf{x}) = 0$的约束。从几何角度看，该问题的目标是在由方程$h(\mathbf{x}) = 0$确定的$n-1$维曲面上寻找能使目标函数$f(\mathbf{x})$最小的点。不难得出如下结论：
 
-1）对于约束曲面上的任意点$\mathbf{x}$，该点的梯度$\nabla h(\mathbf{x})$正交于约束曲面；
+1）对于约束曲面上的任意点$\mathbf{x}$，该点的约束梯度$\nabla h(\mathbf{x})$正交于约束曲面；
 
 2）在最优点$\mathbf{x}^*$，目标函数在该点的梯度$$\nabla f(\mathbf{x}^*)$$正交于约束曲面（目标函数等值线与约束曲面相切）。
 
-由此可知，在最优点$\mathbf{x}^*$，$\nabla h(\mathbf{x})$和$$\nabla f(\mathbf{x})$$的方向要么相同要么相反，即存在$\lambda\neq 0$使得
+由此可知，在最优点$\mathbf{x}^*$，$\nabla h(\mathbf{x})$和$$\nabla f(\mathbf{x})$$的方向要么相同要么相反，即存在实数$\lambda$使得
 
 $$\begin{equation}\label{1} \nabla f(\mathbf{x}^*) + \lambda\nabla h(\mathbf{x}^*) = \mathbf{0}\end{equation}$$
 
@@ -160,7 +160,7 @@ $$L(\mathbf{x},\lambda) = f(\mathbf{x}) + \lambda h(\mathbf{x})$$
 
 $$L(\mathbf{x},\mu) = f(\mathbf{x}) + \mu g(\mathbf{x})$$
 
-取得的最优点$$\mathbf{x}^*$$或在$g(\mathbf{x}) < 0$的区域中，或在边界$g(\mathbf{x}) = 0$上。对于$$g(\mathbf{x}^*) < 0$$的情形，约束$g(\mathbf{x}) \leq 0$不起作用，可直接通过条件$\nabla f(\mathbf{x}) = 0$来获得最优点，这等价于将$\mu$置零，然后让$L(\mathbf{x},\mu)$对$\mathbf{x}$求偏导并置零来得到最优点；对于$$g(\mathbf{x}^*) = 0$$的情形，类似于上面等式约束的分析，但需注意的是，此时$$\nabla g(\mathbf{x}^*)$$和$$\nabla f(\mathbf{x}^*)$$的方向一定是相反的，即存在常数$\mu>0$使得$$\nabla f(\mathbf{x}^*) + \mu\nabla g(\mathbf{x}^*) = \mathbf{0}$$。整合以上两种情形，必满足$\mu g(\mathbf{x}) = 0$。
+取得的最优点$$\mathbf{x}^*$$或在$g(\mathbf{x}) < 0$的区域中，或在边界$g(\mathbf{x}) = 0$上。对于$$g(\mathbf{x}^*) < 0$$的情形，约束$g(\mathbf{x}) \leq 0$不起作用，可直接通过条件$\nabla f(\mathbf{x}) = 0$来获得最优点，这等价于将$\mu$置零，然后让$L(\mathbf{x},\mu)$对$\mathbf{x}$求偏导并置零来得到最优点；对于$$g(\mathbf{x}^*) = 0$$的情形，类似于上面等式约束的分析，但需注意的是，此时$$\nabla g(\mathbf{x}^*)$$和$$\nabla f(\mathbf{x}^*)$$的方向一定是相反的，即存在常数$\mu\geq 0$使得$$\nabla f(\mathbf{x}^*) + \mu\nabla g(\mathbf{x}^*) = \mathbf{0}$$。整合以上两种情形，必满足$\mu g(\mathbf{x}) = 0$。
 
 因此，在约束$g(\mathbf{x}) \leq 0$下最小化$f(\mathbf{x})$，可转化为如下约束情况下最小化拉格朗日函数$L(\mathbf{x},\mu)$：
 
@@ -197,7 +197,7 @@ $$\begin{equation}\label{3}L(\mathbf{x},\boldsymbol{\lambda},\boldsymbol{\mu}) =
 
 3）$\mu_j\geq 0$ （$j=1,2,...,p$）；
 
-4）$\nabla f(\mathbf{x}) + \sum_{i=1}^m\lambda_i\nabla h_i(\mathbf{x}) +\sum_{j=1}^p\mu_j\nabla g_j(\mathbf{x}) = \mathbf{0}$ （$\mathbf{x}$需为起作用约束的正则点（regular point））；
+4）$\nabla f(\mathbf{x}) + \sum_{i=1}^m\lambda_i\nabla h_i(\mathbf{x}) +\sum_{j=1}^p\mu_j\nabla g_j(\mathbf{x}) = \mathbf{0}$ ；
 
 5）$\mu_j g_j(\mathbf{x}) = 0$ （$j=1,2,...,p$）。
 
@@ -241,5 +241,9 @@ $$\begin{equation}\label{4}\max_{\boldsymbol{\lambda},\boldsymbol{\mu}}\Gamma(\b
 
 2）极小点的一阶必要条件（包括无约束时$\nabla f(\mathbf{x})=0$和有约束时KKT条件）是凸优化问题的充分条件。
 
-无论主问题的凸性如何，拉格朗日对偶问题始终是凸优化问题。对于一般的优化问题，强对偶性一般不成立，但是，如果主问题是凸优化问题（即$f$和$g$是凸函数，$h$是仿射函数（affine function）），则对偶问题的强对偶性成立。在强对偶性成立时，将拉格朗日函数分别对原变量和对偶变量求导，再分别置零，即可得到原变量与对偶变量的数值关系。于是，对偶问题解决了，主问题也就解决了。
+无论主问题的凸性如何，拉格朗日对偶问题始终是凸优化问题。
+
+对于一般的优化问题，强对偶性一般不成立，但是，如果主问题是凸优化问题（即$f$和$g$是凸函数，$h$是仿射函数（affine function）），且至少存在一个绝对可行点（即可以让所有不等式约束都不取等号的可行点），则对偶问题的强对偶性成立（这个条件就是传说中的Slater's condition）。即便主问题不是凸优化问题，但其对偶问题的解满足KKT条件，那么强对偶性也成立。
+
+在强对偶性成立时，将拉格朗日函数分别对原变量和对偶变量求导，再分别置零，即可得到原变量与对偶变量的数值关系。于是，对偶问题解决了，主问题也就解决了。
 

@@ -345,7 +345,7 @@ $$\pi^{\epsilon}(s,a'') = \begin{cases}1-\epsilon + \frac{\epsilon}{\mid A_s\mid
 
 更新当前状态和当前动作：$s=s',a=a'$。
 
-若采用$\epsilon$-soft 策略，当更新步长$\alpha > 0$随时间递减，经过足够多的迭代，其可收敛到$\epsilon$-soft空间下的最优策略（次优）。
+若采用$\epsilon$-soft 策略，经过足够多的迭代，其可收敛到$\epsilon$-soft空间下的最优策略（次优）。
 
 ### 3.2.2 Q-learning 算法
 
@@ -373,7 +373,7 @@ $$Q(s,a) = Q(s,a) + \alpha(r + \gamma Q(s',a') - Q(s,a))$$
 
 更新当前状态：$s=s'$。
 
-已经从理论上证明，当更新步长$\alpha > 0$随时间递减，Q-learning算法得出的$\pi$可以收敛到最优策略。
+已经从理论上证明，当更新步长$\alpha > 0$随时间递减，Q-learning算法得出的$\pi$可以收敛到最优策略，如果是固定步长，则不能保证收敛，有可能会发散。
 
 ### 3.2.3 资格迹（eligibility trace）方法
 

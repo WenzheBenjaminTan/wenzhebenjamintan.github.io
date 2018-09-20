@@ -79,11 +79,15 @@ $$f_{\boldsymbol{\theta}}(x) = a + bx$$
 
 ### 3.1.2 多维回归模型
 
+1）线性形式
+
 在一维回归模型中，将一维的输入$x$扩展为$d$维的向量形式$\mathbf{x} = [x_1,x_2,...,x_d]^T$，则可得到
 
 $$f_{\boldsymbol{\theta}}(\mathbf{x}) = \sum_{j=1}^b\theta_j\phi_j(\mathbf{x}) = \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x})$$
 
 上面的模型形式称为线性形式。
+
+2）层级形式
 
 更一般地，可将多维模型表示为层级形式：
 
@@ -91,36 +95,23 @@ $$f_{\boldsymbol{\theta}}(\mathbf{x}) = \sum_{j=1}^b\alpha_j\phi(\mathbf{x};\bol
 
 上式中，$\phi(\mathbf{x};\boldsymbol{\beta})$是含有参数向量$\boldsymbol{\beta}$的基函数。
 
-1）核模型
-
-当基函数为高斯核函数，即
-
-$$\phi(\mathbf{x};\boldsymbol{\beta}) = \exp(-\frac{\|\mathbf{x}-\mathbf{c}\|^2}{2h^2}), \boldsymbol{\beta} = (\mathbf{c}^T,h)^T$$
-
-$\mathbf{c}$和$h$分别对应高斯核函数的带宽和均值，则该模型称作核模型。
-
-核模型对各个输入样本$(\mathbf{x}_i,y_i) (i=1,2,...,N)$进行高斯核配置（这时$b=N$，$\mathbf{c}_i=\mathbf{x}_i$），因此其参数个数与训练样本数$n$有关。如果训练样本数很大，可以只取其中一个子集来进行核配置。
-
-
-2）人工神经网络模型
-
 当基函数为$S$型函数，即
 
 $$\phi(\mathbf{x};\boldsymbol{\beta}) = \frac{1}{1+\exp(-\mathbf{x}^T\boldsymbol{\omega}-\gamma)}, \boldsymbol{\beta} = (\boldsymbol{\omega}^T,\gamma)^T$$
 
-其模仿的是人类脑细胞的输入输出函数，因此该模型也称为人工神经网络模型。实际上，该模型为一个典型三层结构的神经网络模型。需要注意的是，人工神经网络模型中，参数$\boldsymbol{\theta}$和函数$f_\boldsymbol{\theta}$并不是一一对应的，因此参数学习过程也比较困难。
+其模仿的是人类脑细胞的输入输出函数，因此该模型也称为人工神经网络模型。实际上，该模型为一个典型三层结构的人工神经网络模型。需要注意的是，人工神经网络模型中，参数$\boldsymbol{\theta}$和函数$f_\boldsymbol{\theta}$并不是一一对应的，因此参数学习过程也比较困难。
 
 ## 3.2 回归方法
 
 ### 3.2.1 最小二乘法（Least Squares，LS）
 
-我们用线性形式的模型来说明最小二乘法。回归损失函数定义为观察值与估计值之差的平方和：
+最小二乘法一般用于线性形式的模型。回归损失函数定义为观察值与估计值之差的平方和（二次损失函数）：
 
-$$J(\boldsymbol{\theta}) = \sum_{i=1}^N(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))^2$$
+$$C(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))^2$$
 
 目的是找到一组参数$\boldsymbol{\theta}$，使得损失函数最小。根据极小值必要条件，可得：
 
-$$\frac{\partial J}{\partial \boldsymbol{\theta}} = 2\sum_{i=1}^N(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))\boldsymbol{\phi}(\mathbf{x}_i) =\mathbf{0}$$
+$$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \frac{1}{N} \sum_{i=1}^N(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))\boldsymbol{\phi}(\mathbf{x}_i) =\mathbf{0}$$
 
 可得最小二乘解为：
 
@@ -133,28 +124,34 @@ $$\mathbf{P} = \left[\sum_{i=1}^N\boldsymbol{\phi}(\mathbf{x}_i)\boldsymbol{\phi
 如果该系统可辨识，则协方差矩阵肯定存在，且信息矩阵和协方差矩阵都是正定对称矩阵。
 
 
-### 3.2.2 递归最小二乘法（Recursive Least Squares, RLS）
+### 3.2.2 梯度下降法（Gradient Descent, GD）
 
-LS是首先采集所有数据，然后计算最优参数估计。而RLS是在假设已知一个参数解并增加单个数据点的基础上推导而得到的。此时的损失函数表示为：
+考虑一般回归模型形式，损失函数可以表示为：
 
-$$J(\boldsymbol{\theta}) = \sum_{i=1}^N\lambda^{N-i}(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))^2$$
+$$C(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(y_i - f_{\boldsymbol{\theta}}(\mathbf{x}_i))^2$$
 
-其中$0<\lambda\leq 1$，称为遗忘因子。数据点越早，则遗忘因子权重越小。同样地，让$J$相对于$\boldsymbol{\theta}$的偏导并设为零，可求解得到：
+因为目标是使得损失函数最小，可以采用梯度下降的方式来进行参数更新迭代。参数的梯度方向可以表示为：
 
-$$\boldsymbol{\theta} = \left[\sum_{i=1}^N\lambda^{N-i}\boldsymbol{\phi}(\mathbf{x}_i)\boldsymbol{\phi}^T(\mathbf{x}_i)\right]^{-1}\left[\sum_{i=1}^N\lambda^{N-i}\boldsymbol{\phi}(\mathbf{x}_i)y_i\right]$$
+$$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} =\frac{1}{N} \sum_{i=1}^N(y_i - f_{\boldsymbol{\theta}}(\mathbf{x}_i))\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
-RLS算法可表示如下：
+参数更新公式为：
 
-$$
-\begin{align}
-\boldsymbol{\theta}(i+1) = \boldsymbol{\theta}(i) + \mathbf{L}(i+1)[y_{i+1} - \boldsymbol{\phi}^T(\mathbf{x}_{i+1})\boldsymbol{\theta}(i)] \\
-\mathbf{L}(i+1) = \frac{\mathbf{P}(i)\boldsymbol{\phi}(\mathbf{x}_{i+1})}{\lambda + \boldsymbol{\phi}^T(\mathbf{x}_{i+1})\mathbf{P}(i)\boldsymbol{\phi}(\mathbf{x}_{i+1})} \\
-\mathbf{P}(i+1) = \frac{1}{\lambda}\left(\mathbf{P}(i) - \frac{\mathbf{P}(i)\boldsymbol{\phi}(\mathbf{x}_{i+1})\boldsymbol{\phi}^T(\mathbf{x}_{i+1})\mathbf{P}(i)}{\lambda + \boldsymbol{\phi}^T(\mathbf{x}_{i+1})\mathbf{P}(i)\boldsymbol{\phi}(\mathbf{x}_{i+1})}\right)
-\end{align}
-$$
+$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N(y_i - f_{\boldsymbol{\theta}}(\mathbf{x}_i))\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
-为简单起见，参数$\boldsymbol{\theta}$通常初始化为零向量来表示当前最佳估计，协方差矩阵$\mathbf{P}$通常初始化为一个相对较大的对角矩阵来表征参数估计过程中的不确定性。应该注意到协方差矩阵$\mathbf{P}$是一个正定对称矩阵，如果由于重复计算RLS而产生的数值误差导致$\mathbf{P}$矩阵不再正定对称，则算法将发散。现已有一些改进算法能够确保$\mathbf{P}$矩阵保持正定，通常是采用$\mathbf{P}$矩阵进行Cholesky分解或UDU分解的二次方根法。
 
-通过观察递归式可看出，参数估计是通过之前的估计值与一个更新步长和当前预测误差的乘积相加来实现参数估计的更新。在机器学习中的几乎所有算法都采用这种结构，包括针对层级形式进行参数估计的后向传播算法。
+其中$\eta$为更新步长。在机器学习中的几乎所有算法都采用这种结构，朝着损失函数梯度下降的方向来不断更新参数。
+
+1）批量梯度下降法（Batch Gradient Descent，BGD）
+
+批量梯度下降法是梯度下降法最原始的形式，即每一步梯度迭代都使用所有样本（总共N个样本）来进行更新，其优点是能得到局部最优解，但缺点是当样本数量很多时，训练过程缓慢。
+
+2）随机梯度下降法（Stochastic Gradient Descent，SGD）
+
+随机梯度下降法的具体思路是在每一步梯度迭代时都使用一个随机样本来进行更新。在样本量极其大的情况下，可能不用使用所有样本就可以获得一个代价值在可接受范围内的模型。因此随机梯度法的优点是训练速度快，但准确度会下降，即获取的最优解不一定是局部最优解（当迭代次数足够多时，它会趋于局部最优解）。
+
+3）小批量梯度下降法（Mini-Batch Gradient Descent，MBGD）
+
+小批量梯度下降法的思路是在每一步梯度迭代时使用一个小批量样本（大于1小于N的数量）来进行更新。该方法克服了上述两种方法的缺点，又同时兼顾两种方法的优点。
+
 
 
