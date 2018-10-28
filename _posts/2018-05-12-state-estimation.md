@@ -78,15 +78,15 @@ $$\mathbf{z_k} = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k$$
 
 假设系统的状态方程、观测方程和控制向量都是已知的，对于当前时刻$t$，状态$\mathbf{x}_t$可以分别通过以下两步来进行推断：
 
-1）预测（predict）。利用$t-1$时刻的估计值和过程方程来递推，得到一个初步预测结果$\hat{\mathbf{x}}_{t\|t-1}$；
+1）预测（predict）。利用$t-1$时刻的估计值和过程方程来递推，得到一个初步预测结果$\widehat{\mathbf{x}}_{t\|t-1}$；
 
-2）更新（update）。利用$t$时刻的观测结果$$\mathbf{z}_t$$来对上一步的预测结果进行校正，得到更新结果$\hat{\mathbf{x}}_{t\|t}$。
+2）更新（update）。利用$t$时刻的观测结果$$\mathbf{z}_t$$来对上一步的预测结果进行校正，得到更新结果$\widehat{\mathbf{x}}_{t\|t}$。
 
-需要注意的是，上述的$$\hat{\mathbf{x}}_{t\mid t-1}$$、$$\hat{\mathbf{x}}_{t\mid t}$$都是对$$\mathbf{x}_t$$的估计均值，$$\mathbf{z}_t$$是对$$\mathbf{H}_t\mathbf{x}_t$$的估计均值，和它们对应的还有一个协方差矩阵。$$\hat{\mathbf{x}}_{t\mid t-1}$$、$$\hat{\mathbf{x}}_{t\mid t}$$对应的协方差矩阵分别为$$\mathbf{P}_{t\mid t-1}$$、$$\mathbf{P}_{t\mid t}$$，$$\mathbf{z}_t$$则对应的协方差为$$\mathbf{R}_t$$，它们对应的分布均为多维正态分布。
+需要注意的是，上述的$$\widehat{\mathbf{x}}_{t\mid t-1}$$、$$\widehat{\mathbf{x}}_{t\mid t}$$都是对$$\mathbf{x}_t$$的估计均值，$$\mathbf{z}_t$$是对$$\mathbf{H}_t\mathbf{x}_t$$的估计均值，和它们对应的还有一个协方差矩阵。$$\widehat{\mathbf{x}}_{t\mid t-1}$$、$$\widehat{\mathbf{x}}_{t\mid t}$$对应的协方差矩阵分别为$$\mathbf{P}_{t\mid t-1}$$、$$\mathbf{P}_{t\mid t}$$，$$\mathbf{z}_t$$则对应的协方差为$$\mathbf{R}_t$$，它们对应的分布均为多维正态分布。
 
 预测过程可以表示为以下两个方程：
 
-$$\hat{\mathbf{x}}_{t\mid t-1} = \mathbf{F}_t\hat{\mathbf{x}}_{t-1\mid t-1}+ \mathbf{B}_t\mathbf{u}_t$$
+$$\widehat{\mathbf{x}}_{t\mid t-1} = \mathbf{F}_t\widehat{\mathbf{x}}_{t-1\mid t-1}+ \mathbf{B}_t\mathbf{u}_t$$
 
 $$\mathbf{P}_{t\mid t-1} = \mathbf{F}_t\mathbf{P}_{t-1\mid t-1}\mathbf{F}_t^T + \mathbf{Q}_t$$
 
@@ -94,7 +94,7 @@ $$\mathbf{P}_{t\mid t-1} = \mathbf{F}_t\mathbf{P}_{t-1\mid t-1}\mathbf{F}_t^T + 
 
 $$\mathbf{K}_t = \mathbf{P}_{t\mid t-1}\mathbf{H}_t^T(\mathbf{H}_t\mathbf{P}_{t\mid t-1}\mathbf{H}_t^T + \mathbf{R}_t)^{-1}$$
 
-$$\hat{\mathbf{x}}_{t\mid t} = \hat{\mathbf{x}}_{t\mid t-1}+ \mathbf{K}_t(\mathbf{z}_t-\mathbf{H}_t\hat{\mathbf{x}}_{t\mid t-1})$$
+$$\widehat{\mathbf{x}}_{t\mid t} = \widehat{\mathbf{x}}_{t\mid t-1}+ \mathbf{K}_t(\mathbf{z}_t-\mathbf{H}_t\widehat{\mathbf{x}}_{t\mid t-1})$$
 
 $$\mathbf{P}_{t\mid t} = \mathbf{P}_{t\mid t-1} - \mathbf{K}_t\mathbf{H}_t\mathbf{P}_{t\mid t-1}$$
 

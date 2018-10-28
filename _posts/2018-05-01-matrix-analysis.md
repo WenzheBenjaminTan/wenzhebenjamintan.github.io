@@ -198,7 +198,7 @@ A funcation $\mathcal{L}: \mathbb{R}^n \rightarrow \mathbb{R}^m$ is called a lin
 
 2) $\mathcal{L}(\mathbf{x} + \mathbf{y}) = \mathcal{L}(\mathbf{x}) + \mathcal{L}(\mathbf{y})$ for every $\mathbf{x},\mathbf{y} \in \mathbb{R}^n$.
 
-If we fix the based for $\mathbb{R}^n$ and $\mathbb{R}^m$, then the linear transformation $\mathcal{L}$ can be represented by a matrix. Specifically, there exists $\mathbf{A} \in \mathbb{R}^{m \times n}$ such that the following representation holds. Suppose that $\mathbf{x} \in \mathcal{R}^n$ is a given vector, and $\mathbf{x'}$ is the representation of $\mathbf{x}$ with the respect to the given basis for $\mathbb{R}^n$. If $\mathbf{y} = \mathcal{L}(\mathbf{x})$, and $\mathbf{y'}$ is the representation of $\mathbf{y}$ with respect to the given basis for $\mathbb{R}^m$, then
+If we fix the based for $\mathbb{R}^n$ and $\mathbb{R}^m$, then the linear transformation $\mathcal{L}$ can be represented by a matrix. Specifically, there exists $\mathbf{A} \in \mathbb{R}^{m \times n}$ such that the following representation holds. Suppose that $\mathbf{x} \in \mathbb{R}^n$ is a given vector, and $\mathbf{x'}$ is the representation of $\mathbf{x}$ with the respect to the given basis for $\mathbb{R}^n$. If $\mathbf{y} = \mathcal{L}(\mathbf{x})$, and $\mathbf{y'}$ is the representation of $\mathbf{y}$ with respect to the given basis for $\mathbb{R}^m$, then
 
 $$\mathbf{y'} = \mathbf{Ax'}$$
 
