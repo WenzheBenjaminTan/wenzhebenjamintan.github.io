@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "参数估计与贝叶斯统计学" 
+title: "参数估计与贝叶斯学习" 
 ---
 
 # 1、参数估计
@@ -16,23 +16,23 @@ title: "参数估计与贝叶斯统计学"
 
 ## 1.2 最大似然估计
 
-假定我们有一个独立同分布（iid）样本集$$\mathcal{X} = \{\boldsymbol{x}^{(t)}\}_{t=1}^N$$。我们假设$\boldsymbol{x}^{(t)}$是从某个定义在参数$\theta$上的已知概率密度族$p(\boldsymbol{x}\mid\theta)$中抽取的实例：
+假定我们有一个独立同分布（iid）样本集$$D = \{\boldsymbol{x}^{(t)}\}_{t=1}^N$$。我们假设$\boldsymbol{x}^{(t)}$是从某个定义在参数$\theta$上的已知概率密度族$p(\boldsymbol{x}\mid\theta)$中抽取的实例：
 
 $$\boldsymbol{x}^{(t)} \sim p(\boldsymbol{x}\mid\theta)$$
 
-我们希望找出这样的$\theta$，使得$\boldsymbol{x}^{(t)}$尽可能像是从$p(\boldsymbol{x}\mid\theta)$抽取出来的。因为$\boldsymbol{x}^{(t)}$是相互独立的，给定参数$\theta$，样本集$\mathcal{X}$的似然（likelihood）是所有样本似然的乘积：
+我们希望找出这样的$\theta$，使得$\boldsymbol{x}^{(t)}$尽可能像是从$p(\boldsymbol{x}\mid\theta)$抽取出来的。因为$\boldsymbol{x}^{(t)}$是相互独立的，给定参数$\theta$，样本集$D$的似然（likelihood）是所有样本似然的乘积：
 
-$$l(\mathcal{X}| \theta) \equiv p(\mathcal{X}| \theta) = \prod_{t=1}^Np(\boldsymbol{x}^{(t)} | \theta)$$
+$$L(D | \theta) \equiv p(D | \theta) = \prod_{t=1}^Np(\boldsymbol{x}^{(t)} | \theta)$$
 
-在最大似然估计（maximum likelihood estimation）中，我们感兴趣的是找到这样的$\theta$，使得$$l(\mathcal{X}\mid \theta)$$最大。
+在最大似然估计（maximum likelihood estimation）中，我们感兴趣的是找到这样的$\theta$，使得$$L(D \mid \theta)$$最大。
 
 通常情况下，我们可以最大化该似然的对数。通过log运算可以把乘积转换为求和，并不改变它取最大值时的解，并且当概率密度函数包含指数项时可以进一步简化计算量。对数似然（log likelihood）定义为：
 
-$$LL(\theta|\mathcal{X}) \equiv \log l(\mathcal{X}| \theta) = \sum_{t=1}^N\log p(\boldsymbol{x}^{(t)} | \theta)$$
+$$\mathcal{L}(\theta|D) \equiv \log L(D| \theta) = \sum_{t=1}^N\log p(\boldsymbol{x}^{(t)} | \theta)$$
 
 此时参数$\theta$的最大似然估计为：
 
-$$\theta_{ML} = arg \max_{\theta} LL(\theta|\mathcal{X})$$
+$$\theta_{ML} = arg \max_{\theta} \mathcal{L}(\theta|D)$$
 
 ### 1.2.1 高斯分布示例
 
@@ -40,9 +40,9 @@ $$\theta_{ML} = arg \max_{\theta} LL(\theta|\mathcal{X})$$
 
 $$p(x) = \frac{1}{\sqrt{2\pi}\sigma}\exp(-\frac{(x-\mu)^2}{2\sigma^2}), \ -\infty < x < \infty$$
 
-给定样本集$$\mathcal{X} = \{x^{(t)}\}_{t=1}^N$$，其中$$x^{(t)} \sim \mathcal{N}(\mu, \sigma^2)$$，高斯样本的对数似然为：
+给定样本集$$D = \{x^{(t)}\}_{t=1}^N$$，其中$$x^{(t)} \sim \mathcal{N}(\mu, \sigma^2)$$，高斯样本的对数似然为：
 
-$$LL(\mu,\sigma | \mathcal{X}) = -\frac{N}{2}\log(2\pi) - N\log \sigma - \frac{\sum_t(x^{(t)}-\mu)^2}{2\sigma^2}$$
+$$\mathcal{L}(\mu,\sigma | D) = -\frac{N}{2}\log(2\pi) - N\log \sigma - \frac{\sum_t(x^{(t)}-\mu)^2}{2\sigma^2}$$
 
 通过对该对数似然函数求偏导并置零，可得最大似然估计为：
 
@@ -52,9 +52,9 @@ $$s^2 = \frac{\sum_t(x^{(t)}-m)^2}{N}$$
 
 ### 1.2.2 估计性能的评价
 
-令$\mathcal{X}$ 是取自参数$\theta$指定分布的样本集，并令$d=d(\mathcal{X})$是$\theta$的一个估计。为了评估该估计的性能，我们可以度量它与$\theta$有多大的不同，即$(d(\mathcal{X})-\theta)^2$。但是它是一个随机变量（依赖于样本集），我们需要对它在可能的$\mathcal{X}$上取均值，进而考虑$r(d,\theta)$，它是估计$d$的均方误差（mean square error），定义为：
+令$D$ 是取自参数$\theta$指定分布的样本集，并令$d=d(D)$是$\theta$的一个估计。为了评估该估计的性能，我们可以度量它与$\theta$有多大的不同，即$(d(D)-\theta)^2$。但是它是一个随机变量（依赖于样本集），我们需要对它在可能的$D$上取均值，进而考虑$r(d,\theta)$，它是估计$d$的均方误差（mean square error），定义为：
 
-$$r(d,\theta) = E[(d(\mathcal{X})-\theta)^2]$$
+$$r(d,\theta) = E[(d(D)-\theta)^2]$$
 
 均方误差可以进一步写为：
 
@@ -67,19 +67,19 @@ r(d,\theta) & = E[(d-\theta)^2] \\
 
 在上式中，第一项是方差（variance），度量在平均情况下估计$d$在期望周围的分散程度（从一个数据集到另一个数据集）；第二项是偏倚（bias）的平方，度量估计期望值偏离正确值$\theta$的程度，具体定义为：
 
-$$b_{\theta}(d) = E[d(\mathcal{X})] - \theta$$
+$$b_{\theta}(d) = E[d(D)] - \theta$$
 
 于是，我们把估计的均方误差写成方差和偏倚的平方之和：
 
 $$r(d,\theta) = Var(d) + (b_{\theta}(d))^2$$
 
-特别地，如果$b_{\theta}(d) = 0$，则称$d$是$\theta$的无偏估计（unbiased estimator）；如果当$N\rightarrow \infty$时，$b_{\theta}(d) \rightarrow 0$，则称$d$是$\theta$的渐近无偏估计（asymptotically unbiased estimator）；如果当$N\rightarrow \infty$时，$Var(d) \rightarrow 0$，则称$d$是$\theta$的一致估计（consistent estimator）。
+特别地，如果$b_{\theta}(d) = 0$，则称$d$是$\theta$的无偏估计（unbiased estimator）；如果当$N\rightarrow \infty$时，$b_{\theta}(d) \rightarrow 0$，则称$d$是$\theta$的渐近无偏估计（asymptotically unbiased estimator）；如果当$N\rightarrow \infty$时，$b_{\theta}(d) \rightarrow 0$ 且 $Var(d) \rightarrow 0$，则称$d$是$\theta$的一致估计（consistent estimator）。
 
 例如，如果$x^{(t)}$是从均值$\mu$的密度抽取出来的，则样本平均值$m$是均值$\mu$的一个无偏估计，因为：
 
 $$E(m) = E[\frac{\sum_tx^{(t)}}{N}] = \frac{1}{N}\sum_tE[x^{(t)}] = \frac{N\mu}{N} = \mu$$
 
-这就意味着虽然在一个特定样本上，$m$可能与$\mu$不同，但是如果我们取许多这样的样本集$\mathcal{X}_i$，并且估计许多$m_i = m(\mathcal{X}_i)$，随着样本集的增加，它们的平均值将逼近$\mu$。
+这就意味着虽然在一个特定样本上，$m$可能与$\mu$不同，但是如果我们取许多这样的样本集$D_i$，并且估计许多$m_i = m(D_i)$，随着样本集的增加，它们的平均值将逼近$\mu$。
 
 同时，$m$也是$\mu$的一个一致估计，即当$N\rightarrow \infty$时，$Var(m) \rightarrow 0$：
 
@@ -111,60 +111,60 @@ $$E[s^2] = \frac{N(\sigma^2 + \mu^2) - N(\frac{\sigma^2}{N}+\mu^2)}{N} = (\frac{
 
 这些先验信息不会告诉我们参数的确切值（否则我们就不需要样本集了），并且我们通过把$\theta$看作是一个随机变量并为它定义先验密度$p(\theta)$来对它们的不确定性进行建模。
 
-先验密度（prior density）$p(\theta)$告诉我们在看到样本集之前$\theta$的可能取值。我们把它和样本数据告诉我们的（即似然密度$$p(\mathcal{X}\mid \theta)$$）信息结合起来，利用贝叶斯规则，得到$\theta$的后验密度（posterior density），它告诉我们看到样本集之后$\theta$的可能取值：
+先验密度（prior density）$p(\theta)$告诉我们在看到样本集之前$\theta$的可能取值。我们把它和样本数据告诉我们的（即似然密度$$p(D\mid \theta)$$）信息结合起来，利用贝叶斯规则，得到$\theta$的后验密度（posterior density），它告诉我们看到样本集之后$\theta$的可能取值：
 
-$$p(\theta| \mathcal{X}) = \frac{p(\mathcal{X}|\theta)p(\theta)}{p(\mathcal{X})} = \frac{p(\mathcal{X}|\theta)p(\theta)}{\int p(\mathcal{X}|\theta')p(\theta')d\theta'}$$
+$$p(\theta| D) = \frac{p(D|\theta)p(\theta)}{p(D)} = \frac{p(D |\theta)p(\theta)}{\int p(D|\theta')p(\theta')d\theta'}$$
 
-为了明确表示样本集$\mathcal{X}$中有$n$个样本，可以将其标记为$$\mathcal{X}_n$$，易得似然概率：
+为了明确表示样本集$D$中有$n$个样本，可以将其标记为$$D_n$$，易得似然概率：
 
-$$p(\mathcal{X}_n | \theta) = \prod_{t=1}^n p(\boldsymbol{x}^{(t)} | \theta)$$
+$$p(D_n | \theta) = \prod_{t=1}^n p(\boldsymbol{x}^{(t)} | \theta)$$
 
 因此：
 
-$$p(\mathcal{X}_n | \theta) = p(\boldsymbol{x}^{(n)} | \theta)p(\mathcal{X}_{n-1} | \theta)$$
+$$p(D_n | \theta) = p(\boldsymbol{x}^{(n)} | \theta)p(D_{n-1} | \theta)$$
 
 进而容易得到：
 
-$$p(\theta | \mathcal{X}_n) = \frac{p(\boldsymbol{x}^{(n)} | \theta)p(\mathcal{X}_{n-1} | \theta)p(\theta)}{\int p(\boldsymbol{x}^{(n)} | \theta')p(\mathcal{X}_{n-1} | \theta')p(\theta')d\theta'} = \frac{p(\boldsymbol{x}^{(n)} | \theta)p(\theta |\mathcal{X}_{n-1})}{\int p(\boldsymbol{x}^{(n)} | \theta')p(\theta' | \mathcal{X}_{n-1} )d\theta'}$$
+$$p(\theta | D_n) = \frac{p(\boldsymbol{x}^{(n)} | \theta)p(D_{n-1} | \theta)p(\theta)}{\int p(\boldsymbol{x}^{(n)} | \theta')p(D_{n-1} | \theta')p(\theta')d\theta'} = \frac{p(\boldsymbol{x}^{(n)} | \theta)p(\theta |D_{n-1})}{\int p(\boldsymbol{x}^{(n)} | \theta')p(\theta' | D_{n-1} )d\theta'}$$
 
-当没有观测样本时，定义$$p(\theta \mid \mathcal{X}_0) = p(\theta)$$，为参数$$\theta$$的先验估计。然后让样本集合依次进入上述公式，就可以得到一系列的概率密度函数：$$p(\theta \mid \mathcal{X}_0)$$、$$p(\theta \mid \mathcal{X}_1)$$、$$p(\theta \mid \mathcal{X}_2)$$、……、$$p(\theta \mid \mathcal{X}_n)$$，这一过程称为**参数估计贝叶斯递归法**。这是一个在线学习过程，它和随机梯度下降法有很多相似之处。
+当没有观测样本时，定义$$p(\theta \mid D_0) = p(\theta)$$，为参数$$\theta$$的先验估计。然后让样本集合依次进入上述公式，就可以得到一系列的概率密度函数：$$p(\theta \mid D_0)$$、$$p(\theta \mid D_1)$$、$$p(\theta \mid D_2)$$、……、$$p(\theta \mid D_n)$$，这一过程称为**参数估计贝叶斯递归法**。这是一个在线学习过程，它和随机梯度下降法有很多相似之处。
 
 
 最大后验估计（maximum a posteriori, MAP）是将后验概率取最大值时的$\theta$（称为后验概率分布下的众数）作为估计：
 
-$$\theta_{MAP} = arg \max_{\theta} p(\theta | \mathcal{X})$$
+$$\theta_{MAP} = arg \max_{\theta} p(\theta | D)$$
 
-如果我们没有更重要的理由偏爱$\theta$的某些值，则先验概率是扁平的，后验将与似然$p(\mathcal{X}\mid\theta)$有同样的形式，因此MAP估计将等价于最大似然估计。
+如果我们没有更重要的理由偏爱$\theta$的某些值，则先验概率是扁平的，后验将与似然$p(D\mid\theta)$有同样的形式，因此MAP估计将等价于最大似然估计。
 
 另外一种方法是贝叶斯估计（Bayes' estimator），它被定义为后验概率的期望值：
 
-$$\theta_{Bayes} = E[\theta | \mathcal{X}] = \int \theta p(\theta | \mathcal{X})d\theta$$
+$$\theta_{Bayes} = E[\theta | D] = \int \theta p(\theta | D)d\theta$$
 
-如果后验概率$ p(\theta \mid \mathcal{X})$满足高斯分布，则期望值就是众数，则$\theta_{Bayes} = \theta_{MAP}$。
+如果后验概率$ p(\theta \mid D)$满足高斯分布，则期望值就是众数，则$\theta_{Bayes} = \theta_{MAP}$。
 
 举个例子，我们假设$$x^{(t)}\sim \mathcal{N}(\theta,\sigma_0^2)$$并且先验$\theta\sim \mathcal{N}(\mu,\sigma^2)$，其中$\mu$、$\sigma$和$\sigma_0^2$已知，可得：
 
-$$p(\mathcal{X}|\theta) = \frac{1}{(2\pi)^{N/2}\sigma_0^N}\exp(-\frac{\sum_t(x^{(t)}-\theta)^2}{2\sigma_0^2})$$
+$$p(D|\theta) = \frac{1}{(2\pi)^{N/2}\sigma_0^N}\exp(-\frac{\sum_t(x^{(t)}-\theta)^2}{2\sigma_0^2})$$
 
 $$p(\theta) = \frac{1}{\sqrt{2\pi}\sigma}\exp(-\frac{(\theta-\mu)^2}{2\sigma^2})$$
 
-可以证明$p(\theta\mid\mathcal{X})$是正态的，满足：
+可以证明$p(\theta\mid D)$是正态的，满足：
 
-$$E[\theta | \mathcal{X}] = \frac{N/\sigma_0^2}{N/\sigma_0^2 + 1/\sigma^2}m + \frac{1/\sigma^2}{N/\sigma_0^2 + 1/\sigma^2}\mu$$
+$$E[\theta | D] = \frac{N/\sigma_0^2}{N/\sigma_0^2 + 1/\sigma^2}m + \frac{1/\sigma^2}{N/\sigma_0^2 + 1/\sigma^2}\mu$$
 
 因此，贝叶斯估计是先验均值$\mu$和样本均值$m$的加权平均值，权重与它们的方差成反比。当$\sigma^2$较小时，即当我们关于$\sigma$的取值具有较少的先验不确定性时，或者当$N$较小时，我们的先验猜测$\mu$具有较好效果；利用样本提供的更多信息，随着样本规模$N$的增加，贝叶斯估计逼近样本的平均值。
 
 # 2、贝叶斯密度估计
 
-在使用贝叶斯方法获得$\theta$的后验密度$p(\theta\mid \mathcal{X})$后，为了估计$\boldsymbol{x}$上的密度，我们可以进一步获得：
+在使用贝叶斯方法获得$\theta$的后验密度$p(\theta\mid D)$后，为了估计$\boldsymbol{x}$上的密度，我们可以进一步获得：
 
 $$\begin{align}
-p(\boldsymbol{x}|\mathcal{X}) &= \int p(\boldsymbol{x},\theta\mid \mathcal{X})d\theta \\
-		& = \int p(\boldsymbol{x}\mid\theta, \mathcal{X})p(\theta\mid \mathcal{X})d\theta \\
-		& = \int p(\boldsymbol{x}\mid\theta)p(\theta\mid \mathcal{X})d\theta
+p(\boldsymbol{x}| D) &= \int p(\boldsymbol{x},\theta\mid D)d\theta \\
+		& = \int p(\boldsymbol{x}\mid\theta, D)p(\theta\mid D)d\theta \\
+		& = \int p(\boldsymbol{x}\mid\theta)p(\theta\mid D)d\theta
 \end{align}$$
 
-上式中$$p(\boldsymbol{x}\mid\theta, \mathcal{X}) = p(\boldsymbol{x}\mid\theta)$$满足是因为只要我们知道了有效统计量$\theta$，我们就知道了关于分布的一切。
+上式中$$p(\boldsymbol{x}\mid\theta, D) = p(\boldsymbol{x}\mid\theta)$$满足是因为只要我们知道了有效统计量$\theta$，我们就知道了关于分布的一切。
 
 这称为贝叶斯密度估计，实际上我们是在使用所有$\theta$值的预测上取平均，用它们的概率加权。
 
@@ -256,7 +256,7 @@ $$p(x_i | c) = \frac{1}{\sqrt{2\pi}\sigma_{c,i}}\exp(-\frac{(x_i-\mu_{c,i})^2}{2
 
 $$R(c_i | \boldsymbol{x}) = \sum_{j=1}^K\lambda_{ij}p(c_j | \boldsymbol{x})$$
 
-我们的任务是寻找一个分类器$h: \mathcal{x} \rightarrow \mathcal{Y}$以最小化总体风险：
+我们的任务是寻找一个分类器$h: \mathcal{X} \rightarrow \mathcal{Y}$以最小化总体风险：
 
 $$R(h) = E_{\boldsymbol{x}}[R(h(\boldsymbol{x})|\boldsymbol{x})]$$
 
@@ -281,19 +281,5 @@ $$h^*(\boldsymbol{x}) = arg\max_{c\in\mathcal{Y}}p(c | \boldsymbol{x})$$
 即对每个样本$\boldsymbol{x}$，选择能使类后验概率$$p(c\mid\boldsymbol{x})$$最大的分类标记。
 
 
-## 4.3 判别式函数
 
-对于分类任务，我们定义一组判别式函数$g_i(\boldsymbol{x}), i=1,2,...,K$，并且如果$g_j(\boldsymbol{x}) = \max_{i=1}^K g_i(\boldsymbol{x})$，我们就选择$c_j$。
-
-前面我们讨论的贝叶斯分类器中，首先估计先验概率$p(c_i)$和类似然$p(\boldsymbol{x}\mid c_i)$，再使用贝叶斯规则计算后验密度。然后，我们使用后验密度定义判别式函数，例如
-
-$$g_i(\boldsymbol{x}) = \log p(c_i\mid \boldsymbol{x})$$
-
-这称作基于似然的分类（likelihood-based classification，属于“生成式模型”，因为它是基于先验和似然来计算联合分布）。
-
-当然我们还可以绕过似然或后验概率的估计，直接为判别式假定模型，如使用参数$$\Phi_i$$来定义
-
-$$g_i(\boldsymbol{x}\mid \Phi_i)$$
-
-然后学习优化模型参数$$\Phi_i$$，最大化训练集上的分类准确率。这称为基于判别式的分类（discriminant-based classifaction，属于“判别式模型”），我们后面会具体介绍。
 
