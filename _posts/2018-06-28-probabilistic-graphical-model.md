@@ -62,7 +62,7 @@ HMM有以下三个基本问题：
 
 $$\begin{equation}p(\boldsymbol{x}) = \frac{1}{Z}\prod_Q \psi_{Q}(\boldsymbol{x}_Q)\label{2}\end{equation}$$
 
-其中$$Z = \sum_{\boldsymbol{x}}\prod_Q \psi_{Q}(\boldsymbol{x}_Q)$$是正则化常数，以确保$$\sum_{\boldsymbol{x}}p(\boldsymbol{x})=1$$。在实际应用中精确计算$Z$通常很困难，但许多任务往往不需要获得$Z$的精确值。
+其中$$Z = \sum_{\boldsymbol{x}}\prod_Q \psi_{Q}(\boldsymbol{x}_Q)$$是规范化常数，以确保$$\sum_{\boldsymbol{x}}p(\boldsymbol{x})=1$$。在实际应用中精确计算$Z$通常很困难，但许多任务往往不需要获得$Z$的精确值。
 
 在马尔可夫随机场中，可借助“分离”的概念来获得“条件独立性”。若从节点集$A$中的节点到$B$中的节点都必须经过节点集$C$中的节点，则称节点集$A$和$B$被节点集$C$分离，$C$称为“分离集”（separating set）。
 
@@ -103,7 +103,7 @@ $$p(y_v\mid \boldsymbol{x}, \boldsymbol{y}_{V\backslash\{v\}}) = p(y_v\mid \bold
 
 $$\begin{equation}p(\boldsymbol{y}\mid\boldsymbol{x}) = \frac{1}{Z}\exp\left(\sum_j\sum_{i=1}^{n-1}\lambda_jt_j(y_{i+1},y_i,\boldsymbol{x},i) + \sum_k\sum_{i=1}^n\mu_ks_k(y_i,\boldsymbol{x},i)\right)\label{3}\end{equation}$$
 
-其中$$t_j(y_{i+1},y_i,\boldsymbol{x},i)$$是定义在观测序列的两个相邻标记位置上的转移特征函数（transition feature function），用于刻画相邻标记变量之间的相关关系以及观测序列对它们的影响，$$s_k(y_i,\boldsymbol{x},i)$$是定义在观测序列上的标记位置$i$上的状态特征函数（status feature function），用于刻画观测序列对标记变量的影响，$$\lambda_j$$和$$\mu_k$$是参数，$$Z$$为正则化常数。
+其中$$t_j(y_{i+1},y_i,\boldsymbol{x},i)$$是定义在观测序列的两个相邻标记位置上的转移特征函数（transition feature function），用于刻画相邻标记变量之间的相关关系以及观测序列对它们的影响，$$s_k(y_i,\boldsymbol{x},i)$$是定义在观测序列上的标记位置$i$上的状态特征函数（status feature function），用于刻画观测序列对标记变量的影响，$$\lambda_j$$和$$\mu_k$$是参数，$$Z$$为规范化常数。
 
 对比式\eqref{3}和\eqref{2}可看出，条件随机场和马尔可夫随机场均使用团上的势函数定义概率，两者在形式上没有显著区别；但条件随机场处理的是条件概率，而马尔可夫随机场处理的是联合概率。
 
