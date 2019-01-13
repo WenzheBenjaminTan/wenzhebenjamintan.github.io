@@ -7,7 +7,7 @@ title: "参数估计与贝叶斯学习"
 
 给定了概率密度族，概率密度模型就定义在若干参数（例如均值、方差），即样本的分布的有效统计量（statistics）上。因此，概率密度模型的训练过程就是参数估计（parameter estimation）的过程。
 
-在机器学习中，密度估计可通过参数估计来直接获得$p(\boldsymbol{x})$；分类任务可通过参数估计来获得类条件（似然）密度$p(\boldsymbol{x}\mid c)$（见后面的贝叶斯分类器，它是“生成式模型”）；回归任务则一般直接估计密度$p(y\mid \boldsymbol{x})$（属于“判别式模型”）。
+在机器学习中，密度估计可通过参数估计来直接获得$p(\boldsymbol{x})$；分类任务可通过参数估计来获得类条件（似然）密度$p(\boldsymbol{x}\mid C)$（见后面的贝叶斯分类器，它是“生成式模型”）；回归任务则一般直接估计密度$p(y\mid \boldsymbol{x})$（属于“判别式模型”）。
 
 
 对于参数估计，统计学界的两个学派分别提供了不同的解决方案：频率主义学派（Frequentist）认为参数虽然未知，但却是客观存在的固定值，因此，可通过优化似然函数等准则来确定参数值；贝叶斯学派（Bayesian）则认为参数是未观察到的随机变量，其本身也可有分布，因此，可假定参数服从一个先验分布，然后基于观测到的数据来计算参数的后验分布。
@@ -16,19 +16,19 @@ title: "参数估计与贝叶斯学习"
 
 ## 1.2 最大似然估计
 
-假定我们有一个独立同分布（iid）样本集$$D = \{\boldsymbol{x}^{(t)}\}_{t=1}^N$$。我们假设$\boldsymbol{x}^{(t)}$是从某个定义在参数$\theta$上的已知概率密度族$p(\boldsymbol{x}\mid\theta)$中抽取的实例：
+假定我们有一个独立同分布（iid）样本集$$D = \{\boldsymbol{x}^{(s)}\}_{s=1}^N$$。我们假设$\boldsymbol{x}^{(s)}$是从某个定义在参数$\theta$上的已知概率密度族$p(\boldsymbol{x}\mid\theta)$中抽取的实例：
 
-$$\boldsymbol{x}^{(t)} \sim p(\boldsymbol{x}\mid\theta)$$
+$$\boldsymbol{x}^{(s)} \sim p(\boldsymbol{x}\mid\theta)$$
 
-我们希望找出这样的$\theta$，使得$\boldsymbol{x}^{(t)}$尽可能像是从$p(\boldsymbol{x}\mid\theta)$抽取出来的。因为$\boldsymbol{x}^{(t)}$是相互独立的，给定参数$\theta$，样本集$D$的似然（likelihood）是所有样本似然的乘积：
+我们希望找出这样的$\theta$，使得$\boldsymbol{x}^{(s)}$尽可能像是从$p(\boldsymbol{x}\mid\theta)$抽取出来的。因为$\boldsymbol{x}^{(s)}$是相互独立的，给定参数$\theta$，样本集$D$的似然（likelihood）是所有样本似然的乘积：
 
-$$L(D | \theta) \equiv p(D | \theta) = \prod_{t=1}^Np(\boldsymbol{x}^{(t)} | \theta)$$
+$$L(D | \theta) \equiv p(D | \theta) = \prod_{s=1}^Np(\boldsymbol{x}^{(s)} | \theta)$$
 
 在最大似然估计（maximum likelihood estimation）中，我们感兴趣的是找到这样的$\theta$，使得$$L(D \mid \theta)$$最大。
 
 通常情况下，我们可以最大化该似然的对数。通过log运算可以把乘积转换为求和，并不改变它取最大值时的解，并且当概率密度函数包含指数项时可以进一步简化计算量。对数似然（log likelihood）定义为：
 
-$$\mathcal{L}(\theta|D) \equiv \log L(D| \theta) = \sum_{t=1}^N\log p(\boldsymbol{x}^{(t)} | \theta)$$
+$$\mathcal{L}(\theta|D) \equiv \log L(D| \theta) = \sum_{s=1}^N\log p(\boldsymbol{x}^{(s)} | \theta)$$
 
 此时参数$\theta$的最大似然估计为：
 
@@ -40,15 +40,15 @@ $$\theta_{ML} = arg \max_{\theta} \mathcal{L}(\theta|D)$$
 
 $$p(x) = \frac{1}{\sqrt{2\pi}\sigma}\exp(-\frac{(x-\mu)^2}{2\sigma^2}), \ -\infty < x < \infty$$
 
-给定样本集$$D = \{x^{(t)}\}_{t=1}^N$$，其中$$x^{(t)} \sim \mathcal{N}(\mu, \sigma^2)$$，高斯样本的对数似然为：
+给定样本集$$D = \{x^{(s)}\}_{s=1}^N$$，其中$$x^{(s)} \sim \mathcal{N}(\mu, \sigma^2)$$，高斯样本的对数似然为：
 
-$$\mathcal{L}(\mu,\sigma | D) = -\frac{N}{2}\log(2\pi) - N\log \sigma - \frac{\sum_t(x^{(t)}-\mu)^2}{2\sigma^2}$$
+$$\mathcal{L}(\mu,\sigma | D) = -\frac{N}{2}\log(2\pi) - N\log \sigma - \frac{\sum_s(x^{(s)}-\mu)^2}{2\sigma^2}$$
 
-通过对该对数似然函数求偏导并置零，可得最大似然估计为：
+通过对该对数似然函数求偏导并置零，可得均值和方差的最大似然估计分别为：
 
 $$m = \frac{\sum_tx^{(t)}}{N}$$
 
-$$s^2 = \frac{\sum_t(x^{(t)}-m)^2}{N}$$
+$$e^2 = \frac{\sum_t(x^{(t)}-m)^2}{N}$$
 
 ### 1.2.2 估计性能的评价
 
@@ -75,35 +75,35 @@ $$r(d,\theta) = Var(d) + (b_{\theta}(d))^2$$
 
 特别地，如果$b_{\theta}(d) = 0$，则称$d$是$\theta$的无偏估计（unbiased estimator）；如果当$N\rightarrow \infty$时，$b_{\theta}(d) \rightarrow 0$，则称$d$是$\theta$的渐近无偏估计（asymptotically unbiased estimator）；如果当$N\rightarrow \infty$时，$b_{\theta}(d) \rightarrow 0$ 且 $Var(d) \rightarrow 0$，则称$d$是$\theta$的一致估计（consistent estimator）。
 
-例如，如果$x^{(t)}$是从均值$\mu$的密度抽取出来的，则样本平均值$m$是均值$\mu$的一个无偏估计，因为：
+例如，如果$x^{(s)}$是从均值$\mu$的密度抽取出来的，则样本平均值$m$是均值$\mu$的一个无偏估计，因为：
 
-$$E(m) = E[\frac{\sum_tx^{(t)}}{N}] = \frac{1}{N}\sum_tE[x^{(t)}] = \frac{N\mu}{N} = \mu$$
+$$E(m) = E[\frac{\sum_s x^{(s)}}{N}] = \frac{1}{N}\sum_s E[x^{(s)}] = \frac{N\mu}{N} = \mu$$
 
 这就意味着虽然在一个特定样本上，$m$可能与$\mu$不同，但是如果我们取许多这样的样本集$D_i$，并且估计许多$m_i = m(D_i)$，随着样本集的增加，它们的平均值将逼近$\mu$。
 
 同时，$m$也是$\mu$的一个一致估计，即当$N\rightarrow \infty$时，$Var(m) \rightarrow 0$：
 
-$$Var(m) = Var(\frac{\sum_tx^{(t)}}{N}) = \frac{1}{N^2}\sum_tVar(x^{(t)}) = \frac{N\sigma^2}{N^2} = \frac{\sigma^2}{N}$$
+$$Var(m) = Var(\frac{\sum_s x^{(s)}}{N}) = \frac{1}{N^2}\sum_s Var(x^{(s)}) = \frac{N\sigma^2}{N^2} = \frac{\sigma^2}{N}$$
 
 随着样本集中的样本点数$N$增大，$m$对$\mu$的偏离将变小。
 
-接下来我们检查$\sigma^2$的最大似然估计$s^2$：
+接下来我们检查$\sigma^2$的最大似然估计$e^2$：
 
-$$s^2 = \frac{\sum_t(x^{(t)}-m)^2}{N} = \frac{\sum_t(x^{(t)})^2-Nm^2}{N}$$
+$$e^2 = \frac{\sum_s(x^{(s)}-m)^2}{N} = \frac{\sum_s(x^{(s)})^2-Nm^2}{N}$$
 
-$$E[s^2] = \frac{\sum_tE[(x^{(t)})^2]-N\cdot E[m^2]}{N}$$
+$$E[e^2] = \frac{\sum_s E[(x^{(s)})^2]-N\cdot E[m^2]}{N}$$
 
 给定$Var[X] = E[X^2] - E[X]^2$，可以得到$E[X^2] = Var[X] + E[X]^2$，于是有：
 
-$$E[(x^{(t)})^2] = \sigma^2 + \mu^2$$
+$$E[(x^{(s)})^2] = \sigma^2 + \mu^2$$
 
 $$E[m^2] = \frac{\sigma^2}{N} + \mu^2$$
 
 进而可得到：
 
-$$E[s^2] = \frac{N(\sigma^2 + \mu^2) - N(\frac{\sigma^2}{N}+\mu^2)}{N} = (\frac{N-1}{N})\sigma^2 \neq \sigma^2$$
+$$E[e^2] = \frac{N(\sigma^2 + \mu^2) - N(\frac{\sigma^2}{N}+\mu^2)}{N} = (\frac{N-1}{N})\sigma^2 \neq \sigma^2$$
 
-上式说明$s^2$是$\sigma^2$的有偏估计，而$$(\frac{N}{N-1})s^2$$是一个无偏估计。然而，当$N$很大时，二者差别可以忽略。这是一个渐近无偏估计的例子，它的偏倚随着$N$趋向无穷而趋向于0。
+上式说明$e^2$是$\sigma^2$的有偏估计，而$$(\frac{N}{N-1})e^2$$是一个无偏估计。然而，当$N$很大时，二者差别可以忽略。这是一个渐近无偏估计的例子，它的偏倚随着$N$趋向无穷而趋向于0。
 
 ## 1.3 最大后验估计与贝叶斯估计
 
@@ -117,7 +117,7 @@ $$p(\theta| D) = \frac{p(D|\theta)p(\theta)}{p(D)} = \frac{p(D |\theta)p(\theta)
 
 为了明确表示样本集$D$中有$n$个样本，可以将其标记为$$D_n$$，易得似然概率：
 
-$$p(D_n | \theta) = \prod_{t=1}^n p(\boldsymbol{x}^{(t)} | \theta)$$
+$$p(D_n | \theta) = \prod_{s=1}^n p(\boldsymbol{x}^{(s)} | \theta)$$
 
 因此：
 
@@ -142,9 +142,9 @@ $$\theta_{Bayes} = E[\theta | D] = \int \theta p(\theta | D)d\theta$$
 
 如果后验概率$ p(\theta \mid D)$满足高斯分布，则期望值就是众数，则$\theta_{Bayes} = \theta_{MAP}$。
 
-举个例子，我们假设$$x^{(t)}\sim \mathcal{N}(\theta,\sigma_0^2)$$并且先验$\theta\sim \mathcal{N}(\mu,\sigma^2)$，其中$\mu$、$\sigma$和$\sigma_0^2$已知，可得：
+举个例子，我们假设$$x^{(s)}\sim \mathcal{N}(\theta,\sigma_0^2)$$并且先验$\theta\sim \mathcal{N}(\mu,\sigma^2)$，其中$\mu$、$\sigma$和$\sigma_0^2$已知，可得：
 
-$$p(D|\theta) = \frac{1}{(2\pi)^{N/2}\sigma_0^N}\exp(-\frac{\sum_t(x^{(t)}-\theta)^2}{2\sigma_0^2})$$
+$$p(D|\theta) = \frac{1}{(2\pi)^{N/2}\sigma_0^N}\exp(-\frac{\sum_s(x^{(s)}-\theta)^2}{2\sigma_0^2})$$
 
 $$p(\theta) = \frac{1}{\sqrt{2\pi}\sigma}\exp(-\frac{(\theta-\mu)^2}{2\sigma^2})$$
 
@@ -186,11 +186,11 @@ $$\widehat{y}(\boldsymbol{x},\boldsymbol{w}) = \boldsymbol{w}^T\boldsymbol{\phi}
 
 我们定义$$p(y\mid \boldsymbol{x},\boldsymbol{w}) \sim \mathcal{N}(\widehat{y}(\boldsymbol{x},\boldsymbol{w}),\sigma^2)$$，并假设样本是独立同分布的，可得条件对数似然如下：
 
-$$\sum_{t=1}^N\log p(y^{(t)} | \boldsymbol{x}^{(t)}, \boldsymbol{w}) = -\frac{N}{2}\log(2\pi) - N\log \sigma - \frac{\sum_{t=1}^N\|y^{(t)}-\widehat{y}^{(t)}\|^2}{2\sigma^2}$$
+$$\sum_{s=1}^N\log p(y^{(s)} | \boldsymbol{x}^{(s)}, \boldsymbol{w}) = -\frac{N}{2}\log(2\pi) - N\log \sigma - \frac{\sum_{s=1}^N\|y^{(s)}-\widehat{y}^{(s)}\|^2}{2\sigma^2}$$
 
 对比均方误差：
 
-$$MSE = \frac{1}{N}\|y^{(t)}-\widehat{y}^{(t)}\|^2$$
+$$MSE = \frac{1}{N}\sum_{s=1}^N\|y^{(s)}-\widehat{y}^{(s)}\|^2$$
 
 可以看出，最大化关于$\boldsymbol{w}$的对数似然和最小化均方误差会得到相同的参数估计$\boldsymbol{w}$，因此对数似然和最小二乘法是等价的。
 
@@ -205,7 +205,7 @@ $$p(\boldsymbol{w} \mid \boldsymbol{X}, \boldsymbol{y}) \propto p(\boldsymbol{y}
 
 那么，线性模型的对数后验概率函数可表示为：
 
-$$\log p(\boldsymbol{w} | \boldsymbol{X},\boldsymbol{y}) = -\frac{\beta}{2}\sum_{t=1}^N\|y^{(t)}-\widehat{y}^{(t)}\|^2 - \frac{\alpha}{2}\boldsymbol{w}^T\boldsymbol{w} + const $$
+$$\log p(\boldsymbol{w} | \boldsymbol{X},\boldsymbol{y}) = -\frac{\beta}{2}\sum_{s=1}^N\|y^{(s)}-\widehat{y}^{(s)}\|^2 - \frac{\alpha}{2}\boldsymbol{w}^T\boldsymbol{w} + const $$
 
 因此，最大化后验概率和带权重衰减项$$\frac{\alpha}{2}\boldsymbol{w}^T\boldsymbol{w}$$的最小二乘回归是等价的。
 
@@ -213,48 +213,48 @@ $$\log p(\boldsymbol{w} | \boldsymbol{X},\boldsymbol{y}) = -\frac{\beta}{2}\sum_
 
 ## 4.1 类后验概率的计算
 
-考虑分类任务中的“生成式模型”，学习联合分布$p(\boldsymbol{x},c)$是极其困难的（基于有限训练集直接估计联合概率，在数据上会遭遇样本稀疏问题，在计算上会遭遇组合爆炸问题，属性数越多，问题越严重。），我们可以进一步基于贝叶斯定理将$p(\boldsymbol{x},c)$写成：
+考虑分类任务中的“生成式模型”，学习联合分布$p(\boldsymbol{x},C)$是极其困难的（基于有限训练集直接估计联合概率，在数据上会遭遇样本稀疏问题，在计算上会遭遇组合爆炸问题，属性数越多，问题越严重。），我们可以进一步基于贝叶斯定理将$p(\boldsymbol{x},C)$写成：
 
-$$p(\boldsymbol{x},c) = p(c)p(\boldsymbol{x}|c)$$
+$$p(\boldsymbol{x},C) = p(C)p(\boldsymbol{x}|C)$$
 
 于是可得
 
-$$p(c | \boldsymbol{x}) = \frac{p(c)p(\boldsymbol{x}|c)}{\sum_{c'}p(c')p(\boldsymbol{x}|c')}$$
+$$p(C | \boldsymbol{x}) = \frac{p(C)p(\boldsymbol{x}|C)}{\sum_{C'}p(C')p(\boldsymbol{x}|C')}$$
 
 
-因此，学习联合分布$p(\boldsymbol{x},c)$可以转化为学习以下概率分布：
+因此，学习联合分布$p(\boldsymbol{x},C)$可以转化为学习以下概率分布：
 
-1）类先验概率分布：$p(c)$；
+1）类先验概率分布：$p(C)$；
 
-2）类条件（似然）概率分布：$p(\boldsymbol{x}\mid c)$。
+2）类条件（似然）概率分布：$p(\boldsymbol{x}\mid C)$。
 
-可以看出类条件（似然）概率$p(\boldsymbol{x}\mid c)$是所有特征属性上的联合概率，仍然难以从有限的训练样本直接估计而得到。
+可以看出类条件（似然）概率$p(\boldsymbol{x}\mid C)$是所有特征属性上的联合概率，仍然难以从有限的训练样本直接估计而得到。
 
 以朴素贝叶斯分类器（naive Bayes classifier）为例，其采用了“属性条件独立性假设”（attribute conditional independence assumption）：在分类确定的条件下，假设所有特征属性相互独立。于是可得：
 
-$$\begin{align} p(\boldsymbol{x}\mid c) = \prod_{i=1}^d p(x_i \mid c)
+$$\begin{align} p(\boldsymbol{x}\mid C) = \prod_{i=1}^d p(x_i \mid C)
 \end{align}$$ 
 
 其中$d$为特征属性的数目，$$x_i$$为$\boldsymbol{x}$在第$i$个属性上的取值。
 
-令$$D_c$$表示训练集$D$中第$c$类样本组成的集合，若有充足的独立同分布样本，则可容易地估计出类先验概率：
+令$$D_C$$表示训练集$D$中第$C$类样本组成的集合，若有充足的独立同分布样本，则可容易地估计出类先验概率：
 
-$$p(c) = \frac{|D_c|}{|D|}$$
+$$p(C) = \frac{|D_C|}{|D|}$$
 
-对离散属性而言，令$$D_{c,x_i}$$表示$$D_c$$中在第$i$个属性上取值为$$x_i$$的样本组成的集合，则类条件（似然）概率可估计为：
+对离散属性而言，令$$D_{C,x_i}$$表示$$D_C$$中在第$i$个属性上取值为$$x_i$$的样本组成的集合，则类条件（似然）概率可估计为：
 
-$$p(x_i |c) = \frac{|D_{c,x_i}|}{|D_c|}$$
+$$p(x_i |C) = \frac{|D_{C,x_i}|}{|D_C|}$$
 
-对连续属性而言，可考虑概率密度函数。假定通过参数估计得到$$p(X_i\mid c) \sim \mathcal{N}(\mu_{c,i},\sigma_{c,i}^2)$$，则有：
+对连续属性而言，可考虑概率密度函数。假定通过参数估计得到$$p(x_i\mid C) \sim \mathcal{N}(\mu_{C,i},\sigma_{C,i}^2)$$，则有：
 
-$$p(x_i | c) = \frac{1}{\sqrt{2\pi}\sigma_{c,i}}\exp(-\frac{(x_i-\mu_{c,i})^2}{2\sigma_{c,i}^2})$$
+$$p(x_i | C) = \frac{1}{\sqrt{2\pi}\sigma_{C,i}}\exp(-\frac{(x_i-\mu_{C,i})^2}{2\sigma_{C,i}^2})$$
 
 
 ## 4.2 贝叶斯最优分类器
 
-假设一共有$K$种可能的类别标记，即$\mathcal{Y} = \\{c_1,c_2,...,c_K\\}$，$\lambda_{ij}$是将一个真实标记为$$c_j$$的样本误分类为$$c_i$$所产生的损失。则在获得类后验概率$p(c\mid\boldsymbol{x})$后，可得到将样本$\boldsymbol{x}$分类为$$c_i$$所产生的期望损失（expected loss），又称“条件风险”（conditional risk）：
+假设一共有$K$种可能的类别标记，即$\mathcal{Y} = \\{C_1,C_2,...,C_K\\}$，$\lambda_{ij}$是将一个真实标记为$$C_j$$的样本误分类为$$C_i$$所产生的损失。则在获得类后验概率$p(C\mid\boldsymbol{x})$后，可得到将样本$\boldsymbol{x}$分类为$$C_i$$所产生的期望损失（expected loss），又称“条件风险”（conditional risk）：
 
-$$R(c_i | \boldsymbol{x}) = \sum_{j=1}^K\lambda_{ij}p(c_j | \boldsymbol{x})$$
+$$R(C_i | \boldsymbol{x}) = \sum_{j=1}^K\lambda_{ij}p(C_j | \boldsymbol{x})$$
 
 我们的任务是寻找一个分类器$h: \mathcal{X} \rightarrow \mathcal{Y}$以最小化总体风险：
 
@@ -262,7 +262,7 @@ $$R(h) = E_{\boldsymbol{x}}[R(h(\boldsymbol{x})|\boldsymbol{x})]$$
 
 显然，对每个样本$\boldsymbol{x}$，若$h$都能最小化条件风险$$R(h(\boldsymbol{x})\mid\boldsymbol{x})$$，则总体风险也将被最小化。因此，有：
 
-$$h^*(\boldsymbol{x}) = arg\min_{c\in\mathcal{Y}}R(c | \boldsymbol{x})$$
+$$h^*(\boldsymbol{x}) = arg\min_{C\in\mathcal{Y}}R(C | \boldsymbol{x})$$
 
 此时，$$h^*$$称为贝叶斯最优分类器（Bayes optimal classifier），与之对应的总体风险$$R(h^*)$$称为贝叶斯风险（Bayes risk）。
 
@@ -272,13 +272,13 @@ $$\lambda_{ij} = \begin{cases} 0 & \text{if } i=j \\ 1 & \text{otherwise} \end{c
 
 此时条件风险为：
 
-$$R(c| \boldsymbol{x}) = 1- p(c|\boldsymbol{x})$$
+$$R(C| \boldsymbol{x}) = 1- p(C|\boldsymbol{x})$$
 
 于是，最小化分类错误率的贝叶斯最优分类器为：
 
-$$h^*(\boldsymbol{x}) = arg\max_{c\in\mathcal{Y}}p(c | \boldsymbol{x})$$
+$$h^*(\boldsymbol{x}) = arg\max_{C\in\mathcal{Y}}p(C | \boldsymbol{x})$$
 
-即对每个样本$\boldsymbol{x}$，选择能使类后验概率$$p(c\mid\boldsymbol{x})$$最大的分类标记。
+即对每个样本$\boldsymbol{x}$，选择能使类后验概率$$p(C\mid\boldsymbol{x})$$最大的分类标记。
 
 
 

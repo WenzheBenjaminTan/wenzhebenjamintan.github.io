@@ -66,11 +66,11 @@ $$\mathcal{I}_m = -\sum_{j=1}^n\frac{N_{mj}}{N_m}\sum_{i=1}^Kp_{mj}^i\log p_{mj}
 
 设$b_m(\boldsymbol{x})=1$表示实例$\boldsymbol{x}$到达节点$m$，否则为0。在回归树中，划分的好坏用估计值的均方误差来度量。令$$g_m$$为节点$m$的估计值，则均方误差表示为
 
-$$E_m = \frac{1}{N_m}\sum_t(g_m-y^{(t)})^2b_m(\boldsymbol{x}^{(t)})$$
+$$E_m = \frac{1}{N_m}\sum_s(g_m-y^{(s)})^2b_m(\boldsymbol{x}^{(s)})$$
 
-其中$$N_m = \sum_tb_m(\boldsymbol{x}^{(t)})$$。节点的估计值我们一般使用到达该节点的所有实例的输出均值（如果噪声太大用中值）
+其中$$N_m = \sum_tb_m(\boldsymbol{x}^{(s)})$$。节点的估计值我们一般使用到达该节点的所有实例的输出均值（如果噪声太大用中值）
 
-$$g_m = \frac{\sum_tb_m(\boldsymbol{x}^{(t)})y^{(t)}}{\sum_tb_m(\boldsymbol{x}^{(t)})}$$
+$$g_m = \frac{\sum_sb_m(\boldsymbol{x}^{(s)})y^{(s)}}{\sum_sb_m(\boldsymbol{x}^{(s)})}$$
 
 于是均方误差对应于节点上的方差。如果在一个节点上，误差是可以接受的，即$$E_m < \theta_r$$，则创建一个树叶节点，存放$$g_m$$值。如果误差不能接受，则对到达节点$m$的实例进一步划分，使得诸分支的误差和最小。与分类一样，在每个节点上，我们寻找最小误差的属性（以及数值属性的划分阈值），然后递归地进行上述过程。
 

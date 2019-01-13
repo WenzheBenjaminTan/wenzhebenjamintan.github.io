@@ -62,7 +62,7 @@ HMM有以下三个基本问题：
 
 $$\begin{equation}p(\boldsymbol{x}) = \frac{1}{Z}\prod_Q \psi_{Q}(\boldsymbol{x}_Q)\label{2}\end{equation}$$
 
-其中$$Z = \sum_{\boldsymbol{x}}\prod_Q \psi_{Q}(\boldsymbol{x}_Q)$$是规范化常数，以确保$$\sum_{\boldsymbol{x}}p(\boldsymbol{x})=1$$。在实际应用中精确计算$Z$通常很困难，但许多任务往往不需要获得$Z$的精确值。
+其中$$Z = \sum_{\boldsymbol{x}}\prod_Q \psi_{Q}(\boldsymbol{x}_Q)$$是规范化常数，以确保$$\sum_{\boldsymbol{x}}p(\boldsymbol{x})=1$$。在实际应用中精确计算$Z$通常很困难，但许多任务往往不需要获得$Z$的精确值。像上式这样，通过归一化团势能乘积定义的分布也被称作吉布斯分布（Gibbs distribution）。
 
 在马尔可夫随机场中，可借助“分离”的概念来获得“条件独立性”。若从节点集$A$中的节点到$B$中的节点都必须经过节点集$C$中的节点，则称节点集$A$和$B$被节点集$C$分离，$C$称为“分离集”（separating set）。
 
@@ -82,7 +82,11 @@ $$H_Q(\boldsymbol{x}_Q) = \sum_{u,v\in Q,u\neq v}\alpha_{uv}x_ux_v + \sum_{v\in 
 
 其中$$\alpha_{uv}$$和$$\beta_v$$是参数。上式中的第二项仅考虑单节点，第一项则考虑每一对节点的关系。
 
+此时，我们可以将得到某一个状态$\boldsymbol{x}$的概率写为：
 
+$$p(\boldsymbol{x}) = \frac{1}{Z} e^{-\sum_{Q}H_Q(\boldsymbol{x}_Q)} = \frac{1}{Z} e^{-E(\boldsymbol{x})}$$
+
+服从这种形式的$E(\boldsymbol{x})$称作能量函数（energy function），相应的模型称作基于能量的模型，又称为玻尔兹曼机（Boltzmann Machine），$\boldsymbol{x}$的分布称作玻尔兹曼分布（Boltzmann distribution）。
 
 
 # 4、条件随机场

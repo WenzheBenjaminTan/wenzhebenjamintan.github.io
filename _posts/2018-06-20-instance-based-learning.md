@@ -18,25 +18,25 @@ title: "基于实例的学习"
 
 # 2、基于实例的密度估计
 
-与通常的密度估计一样，我们假设样本$\mathcal{X} = \\{x^{(t)}\\}_{t=1}^N$独立地从一个未知的概率密度$p(\cdot)$中抽取的，$\widehat{p}(\cdot)$是$p(\cdot)$的估计。我们从单变量情况开始，即$x^{(t)}$是标量，稍后我们将推广到多维的情况。
+与通常的密度估计一样，我们假设样本$\mathcal{X} = \\{x^{(s)}\\}_{s=1}^N$独立地从一个未知的概率密度$p(\cdot)$中抽取的，$\widehat{p}(\cdot)$是$p(\cdot)$的估计。我们从单变量情况开始，即$x^{(s)}$是标量，稍后我们将推广到多维的情况。
 
 基于实例的累积分布函数$F(x)$的估计是小于或等于$x$的样本所占的比例：
 
-$$\widehat{F}(x) = \frac{\#\{x^{(t)} \leq x\}}{N}$$
+$$\widehat{F}(x) = \frac{\#\{x^{(s)} \leq x\}}{N}$$
 
-其中$$\#\{x^{(t)} \leq x\}$$表示$x^{(t)}$小于或等于$x$的训练样本数。
+其中$$\#\{x^{(s)} \leq x\}$$表示$x^{(s)}$小于或等于$x$的训练样本数。
 
 类似地，基于实例的密度函数估计可以表示为：
 
-$$\widehat{p}(x) = \frac{1}{h}\left(\frac{\#\{x^{(t)} \leq x+h\} - \#\{x^{(t)} \leq x\}}{N}\right)$$
+$$\widehat{p}(x) = \frac{1}{h}\left(\frac{\#\{x^{(s)} \leq x+h\} - \#\{x^{(s)} \leq x\}}{N}\right)$$
 
-其中$h$是区间长度，并且假定落入该区间的实例$x^{(t)}$是“足够接近”的。
+其中$h$是区间长度，并且假定落入该区间的实例$x^{(s)}$是“足够接近”的。
 
 ## 2.1 直方图估计
 
 最古老、最流行的方法是直方图估计（hisogram estimator）。在直方图中，输入空间被划分为称作“箱”（bin）的相等区间。给定原点$x_0$和箱宽$h$，箱区间为$$[x_0+mh, x_0+(m+1)h]$$（$m$是整数），密度估计由下式给出：
 
-$$\widehat{p}(x) = \frac{\#\{x^{(t)}\text{ in the same bin as }x\}}{Nh}$$
+$$\widehat{p}(x) = \frac{\#\{x^{(s)}\text{ in the same bin as }x\}}{Nh}$$
 
 直方图估计的优点是一旦计算和存放了箱估计，我们就不再需要保留训练集了。但如果没有实例落入箱中，则估计为0，且在箱边界处不连续。
 
@@ -44,20 +44,20 @@ $$\widehat{p}(x) = \frac{\#\{x^{(t)}\text{ in the same bin as }x\}}{Nh}$$
 
 质朴估计法（naive estimator）使得我们不必设置原点（但此时我们需要保留整个训练集）。它定义为：
 
-$$\widehat{p}(x) = \frac{\#\{x-h/2 < x^{(t)} \leq x+h/2\}}{Nh}$$
+$$\widehat{p}(x) = \frac{\#\{x-h/2 < x^{(s)} \leq x+h/2\}}{Nh}$$
 
 容易看出，它等于$x$落在宽度为$h$的箱中心的直方图估计。
 
 该估计还可以表示为：
 
-$$\widehat{p}(x) = \frac{1}{Nh}\sum_{t=1}^N w(\frac{x-x^{(t)}}{h})$$
+$$\widehat{p}(x) = \frac{1}{Nh}\sum_{s=1}^N w(\frac{x-x^{(s)}}{h})$$
 
 其中权重函数定义为：
 
 $$w(u) = \begin{cases} 1 & -1/2<u\leq 1/2 \\
 			0 & otherwise\end{cases}$$
 
-这就好像对每个$x^{(t)}$都有一个围绕它的大小为$h$的影响区域，并且对落入该区域的$x$产生影响，而最终估计恰为影响区域包含$x$的$x^{(t)}$的影响之和。该估计不是连续函数，并在$x^{(t)}\pm h/2$处有跳跃。
+这就好像对每个$x^{(s)}$都有一个围绕它的大小为$h$的影响区域，并且对落入该区域的$x$产生影响，而最终估计恰为影响区域包含$x$的$x^{(s)}$的影响之和。该估计不是连续函数，并在$x^{(s)}\pm h/2$处有跳跃。
 
 ## 2.3 核估计
 
@@ -67,9 +67,9 @@ $$K(u) = \frac{1}{\sqrt{2\pi}}\exp(-\frac{u^2}{2})$$
 
 核估计（kernel estimator）定义为：
 
-$$\widehat{p}(x) = \frac{1}{Nh}\sum_{t=1}^N K(\frac{x-x^{(t)}}{h})$$
+$$\widehat{p}(x) = \frac{1}{Nh}\sum_{s=1}^N K(\frac{x-x^{(s)}}{h})$$
 
-此时所有的$x^{(t)}$都对$x$上的估计有影响，并且其影响随着$\mid x^{(t)}-x\mid$的增加而平滑地减小。
+此时所有的$x^{(s)}$都对$x$上的估计有影响，并且其影响随着$\mid x^{(s)}-x\mid$的增加而平滑地减小。
 
 当$h$很小时，每个训练实例只在其附近小区域内产生较大影响，而在较远的点上影响非常小。当$h$较大时，有更多的核重叠，我们得到较光滑的估计。如果$K(\cdot)$处处非负并且积分为1，即如果它是合法的密度函数，则$\widehat{p}(\cdot)$也是。
 
@@ -93,15 +93,15 @@ k-nn密度估计不是一阶连续的，它的导数在所有的$$\frac{1}{2}(\b
 
 为了得到更光滑的估计和严格的概率密度函数，我们可以使用其影响随距离增加而减小的核函数，并采用自适应光滑参数$$h=d_k(x)$$：
 
-$$\widehat{p}(x) = \frac{1}{Nd_k(x)}\sum_{t=1}^N K(\frac{x-x^{(t)}}{d_k(x)})$$
+$$\widehat{p}(x) = \frac{1}{Nd_k(x)}\sum_{s=1}^N K(\frac{x-x^{(s)}}{d_k(x)})$$
 
 通常，$K(\cdot)$取高斯核。
 
 ## 2.5 从标量到多维数据的推广
 
-给定$d$维观测样本$$D = \{\boldsymbol{x}^{(t)}\}_{t=1}^N$$，多元核密度估计为：
+给定$d$维观测样本$$D = \{\boldsymbol{x}^{(s)}\}_{s=1}^N$$，多元核密度估计为：
 
-$$\widehat{p}(\boldsymbol{x}) = \frac{1}{Nh^d}\sum_{t=1}^N K(\frac{\boldsymbol{x}-\boldsymbol{x}^{(t)}}{h})$$
+$$\widehat{p}(\boldsymbol{x}) = \frac{1}{Nh^d}\sum_{s=1}^N K(\frac{\boldsymbol{x}-\boldsymbol{x}^{(s)}}{h})$$
 
 其中核函数应满足必要条件
 
@@ -121,36 +121,36 @@ $$K(\boldsymbol{u}) = \frac{1}{2\pi^{d/2}|\boldsymbol{S}|^{1/2}} \exp(-\frac{1}{
 
 如果输入是离散的，我们可以使用汉明距离（Hamming distance），它对不匹配的属性计数：
 
-$$HD(\boldsymbol{x},\boldsymbol{x}^{(t)}) = \sum_{i=1}^d 1(x_i\neq x_i^{(t)})$$
+$$HD(\boldsymbol{x},\boldsymbol{x}^{(s)}) = \sum_{i=1}^d 1(x_i\neq x_i^{(s)})$$
 
 
 # 3、基于实例的分类
 
-当用于分类时，我们使用基于实例的方法来估计类条件密度$$p(\boldsymbol{x}\mid c_i)$$。
+当用于分类时，我们使用基于实例的方法来估计类条件密度$$p(\boldsymbol{x}\mid C_i)$$。
 
 类条件密度的核估计由下式给出：
 
-$$\widehat{p}(\boldsymbol{x}\mid c_i) = \frac{1}{N_ih^d}\sum_{t=1}^N K(\frac{\boldsymbol{x}-\boldsymbol{x}^{(t)}}{h})r_i^{(t)}$$
+$$\widehat{p}(\boldsymbol{x}\mid C_i) = \frac{1}{N_ih^d}\sum_{s=1}^N K(\frac{\boldsymbol{x}-\boldsymbol{x}^{(s)}}{h})r_i^{(s)}$$
 
-其中如果$$y^{(t)}=c_i$$，则$$r_i^{(t)}$$为1，否则为0。$$N_i = \sum_t r_i^{(t)}$$表示属于第$i$个类的实例数。
+其中如果$$y^{(s)}=C_i$$，则$$r_i^{(s)}$$为1，否则为0。$$N_i = \sum_t r_i^{(s)}$$表示属于第$i$个类的实例数。
 
-先验密度的最大似然估计是$$\widehat{p}(c_i) = N_i/N$$，于是判别式函数可以表示为：
+先验密度的最大似然估计是$$\widehat{p}(C_i) = N_i/N$$，于是判别式函数可以表示为：
 
-$$\begin{align}g_i(\boldsymbol{x}) & = \widehat{p}(\boldsymbol{x}\mid c_i)\widehat{p}(c_i) \\
-					& = \frac{1}{Nh^d}\sum_{t=1}^N K(\frac{\boldsymbol{x}-\boldsymbol{x}^{(t)}}{h})r_i^{(t)}
+$$\begin{align}g_i(\boldsymbol{x}) & = \widehat{p}(\boldsymbol{x}\mid C_i)\widehat{p}(C_i) \\
+					& = \frac{1}{Nh^d}\sum_{s=1}^N K(\frac{\boldsymbol{x}-\boldsymbol{x}^{(s)}}{h})r_i^{(s)}
 \end{align}$$
 
 公共因子$\frac{1}{Nh^d}$可以忽略。可以看出，每个实例都只为它的类投票，而对其他类没有影响；投票的权重由核函数$K(\cdot)$给定，通常赋予更近的实例更高的权重。
 
 对于k-nn分类，我们有
 
-$$\widehat{p}(\boldsymbol{x}\mid c_i) = \frac{k_i}{N_iV_k(\boldsymbol{x})}$$
+$$\widehat{p}(\boldsymbol{x}\mid C_i) = \frac{k_i}{N_iV_k(\boldsymbol{x})}$$
 
 其中$k_i$为k个最近邻中属于第$i$个类的数量，而$$V_k(\boldsymbol{x})$$是中心在$\boldsymbol{x}$，半径为$$d_k(\boldsymbol{x})$$的$d$维超球体积。
 
 于是易得
 
-$$\widehat{p}(c_i \mid \boldsymbol{x}) = \frac{\widehat{p}(\boldsymbol{x}\mid c_i)\widehat{p}(c_i)}{\sum_j \widehat{p}(\boldsymbol{x}\mid c_j)\widehat{p}(c_j)} = \frac{k_i}{k}$$
+$$\widehat{p}(C_i \mid \boldsymbol{x}) = \frac{\widehat{p}(\boldsymbol{x}\mid C_i)\widehat{p}(C_i)}{\sum_j \widehat{p}(\boldsymbol{x}\mid C_j)\widehat{p}(C_j)} = \frac{k_i}{k}$$
 
 k-nn分类器（k-nn classifier）将输入指派到输入的k个最近邻中具有最多实例的类。所有的近邻都有相同的投票权。如果出现平均，可以通过随机机制或者加权投票机制来打破。
 
@@ -160,15 +160,15 @@ k-nn分类器的一种特殊情况是最近领分类（nearest neighbor classifi
 
 # 4、基于实例的回归
 
-在回归中，给定训练集$$D = \{(\boldsymbol{x}^{(t)},y^{(t)})\}_{t=1}^N$$，其中$y^{(t)}\in \mathbb{R}$，我们假定
+在回归中，给定训练集$$D = \{(\boldsymbol{x}^{(s)},y^{(s)})\}_{s=1}^N$$，其中$y^{(s)}\in \mathbb{R}$，我们假定
 
-$$y^{(t)} = g(\boldsymbol{x}^{(t)}) + \varepsilon$$
+$$y^{(s)} = g(\boldsymbol{x}^{(s)}) + \varepsilon$$
 
 在基于实例的方法中，我们只假定相近的$\boldsymbol{x}$具有相近的$g(\boldsymbol{x})$值。给定$\boldsymbol{x}$，我们的方法是找到$\boldsymbol{x}$的邻域，并求邻域中$y$的平均值，得到$\widehat{g}(\boldsymbol{x})$ （在有噪声的应用中，我们可以使用中位数而非均值）。基于实例的回归估计器又称平滑器（smoother），而该估计称作平滑（smoothing）。
 
 与核估计一样，我们可以使用赋予较远的点较小权重的核函数，从而得到核平滑器（kernel smoother）：
 
-$$\widehat{g}(\boldsymbol{x}) = \frac{\sum_tK(\frac{\boldsymbol{x}-\boldsymbol{x}^{(t)}}{h})y^{(t)}}{\sum_t K(\frac{\boldsymbol{x}-\boldsymbol{x}^{(t)}}{h})}$$
+$$\widehat{g}(\boldsymbol{x}) = \frac{\sum_sK(\frac{\boldsymbol{x}-\boldsymbol{x}^{(s)}}{h})y^{(s)}}{\sum_s K(\frac{\boldsymbol{x}-\boldsymbol{x}^{(s)}}{h})}$$
 
 通常使用高斯核$K(\cdot)$。替换固定$h$，我们可以固定近邻数$k$，使得估计自适应$\boldsymbol{x}$周围的密度，从而得到k-nn平滑器（k-nn smoother）。
 

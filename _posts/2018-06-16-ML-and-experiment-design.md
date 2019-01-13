@@ -50,15 +50,17 @@ $D$ : 可观测数据集
 
 $Z$ : 隐藏的数据集
 
-$\boldsymbol{x}^{(t)}$ : 数据集的第$t$个样本输入
+$\boldsymbol{x}^{(s)}$ : 数据集的第$s$个样本输入
 
-$y^{(t)}$ : 监督学习中与$\boldsymbol{x}^{(t)}$关联的标签输出
+$y^{(s)}$ : 监督学习中与$\boldsymbol{x}^{(s)}$关联的标签输出
 
-$$c_i$$ : 分类问题中的第$i$个类，此时$$\mathcal{Y} = \{c_1,c_2,...,c_K\}$$
+$$C_i$$ : 分类问题中的第$i$个类，此时$$\mathcal{Y} = \{C_1,C_2,...,C_K\}$$
 
-$\boldsymbol{X}$ : 大小为 $N \times d$ 的输入矩阵（或称设计矩阵），其中行$\boldsymbol{X}_{t,:}$为样本输入$\boldsymbol{x}^{(t)}$
+$\boldsymbol{X}$ : 大小为 $N \times d$ 的输入矩阵（或称设计矩阵），其中行$\boldsymbol{X}_{s,:}$为样本输入$\boldsymbol{x}^{(s)}$
 
-$x^{(t)}_i$ : 样本输入$\boldsymbol{x}^{(t)}$的第$i$个分量
+$$x^{(s)}_i$$ : 样本输入$\boldsymbol{x}^{(s)}$的第$i$个分量
+
+$\boldsymbol{a}^{[l]}$：人工神经网络中，第$l$层的激活值向量
 
 $\mathcal{H}$ : 假设空间
 
@@ -74,7 +76,7 @@ $sign(\cdot)$ : 符号函数，在$\cdot$ <0，=0，>0 时分别取值为-1，0�
 
 ## 2.2 训练和测试
 
-在监督学习中，一般用 $$(\boldsymbol{x}^{(t)}, y^{(t)})$$ 表示数据集（data set） $D$中的第 $t$ 个样本（sample），其中$$\boldsymbol{x}^{(t)}\in \mathcal{X}$$、$$y^{(t)}\in \mathcal{Y}$$。在无监督学习中，则$$D = \{\boldsymbol{x}^{(t)}\}_{t=1}^N$$。
+在监督学习中，一般用 $$(\boldsymbol{x}^{(s)}, y^{(s)})$$ 表示数据集（data set） $D$中的第 $s$ 个样本（sample），其中$$\boldsymbol{x}^{(s)}\in \mathcal{X}$$、$$y^{(s)}\in \mathcal{Y}$$。在无监督学习中，则$$D = \{\boldsymbol{x}^{(s)}\}_{s=1}^N$$。
 
 从数据中学得模型的过程称为“学习”（learning）或“训练”（training），这个过程中通过执行某个学习算法（learning algorithm）来完成。训练过程中使用的数据称为“训练数据”（training data），其中的每个样本称为“训练样本”（training sample），训练样本组成的集合称为“训练集”（training set）。学得模型对应了关于数据的某种潜在的规律，因此亦称“假设”（hypothesis）；这种潜在规律自身，则称为“真相”（ground-truth），学习过程就是为了找出或逼近真相。有时候也将学得模型称为“学习器”（learner），可看作学习算法在给定训练数据和假设空间后的实例化。
 
