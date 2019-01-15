@@ -29,14 +29,16 @@ $\gamma \in (0,1]$是奖励折扣系数，代表未来奖励的重要程度。
 我们定义在阶段$t$，某一状态的回报（return）为：
 
 $$\begin{align}
-G_t &= R_{t+1} + \gamma R_{t+2} + \gamma^2R_{t+3} + \cdots \\
-&= R_{t+1} + \gamma G_{t+1}
+G_t &= r_{t+1} + \gamma r_{t+2} + \gamma^2r_{t+3} + \cdots \\
+&= r_{t+1} + \gamma G_{t+1}
 \end{align}
 $$
 
+其中$$r_t$$表示在阶段$t$开始时取得的上一步的奖励。
+
 定义在平稳策略$\pi$下，状态$s$的状态值函数为：
 
-$$V^{\pi}(s) = E_{\pi}(G_t\mid s_t=s) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kR_{t+k+1}\mid s_t=s)$$
+$$V^{\pi}(s) = E_{\pi}(G_t\mid s_t=s) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k+1}\mid s_t=s)$$
 
 于是对于平稳策略$\pi$，其总的回报期望为$\sum_{s\in S}V^{\pi}(s)$，因此最优平稳策略（可以证明，当$n$为$+\infty$时，最优平稳策略也是最优策略，而当$n$为有限值时，最优平稳策略不一定是最优策略）定义为：
 
@@ -53,7 +55,7 @@ $$V^*(s) = V^{\pi^*}(s) = \max_{\pi}V^{\pi}(s) (\forall s\in S)$$
 
 为了进一步考虑确定动作为$a$后的回报期望，可以再定义一个状态-动作值函数：
 
-$$Q^{\pi}(s,a) = E_{\pi}(G_t\mid s_t=s,a_t=a) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kR_{t+k+1}\mid s_t=s, a_t =a )$$
+$$Q^{\pi}(s,a) = E_{\pi}(G_t\mid s_t=s,a_t=a) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k+1}\mid s_t=s, a_t =a )$$
 
 $Q^{\pi}(s,a)$表示当处于状态$s$时执行动作$a$后遵循平稳策略$\pi$的价值。状态-动作值函数与状态值函数的关系可以表示为：
 
