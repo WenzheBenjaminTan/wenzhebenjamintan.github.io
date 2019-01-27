@@ -107,11 +107,11 @@ $$\phi(\mathbf{x};\boldsymbol{\beta}) = \frac{1}{1+\exp(-\mathbf{x}^T\boldsymbol
 
 最小二乘法一般用于线性形式的模型。回归损失函数定义为观察值与估计值之差的平方和（二次损失函数）：
 
-$$C(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))^2$$
+$$C(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(\boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i)-y_i)^2$$
 
 目的是找到一组参数$\boldsymbol{\theta}$，使得损失函数最小。根据极小值必要条件，可得：
 
-$$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \frac{1}{N} \sum_{i=1}^N(y_i - \boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i))\boldsymbol{\phi}(\mathbf{x}_i) =\mathbf{0}$$
+$$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \frac{1}{N} \sum_{i=1}^N(\boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i)-y_i)\boldsymbol{\phi}(\mathbf{x}_i) =\mathbf{0}$$
 
 可得最小二乘解为：
 
@@ -128,15 +128,15 @@ $$\mathbf{P} = \left[\sum_{i=1}^N\boldsymbol{\phi}(\mathbf{x}_i)\boldsymbol{\phi
 
 考虑一般回归模型形式，损失函数可以表示为：
 
-$$C(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(y_i - f_{\boldsymbol{\theta}}(\mathbf{x}_i))^2$$
+$$C(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(f_{\boldsymbol{\theta}}(\mathbf{x}_i)-y_i)^2$$
 
 因为目标是使得损失函数最小，可以采用梯度下降的方式来进行参数更新迭代。参数的梯度方向可以表示为：
 
-$$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} =\frac{1}{N} \sum_{i=1}^N(y_i - f_{\boldsymbol{\theta}}(\mathbf{x}_i))\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
+$$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} =\frac{1}{N} \sum_{i=1}^N(f_{\boldsymbol{\theta}}(\mathbf{x}_i)-y_i)\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 参数更新公式为：
 
-$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N(y_i - f_{\boldsymbol{\theta}}(\mathbf{x}_i))\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N(f_{\boldsymbol{\theta}}(\mathbf{x}_i)-y_i)\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 
 其中$\eta$为更新步长。在机器学习中的几乎所有算法都采用这种结构，朝着损失函数梯度下降的方向来不断更新参数。

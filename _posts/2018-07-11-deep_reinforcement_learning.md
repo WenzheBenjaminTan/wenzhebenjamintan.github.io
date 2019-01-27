@@ -5,7 +5,7 @@ title: "深度强化学习"
 
 # 1、值函数拟合（value function approximation）
 
-当状态空间或动作空间非常大，甚至是连续的时，原来传统的强化学习方法不再有效。这个时候可以直接针对值函数进行学习。
+当状态空间或动作空间无穷大，甚至是连续的时，原来传统的强化学习方法不再有效。这个时候可以直接针对值函数进行学习。
 
 ## 1.1 Q函数拟合
 
@@ -15,12 +15,12 @@ title: "深度强化学习"
 
 $$
 \begin{align}
-\boldsymbol{w}_{t+1} &= \boldsymbol{w}_t + \frac{1}{2}\alpha\nabla_{\boldsymbol{w}} (Q^{\pi}(s_t,a_t)-Q_{\boldsymbol{w}_t}(s_t,a_t))^2 \\
+\boldsymbol{w}_{t+1} &= \boldsymbol{w}_t - \frac{1}{2}\alpha\nabla_{\boldsymbol{w}} (Q^{\pi}(s_t,a_t)-Q_{\boldsymbol{w}_t}(s_t,a_t))^2 \\
 			&= \boldsymbol{w}_t + \alpha (Q^{\pi}(s_t,a_t)-Q_{\boldsymbol{w}_t}(s_t,a_t))\nabla_{\boldsymbol{w}}Q_{\boldsymbol{w}_t}(s_t,a_t)
 \end{align}
 $$
 
-我们并不知道策略的真实值函数$Q_{\pi}(s_t,a_t)$，但可借助当前值函数的估计来代替，如时序差分学习中使用的$$r_t+\gamma Q_{\boldsymbol{w}_t}(s_{t+1},a_{t+1})$$，因此更新规则可以修改为：
+我们并不知道策略的真实值函数$Q^{\pi}(s_t,a_t)$，但可借助当前值函数的估计来代替，如时序差分学习中使用的$$r_t+\gamma Q_{\boldsymbol{w}_t}(s_{t+1},a_{t+1})$$，因此更新规则可以修改为：
 
 $$\boldsymbol{w}_{t+1} = \boldsymbol{w}_t + \alpha (r_t+\gamma Q_{\boldsymbol{w}_t}(s_{t+1},a_{t+1})-Q_{\boldsymbol{w}_t}(s_t,a_t))\nabla_{\boldsymbol{w}}Q_{\boldsymbol{w}_t}(s_t,a_t)$$
 
@@ -58,14 +58,13 @@ $$\boldsymbol{w} = \boldsymbol{w} + \alpha (r+\gamma Q_{\boldsymbol{w}}(s',a')-Q
 
 $$
 \begin{align}
-\boldsymbol{w}_{t+1} &= \boldsymbol{w}_t + \frac{1}{2}\alpha\nabla_{\boldsymbol{w}} (V^{\pi}(s_t)-V_{\boldsymbol{w}_t}(s_t))^2 \\
-			&= \boldsymbol{w}_t + \alpha (V^{\pi}(s_t)-V_{\boldsymbol{w}_t}(s_t))\nabla_{\boldsymbol{w}}V_{\boldsymbol{w}_t}(s_t)
+\boldsymbol{w}_{t+1} &= \boldsymbol{w}_t + \alpha (r_t + \gamma V_{\boldsymbol{w}_t}(s_{t+1}) -V_{\boldsymbol{w}_t}(s_t))\nabla_{\boldsymbol{w}}V_{\boldsymbol{w}_t}(s_t)
 \end{align}
 $$
 
 ## 1.3 Memory Replay
 
-Memory Replay机制是深度强化学习启蒙时期最重要的技巧之一，因为它的引入将深度强化学习推进了一大步。最早提出的深度强化学习是一个深度Q网络结构模型（Deep Q-Network，DQN）。因为训练样本相互关联（即每次得到的Q值估计是相互关联的），训练过程中策略会进行剧烈的振荡，从而使收敛速度十分缓慢。该问题严重影响了深度学习在强化学习中的应用。
+Memory Replay机制是深度强化学习启蒙时期最重要的技巧之一，因为它的引入将深度强化学习推进了一大步。最早提出的深度强化学习是一个深度Q网络结构模型（Deep Q-Network，DQN）。因为训练样本相互关联（当利用每条episode顺序训练时），训练过程中策略会进行剧烈的振荡，从而使收敛速度十分缓慢。该问题严重影响了深度学习在强化学习中的应用。
 
 Memory Replay的引入主要起如下作用：
 
@@ -79,7 +78,7 @@ Memory Replay的引入主要起如下作用：
 
 1）在算法执行前首先开辟一个Memory空间$D$；
 
-2）在每个时间步$t$，将Agent与环境交互得到的转移样本$e_t=(s_t,a_t,r_t,s_{t+1})$存储到Memory空间$$D=\{e_1,e_2,...,e_t\}$$，当达到空间最大值后替换原来的采样样本；
+2）利用Meomory空间$D$来采样样本，在每个时间步$t$，将Agent与环境交互得到的转移样本$e^{(t)}=(s_t,a_t,r_t,s_{t+1})$存储到Memory空间$$D=\{e^{(1)},e^{(2)},...,e^{(t)},...\}$$，当达到空间最大值后替换原来的采样样本；
 
 3）从$D$中随机抽取一个批量（batch）的转移样本；
 
@@ -95,45 +94,133 @@ Memory Replay的引入主要起如下作用：
 
 策略可以表示为$\pi_{\boldsymbol{\theta}}(s,a)$，即在策略参数$\boldsymbol{\theta}$下，根据当前状态$s$选择动作$a$的概率。
 
-我们用函数$J(\boldsymbol{\theta})$来估计状态值函数$V^{\pi_{\boldsymbol{\theta}}}(s_0)$，即表示始于状态$s_0$的策略$\pi_{\boldsymbol{\theta}}$的整体表现。学习过程可以表示为：
+我们定义强化学习的目标函数$J(\boldsymbol{\theta})$为在策略$\pi_{\boldsymbol{\theta}}$下的回报期望。学习过程可以表示为：
 
-$$\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t + \alpha\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}_t)$$
+$$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta})$$
 
 可见整个更新过程就是一个梯度上升法。
 
-## 2.1 策略梯度定理
+## 2.1 从似然概率角度推导策略梯度
 
-设在初始状态$s_0$下，服从策略$$\pi_{\boldsymbol{\theta}}$$的状态分布为$$\mu_{\pi_{\boldsymbol{\theta}}}(s)$$（即初始状态为$s_0$，策略$$\pi_{\boldsymbol{\theta}}$$作用下，状态$s$出现的次数比例期望，$$\sum_s \mu_{\pi_{\boldsymbol{\theta}}}(s) = 1$$）。策略梯度定理可以表示为如下：
+用$\tau$表示一组状态-动作轨迹$$ < s_0,a_0,s_1,a_1,...,s_{T-1},a_{T-1},s_T  > $$。并令$$G(\tau) = \sum_{t=0}^{T-1}R_{s_t,a_t}(s_{t+1})$$表示轨迹$\tau$的回报，$$P(\tau\mid\boldsymbol{\theta})$$表示在$$\pi_{\boldsymbol{\theta}}$$作用下轨迹$\tau$出现的似然概率。则强化学习的目标函数可以表示为：
 
-$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \propto \sum_{s}\mu_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
+$$J(\boldsymbol{\theta}) = E\left[\sum_{t=0}^{T-1}R_{s_t,a_t}(s_{t+1})\mid\pi_{\boldsymbol{\theta}}\right] = \sum_{\tau} G(\tau)P(\tau\mid\boldsymbol{\theta})$$
 
-因此，性能梯度可以用策略梯度来表示。
+因此，对目标函数求导可得：
 
-## 2.2 REINFORCE算法
+$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \nabla_{\boldsymbol{\theta}} \sum_{\tau} G(\tau)P(\tau\mid\boldsymbol{\theta})\\
+								&= \sum_{\tau} G(\tau) \nabla_{\boldsymbol{\theta}}P(\tau\mid\boldsymbol{\theta}) \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \frac{\nabla_{\boldsymbol{\theta}}P(\tau\mid\boldsymbol{\theta})}{P(\tau\mid\boldsymbol{\theta})} \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \nabla_{\boldsymbol{\theta}}\log P(\tau\mid\boldsymbol{\theta}) \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \nabla_{\boldsymbol{\theta}}\log \left(\prod_{t=0}^{T-1}\pi_{\boldsymbol{\theta}}(s_t,a_t)P_{s_t,a_t}(s_{t+1})\right) \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \nabla_{\boldsymbol{\theta}} \left(\sum_{t=0}^{T-1}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)+ \sum_{t=0}^{T-1}\log P_{s_t,a_t}(s_{t+1})\right) \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t) \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})}\left[G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)\right]
+
+\end{align}$$
+
+因此，性能梯度可以用策略梯度来表示，当利用当前策略$$\pi_{\boldsymbol{\theta}}$$采样$m$条轨迹后，可以利用$m$条轨迹的经验平均逼近目标函数的导数：
+
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx \frac{1}{m}\sum_{i=1}^m G(\tau^{(i)}) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})
+$$
+
+上式估计的估计是无偏的，但是方差受$G(\tau^{(i)})$的影响可能会非常大。我们可以在回报中引入常数基线$b$以减小方差且保持期望不变。
+
+因为有
+
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = \nabla_{\boldsymbol{\theta}} \sum_{\tau} G(\tau)P(\tau\mid\boldsymbol{\theta}) = \nabla_{\boldsymbol{\theta}} \sum_{\tau} (G(\tau)-b)P(\tau\mid\boldsymbol{\theta})$$
+
+所以容易得到修改后的估计：
+
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx \frac{1}{m}\sum_{i=1}^m (G(\tau^{(i)})-b) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})
+$$
+
+我们进而可求使得估计方差最小时的基线$b$。
+
+令$$X = (G(\tau^{(i)})-b)  \nabla_{\boldsymbol{\theta}} \log P(\tau^{(i)}\mid\boldsymbol{\theta})$$，则方差为：
+
+$$Var(X) = E(X-\overline{X})^2 = EX^2 - \overline{X}^2$$
+
+其中$$\overline{X} = EX$$与$b$无关，令$$Var(X)$$对$b$的导数为0，即
+
+$$\frac{\partial Var(X)}{\partial b} = E\left[X\frac{\partial X}{\partial b}\right] = 0$$
+
+求解可得：
+
+$$b= \frac{\sum_{i=1}^m  G(\tau^{(i)}) \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2 
+}{\sum_{i=1}^m \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2}$$
+
+
+## 2.2 策略梯度定理
+
+实际上，我们还可以利用贝尔曼方程来对性能梯度和策略梯度之间的关系进行推导：
+
+$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \nabla_{\boldsymbol{\theta}} V^{\pi_{\boldsymbol{\theta}}}(s), \forall s \in S \\
+								&= \nabla_{\boldsymbol{\theta}} \left[\sum_a \pi_{\boldsymbol{\theta}}(s,a) Q^{\pi_{\boldsymbol{\theta}}}(s,a) \right] \\
+								&= \sum_a \left[ Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) + \pi_{\boldsymbol{\theta}}(s,a)\nabla_{\boldsymbol{\theta}}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\right] \\
+								&= \sum_a \left[ Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) + \pi_{\boldsymbol{\theta}}(s,a)\nabla_{\boldsymbol{\theta}} \sum_{s'}P_{s,a}(s')(R_{s,a}(s') +\gamma V^{\pi_{\boldsymbol{\theta}}}(s'))\right] \\
+								&= \sum_a \left[ Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) + \pi_{\boldsymbol{\theta}}(s,a) \sum_{s'}\gamma P_{s,a}(s')\nabla_{\boldsymbol{\theta}}V^{\pi_{\boldsymbol{\theta}}}(s')\right] \\
+								&= \sum_a \left[ Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) + \pi_{\boldsymbol{\theta}}(s,a) \sum_{s'}\gamma P_{s,a}(s') \sum_{a'} \left[ Q^{\pi_{\boldsymbol{\theta}}}(s',a')\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s',a') + \pi_{\boldsymbol{\theta}}(s',a') \sum_{s''}\gamma P_{s',a'}(s'')\nabla_{\boldsymbol{\theta}}V^{\pi_{\boldsymbol{\theta}}}(s'')\right] \right] \\
+								&= \sum_a  Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) + \gamma\sum_a\pi_{\boldsymbol{\theta}}(s,a) \sum_{s'} P_{s,a}(s') \sum_{a'} Q^{\pi_{\boldsymbol{\theta}}}(s',a')\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s',a') + \gamma^2\sum_a\pi_{\boldsymbol{\theta}}(s,a) \sum_{s'} P_{s,a}(s') \sum_{a'} \pi_{\boldsymbol{\theta}}(s',a') \sum_{s''} P_{s',a'}(s'')\nabla_{\boldsymbol{\theta}}V^{\pi_{\boldsymbol{\theta}}}(s'') \\
+
+\end{align}
+$$
+
+为了化简公式，我们定义$$P(s\rightarrow x,k,\pi_{\boldsymbol{\theta}})$$为在策略$$\pi_{\boldsymbol{\theta}}$$作用下从状态$s$开始经过$k$时刻到达状态$x$的概率。
+
+那么公式就变为：
+
+$$\begin{align} &= P(s\rightarrow s,0,\pi_{\boldsymbol{\theta}})\sum_a  Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) + \gamma \sum_{s'} P(s\rightarrow s',1,\pi_{\boldsymbol{\theta}}) \sum_{a'} Q^{\pi_{\boldsymbol{\theta}}}(s',a')\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s',a') + \gamma^2 \sum_{s''} P(s\rightarrow s'',2,\pi_{\boldsymbol{\theta}})\nabla_{\boldsymbol{\theta}}V^{\pi_{\boldsymbol{\theta}}}(s'') 
+\end{align}$$
+
+将其无限展开可得：
+
+$$\begin{align} &= P(s\rightarrow s,0,\pi_{\boldsymbol{\theta}})\sum_a  Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) + \gamma \sum_{s'} P(s\rightarrow s',1,\pi_{\boldsymbol{\theta}}) \sum_{a'} Q^{\pi_{\boldsymbol{\theta}}}(s',a')\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s',a') + \cdots + \gamma^k \sum_{s^k} P(s\rightarrow s^k,k,\pi_{\boldsymbol{\theta}})\sum_{a^k} Q^{\pi_{\boldsymbol{\theta}}}(s^k,a^k)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s^k,a^k) + \cdots \\
+	&= \sum_{x\in S}\sum_{k=0}^{\infty}\gamma^k P(s\rightarrow x,k,\pi_{\boldsymbol{\theta}})\sum_a  Q^{\pi_{\boldsymbol{\theta}}}(x,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(x,a)
+\end{align}$$
+
+我们定义$$d_{\pi_{\boldsymbol{\theta}}}(x) = \sum_{k=0}^{\infty}\gamma^k P(s\rightarrow x,k,\pi_{\boldsymbol{\theta}})$$，其表示按照策略$$\pi_{\boldsymbol{\theta}}$$从起始状态$s$到状态$x$的总可能性，并且根据步数进行了折扣加权。
+
+策略梯度定理可以表示为如下：
+
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = \sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
+
+它直观地给出了性能梯度与策略梯度之间的关系。
+
+## 2.2 Reinforce算法
 
 根据策略梯度定理，可以进而推导如下：
 
 $$\begin{align}
-\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}_t) &\propto \sum_{s}\mu_{\pi_{\boldsymbol{\theta}_t}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}_t}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}_t}(s,a) \\
-					&= E_{\pi_{\boldsymbol{\theta}_t}}\left(\sum_{a}\gamma^tQ^{\pi_{\boldsymbol{\theta}_t}}(S_t,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}_t}(S_t,a)\right) \\
-					&=E_{\pi_{\boldsymbol{\theta}_t}}\left(\gamma^t\sum_{a}\pi_{\boldsymbol{\theta}_t}(S_t,a)Q^{\pi_{\boldsymbol{\theta}_t}}(S_t,a)\frac{\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}_t}(S_t,a)}{\pi_{\boldsymbol{\theta}_t}(S_t,a)}\right) \\
-					&=E_{\pi_{\boldsymbol{\theta}_t}}\left(\gamma^tQ^{\pi_{\boldsymbol{\theta}_t}}(S_t,A_t)\frac{\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}_t}(S_t,A_t)}{\pi_{\boldsymbol{\theta}_t}(S_t,A_t)}\right) \\
-					&=E_{\pi_{\boldsymbol{\theta}_t}}\left(\gamma^tG_t\frac{\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}_t}(S_t,A_t)}{\pi_{\boldsymbol{\theta}_t}(S_t,A_t)}\right) \\
-					&=E_{\pi_{\boldsymbol{\theta}_t}}\left(\gamma^tG_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}_t}(S_t,A_t)\right) \\
+\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) \\
+					&= \sum_{t=0}^{\infty} \sum_{s_t} P(s_0\rightarrow s_t,t,\pi_{\boldsymbol{\theta}})\sum_a \gamma^t Q^{\pi_{\boldsymbol{\theta}}}(s_t,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s_t,a) \\
+					&= E_{\pi_{\boldsymbol{\theta}}}\left(\sum_{a}\gamma^tQ^{\pi_{\boldsymbol{\theta}}}(S_t,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(S_t,a)\right) \\
+					&=E_{\pi_{\boldsymbol{\theta}}}\left(\gamma^t\sum_{a}\pi_{\boldsymbol{\theta}}(S_t,a)Q^{\pi_{\boldsymbol{\theta}}}(S_t,a)\frac{\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(S_t,a)}{\pi_{\boldsymbol{\theta}}(S_t,a)}\right) \\
+					&=E_{\pi_{\boldsymbol{\theta}}}\left(\gamma^tQ^{\pi_{\boldsymbol{\theta}}}(S_t,A_t)\frac{\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(S_t,A_t)}{\pi_{\boldsymbol{\theta}}(S_t,A_t)}\right) \\
+					&=E_{\pi_{\boldsymbol{\theta}}}\left(\gamma^tG_t\frac{\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(S_t,A_t)}{\pi_{\boldsymbol{\theta}}(S_t,A_t)}\right) \\
+					&=E_{\pi_{\boldsymbol{\theta}}}\left(\gamma^tG_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right) \\
 \end{align}$$
 
 
 所以策略梯度法的更新公式可以写为：
 
-$$\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t + \alpha\gamma^t G_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}_t}(s_t,a_t)$$
+$$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t G_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
-利用上述这种更新方法来更新参数的策略梯度法叫做REINFORCE法，也是最基本的一种方法。但这种方法的方差很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$G_t$。收敛速度也慢，如果$$G_t$$总是大于0，会使得所有行动的概率密度都向正的方向“拉拢”。所以更常见的一种做法是引入一个基准（baseline）$b(s)$，于是有：
+利用上述这种更新方法来更新参数的策略梯度法叫做Reinforce法，也是最基本的一种方法。但这种方法的方差很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$G_t$。收敛速度也慢，如果$$G_t$$总是大于0，会使得所有行动的概率密度都向正的方向“拉拢”。所以更常见的一种做法是引入一个基准（baseline）$b(s)$，且可以满足：
 
-$$\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t + \alpha\gamma^t (G_t-b(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}_t}(s_t,a_t)$$
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) =\sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) =\sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}\left(Q^{\pi_{\boldsymbol{\theta}}}(s,a)-b(s)\right)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
 
-至于$b(s)$是什么，取决于算法的设计，但一般的做法是取$b(s) = V_{\boldsymbol{w}}(s)$。容易得到，这种情况下参数的更新主要取决于在状态$s_t$下执行动作$a_t$所得总奖励相对于状态均值的优势，如果有优势，则更新后的参数会增加执行该动作的概率；如果没有劣势，则更新后的参数会减少执行该动作的概率。
+$b(s)$可以取任何常数或函数，只要不和$a$相关就不影响上式的结果。因为：
 
-具体的带基准REINFOCE算法流程如下：
+$$\sum_a b(s) \nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) = b(s) \nabla_{\boldsymbol{\theta}}\sum_a\pi_{\boldsymbol{\theta}}(s,a) = b(s)\nabla_{\boldsymbol{\theta}}1 = 0$$
+
+于是更新公式修改为：
+
+$$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t (G_t-b(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
+
+至于$b(s)$怎么设计，取决于算法，但一般的做法是取$b(s) = V_{\boldsymbol{w}}(s)$。容易得到，这种情况下参数的更新主要取决于在状态$s_t$下执行动作$a_t$所得总奖励相对于状态均值的优势，如果有优势，则更新后的参数会增加执行该动作的概率；如果没有优势，则更新后的参数会减少执行该动作的概率。
+
+具体的带基准Reinforce算法流程如下：
 
 1）初始化参数$\boldsymbol{w}$和$\boldsymbol{\theta}$，步长$\alpha^{\boldsymbol{w}} > 0, \alpha^{\boldsymbol{\theta}} > 0$；
 
@@ -151,13 +238,12 @@ $$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\thet
 
 ## 2.3 行动者-评论家（Actor-Critic）算法
 
-REINFORCE算法再更新时，需要每个episode的回报$G_t$，因此它是off-line的。而Actor-Critic算法是on-line的，它采用单步的奖励和下个状态估值的和式$$r_{t+1}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来代替REINFORCE算法中的全部回报$G_t$，并且采用一个学习到的状态值函数作为基准。
+Reinforce算法再更新时，需要每个episode的回报$G_t$，因此它是off-line的。而Actor-Critic算法是on-line的，它采用单步的奖励和下个状态估值的和式$$r_{t+1}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来代替REINFORCE算法中的全部回报$G_t$，并且采用一个学习到的状态值函数作为基准。
 
 参数更新公式为：
 
 $$\begin{align}
-\boldsymbol{\theta}_{t+1} &= \boldsymbol{\theta}_t + \alpha\gamma^t (G^1_t-b(S_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}_t}(s_t,a_t) \\
-		&= \boldsymbol{\theta}_t + \alpha\gamma^t (r_{t+1}+\gamma V_{\boldsymbol{w}}(s_{t+1})-V_{\boldsymbol{w}}(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}_t}(s_t,a_t) \\
+\boldsymbol{\theta}_{t+1} &= \boldsymbol{\theta}_t + \alpha\gamma^t (r_{t+1}+\gamma V_{\boldsymbol{w}}(s_{t+1})-V_{\boldsymbol{w}}(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}_t}(s_t,a_t) \\
 \end{align}$$
 
 因此，Actor-Critic算法的具体流程如下：
@@ -176,6 +262,10 @@ $$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\thet
 
 $$I \leftarrow \gamma I$$
 
+$$s \leftarrow s'$$
+
+
+可以看出，在算法中采用时间差分的方式来不断更新两个模型，一个是策略模型（Actor），一个是价值模型（Critic），因此这个算法被称为Actor-Critic。
 
 
 # 3、蒙特卡洛树搜索（Monte Carlo Tree Search，MCTS）
