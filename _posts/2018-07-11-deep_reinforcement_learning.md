@@ -150,6 +150,25 @@ $$\frac{\partial Var(X)}{\partial b} = E\left[X\frac{\partial X}{\partial b}\rig
 $$b= \frac{\sum_{i=1}^m  G(\tau^{(i)}) \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2 
 }{\sum_{i=1}^m \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2}$$
 
+于是可以得到基本的策略梯度算法如下：
+
+1）初始化参数$\boldsymbol{\theta}$和步长$\alpha > 0$；
+
+2）迭代：
+
+根据策略$\pi_{\boldsymbol{\theta}}$生成$m$个采样片段$ < s_0^{(i)},a_0^{(i)},r_1^{(i)},s_1^{(i)},a_1^{(i)},r_2^{(i)},s_2^{(i)},a_2^{(i)},r_3^{(i)},...> i=1,2,...,m$，然后计算常数$b$:
+
+$$b= \frac{\sum_{i=1}^m  G(\tau^{(i)}) \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2 
+}{\sum_{i=1}^m \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2}$$
+
+并更新$\theta$:
+
+$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \frac{\alpha}{m}\sum_{i=1}^m (G(\tau^{(i)})-b) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})
+$$
+
+显然，基本的策略梯度法需要得到每个完整的episode再更新$\boldsymbol{\theta}$，因此它是off-line的。
+
+
 
 ## 2.2 策略梯度定理
 
@@ -187,7 +206,7 @@ $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = \sum_{s}d_{\pi_{\boldsym
 
 它直观地给出了性能梯度与策略梯度之间的关系。
 
-## 2.2 Reinforce算法
+## 2.2 REINFORCE算法
 
 根据策略梯度定理，可以进而推导如下：
 
@@ -206,7 +225,7 @@ $$\begin{align}
 
 $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t G_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
-利用上述这种更新方法来更新参数的策略梯度法叫做Reinforce法，也是最基本的一种方法。但这种方法的方差很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$G_t$。收敛速度也慢，如果$$G_t$$总是大于0，会使得所有行动的概率密度都向正的方向“拉拢”。所以更常见的一种做法是引入一个基准（baseline）$b(s)$，且可以满足：
+利用上述这种更新方法来更新参数的策略梯度法叫做REINFORCE法，也是最基本的一种方法。但这种方法的方差很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$G_t$。收敛速度也慢，如果$$G_t$$总是大于0，会使得所有行动的概率密度都向正的方向“拉拢”。所以更常见的一种做法是引入一个基准（baseline）$b(s)$，且可以满足：
 
 $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) =\sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) =\sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}\left(Q^{\pi_{\boldsymbol{\theta}}}(s,a)-b(s)\right)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
 
@@ -220,7 +239,7 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t (G_t-b(s_t))\nabla
 
 至于$b(s)$怎么设计，取决于算法，但一般的做法是取$b(s) = V_{\boldsymbol{w}}(s)$。容易得到，这种情况下参数的更新主要取决于在状态$s_t$下执行动作$a_t$所得总奖励相对于状态均值的优势，如果有优势，则更新后的参数会增加执行该动作的概率；如果没有优势，则更新后的参数会减少执行该动作的概率。
 
-具体的带基准Reinforce算法流程如下：
+具体的带基准REINFORCE算法流程如下：
 
 1）初始化参数$\boldsymbol{w}$和$\boldsymbol{\theta}$，步长$\alpha^{\boldsymbol{w}} > 0, \alpha^{\boldsymbol{\theta}} > 0$；
 
@@ -238,7 +257,7 @@ $$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\thet
 
 ## 2.3 行动者-评论家（Actor-Critic）算法
 
-Reinforce算法再更新时，需要每个episode的回报$G_t$，因此它是off-line的。而Actor-Critic算法是on-line的，它采用单步的奖励和下个状态估值的和式$$r_{t+1}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来代替REINFORCE算法中的全部回报$G_t$，并且采用一个学习到的状态值函数作为基准。
+REINFORCE算法尽管每个时间步都会更新参数，但它需要每个episode的回报$G_t$，因此它还是是off-line的。而Actor-Critic算法是on-line的，它采用单步的奖励和下个状态估值的和式$$r_{t+1}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来代替REINFORCE算法中的全部回报$G_t$，并且采用一个学习到的状态值函数作为基准。
 
 参数更新公式为：
 

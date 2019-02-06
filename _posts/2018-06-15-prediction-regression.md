@@ -139,7 +139,7 @@ $$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} =\frac{1}
 $$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N(f_{\boldsymbol{\theta}}(\mathbf{x}_i)-y_i)\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 
-其中$\eta$为更新步长。在机器学习中的几乎所有算法都采用这种结构，朝着损失函数梯度下降的方向来不断更新参数。
+其中$\eta$为更新步长，又称学习速率。在机器学习中的几乎所有算法都采用这种结构，朝着损失函数梯度下降的方向来不断更新参数。
 
 1）批量梯度下降法（Batch Gradient Descent，BGD）
 
@@ -152,6 +152,64 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol
 3）小批量梯度下降法（Mini-Batch Gradient Descent，MBGD）
 
 小批量梯度下降法的思路是在每一步梯度迭代时使用一个小批量样本（大于1小于N的数量）来进行更新。该方法克服了上述两种方法的缺点，又同时兼顾两种方法的优点。
+
+
+### 3.2.3 梯度下降法的一些问题
+
+虽然梯度下降法效果很好，并广泛使用，但是也存在着问题和挑战：
+
+1）选择一个合理的学习速率很难。如果学习速率过小，则收敛速度很慢；如果学习速率过大，那么会阻碍收敛，即在极值点附近会振荡。通常采用的方法是学习速率调度（leanring rate schedules），即在每次更新过程中对学习速率进行调整。一般使用某种事先设定的策略或者每次迭代中衰减一个较小的值。无论哪种调整方法，都需要事先进行固定设置，这遍无法自适应每次学习的数据集特点。
+
+2）模型所有的参数每次更新都是使用相同的学习速率。如果数据特征是稀疏的或者每个特征有着不同的取值统计分布，那么便不能在每次更新中每个参数都使用相同的学习速率，那些很少出现的特征应该使用一个相对较大的学习速率。
+
+3）对于非凸目标函数，容易陷入那些次优的局部极值点中，如在人工神经网络的学习过程中。而更严重的问题还不是局部极值点，而是鞍点（不是极值点的驻点）。
+
+### 3.2.4 梯度下降法的改进
+
+我们假设梯度下降法要优化的参数为$x$，目标函数在$x$处的导数为$dx$，则一般的梯度下降法表示为：
+
+$$x += - learning\_rate * dx$$
+
+这种更新可能会让学习过程比较曲折，一些学者提出了各种加速的更新方法。
+
+1）Momentum更新方法
+
+Momentum更新方法的思想是对梯度方向进行累积，对那些当前梯度方向与上一次梯度方向相同的参数，进行动量加强，而对于那些梯度方向与上一次梯度方向不同的参数，进行动量削减。更新过程表示为：
+
+$$accumulation = momentum\_coefficient * accumulation + dx$$
+
+$$x += - learning\_rate * accumulation$$
+
+2) AdaGrad更新方法
+
+这种方法是在学习率上面动手脚，使得每个参数更新都会有自己与众不同的学习率。其更新过程如下：
+
+$$cache += dx^2$$
+
+$$x += - learning\_rate * dx / \sqrt{cahche}$$
+
+可以看出实际上是增加了一个附加变量$cache$来缩放梯度，并且不停地增加这一附加变量。因为对每个参数计算其相应梯度的平方和，并将其平方根去除学习速率，所以可以对每个参数自适应不同的学习速率：对稀疏特征，得到更大的学习更新，对非稀疏特征，得到较小的学习更新，因此该改进尤其适合处理稀疏特征数据。
+
+3）RMSProp更新方法
+
+RMSProp更新方法是由AdaGrad演化过来的。因为在学习过程中，我们需要持续的活力来不断更新数据，而不是衰退到停止。因此可以修改更新过程为：
+
+$$cache = decay\_rate*cache + (1-decay\_rate)*dx^2$$
+
+$$x += - learning\_rate * dx / \sqrt{cahche}$$
+
+其仍然保持了AdaGrad对更新步长的补偿效果，但是不会再发生更新停止的情况。
+
+4）Adam更新方法
+
+Adam可以认为是AdaGrad方法和Momentum方法的结合，可称之为“极品”。其更新过程如下：
+
+$$m = beta1 * m + (1-beta1) * dx$$
+
+$$v = beta2*v + (1-beta2)*dx^2$$
+
+$$x += - learning\_rate * m / \sqrt{v}$$
+
 
 
 
