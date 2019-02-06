@@ -102,7 +102,7 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\nabla_{\boldsymbol{\theta}
 
 ## 2.1 从似然概率角度推导策略梯度
 
-用$\tau$表示一组状态-动作轨迹$$ < s_0,a_0,s_1,a_1,...,s_{T-1},a_{T-1},s_T  > $$。并令$$G(\tau) = \sum_{t=0}^{T-1}R_{s_t,a_t}(s_{t+1})$$表示轨迹$\tau$的回报，$$P(\tau\mid\boldsymbol{\theta})$$表示在$$\pi_{\boldsymbol{\theta}}$$作用下轨迹$\tau$出现的似然概率。则强化学习的目标函数可以表示为：
+用$\tau$表示一组随机状态-动作轨迹$$ < S_0,A_0,S_1,A_1,...,S_{T-1},A_{T-1},S_T  > $$。并令$$G(\tau) = \sum_{t=0}^{T-1}\gamma^tR_{s_t,a_t}(s_{t+1})$$表示轨迹$\tau$的回报，$$P(\tau\mid\boldsymbol{\theta})$$表示在$$\pi_{\boldsymbol{\theta}}$$作用下轨迹$\tau$出现的似然概率。则强化学习的目标函数可以表示为：
 
 $$J(\boldsymbol{\theta}) = E\left[\sum_{t=0}^{T-1}R_{s_t,a_t}(s_{t+1})\mid\pi_{\boldsymbol{\theta}}\right] = \sum_{\tau} G(\tau)P(\tau\mid\boldsymbol{\theta})$$
 
@@ -113,9 +113,9 @@ $$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \nabla_{\b
 								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \frac{\nabla_{\boldsymbol{\theta}}P(\tau\mid\boldsymbol{\theta})}{P(\tau\mid\boldsymbol{\theta})} \\
 								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \nabla_{\boldsymbol{\theta}}\log P(\tau\mid\boldsymbol{\theta}) \\
 								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \nabla_{\boldsymbol{\theta}}\log \left(\prod_{t=0}^{T-1}\pi_{\boldsymbol{\theta}}(s_t,a_t)P_{s_t,a_t}(s_{t+1})\right) \\
-								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \nabla_{\boldsymbol{\theta}} \left(\sum_{t=0}^{T-1}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)+ \sum_{t=0}^{T-1}\log P_{s_t,a_t}(s_{t+1})\right) \\
-								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t) \\
-								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})}\left[G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)\right]
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \nabla_{\boldsymbol{\theta}} \left(\sum_{t=0}^{T-1}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)+ \sum_{t=0}^{T-1}\log P_{S_t,A_t}(S_{t+1})\right) \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})}\left[G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right]
 
 \end{align}$$
 
@@ -156,7 +156,7 @@ $$b= \frac{\sum_{i=1}^m  G(\tau^{(i)}) \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol
 
 2）迭代：
 
-根据策略$\pi_{\boldsymbol{\theta}}$生成$m$个采样片段$ < s_0^{(i)},a_0^{(i)},r_1^{(i)},s_1^{(i)},a_1^{(i)},r_2^{(i)},s_2^{(i)},a_2^{(i)},r_3^{(i)},...> i=1,2,...,m$，然后计算常数$b$:
+根据策略$\pi_{\boldsymbol{\theta}}$生成$m$个采样片段$ < s_0^{(i)},a_0^{(i)},r_1^{(i)},s_1^{(i)},a_1^{(i)},r_2^{(i)},...,s_{T-1}^{(i)},a_{T-1}^{(i)},r_T^{(i)},s_T^{(i)} > i=1,2,...,m$，然后计算常数$b$:
 
 $$b= \frac{\sum_{i=1}^m  G(\tau^{(i)}) \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2 
 }{\sum_{i=1}^m \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2}$$
@@ -225,7 +225,31 @@ $$\begin{align}
 
 $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t G_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
-利用上述这种更新方法来更新参数的策略梯度法叫做REINFORCE法，也是最基本的一种方法。但这种方法的方差很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$G_t$。收敛速度也慢，如果$$G_t$$总是大于0，会使得所有行动的概率密度都向正的方向“拉拢”。所以更常见的一种做法是引入一个基准（baseline）$b(s)$，且可以满足：
+利用上述这种更新方法来更新参数的策略梯度法叫做基本的REINFORCE法。实际上，从似然概率角度也可以推导得到，因为
+
+$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})}\left[G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^t R_t \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
+
+\end{align}$$
+
+注意到对$$t' < t$$，有
+
+$$E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\gamma^{t'} R_{t'} \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\gamma^{t'} R_{t'} \right]E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = 0 $$
+
+因此
+
+$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^t R_t \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\sum_{t'=t}^{T-1}\gamma^{t'} R_{t'} \right] \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^tG_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \right] \\
+
+	
+
+\end{align}$$
+
+
+
+
+但基本的REINFORCE法的方差很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$G_t$。收敛速度也慢，如果$$G_t$$总是大于0，会使得所有行动的概率密度都向正的方向“拉拢”。所以更常见的一种做法是引入一个基准（baseline）$b(s)$，且可以满足：
 
 $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) =\sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) =\sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}\left(Q^{\pi_{\boldsymbol{\theta}}}(s,a)-b(s)\right)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
 
@@ -249,11 +273,11 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t (G_t-b(s_t))\nabla
 
 $$G_t \leftarrow \text{从第}t\text{步计算的回报值}$$
 
-$$\delta \leftarrow G_t - V_{\boldsymbol{w}}(s_t)$$
+$$\delta_t \leftarrow G_t - V_{\boldsymbol{w}}(s_t)$$
 
-$$\boldsymbol{w} \leftarrow \boldsymbol{w} + \alpha^{\boldsymbol{w}}\delta\nabla_{\boldsymbol{w}}V_{\boldsymbol{w}}(s_t)$$
+$$\boldsymbol{w} \leftarrow \boldsymbol{w} + \alpha^{\boldsymbol{w}}\delta_t\nabla_{\boldsymbol{w}}V_{\boldsymbol{w}}(s_t)$$
 
-$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}}\gamma^t\delta\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
+$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}}\gamma^t\delta_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
 ## 2.3 行动者-评论家（Actor-Critic）算法
 
