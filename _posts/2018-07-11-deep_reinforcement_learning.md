@@ -104,7 +104,7 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\nabla_{\boldsymbol{\theta}
 
 用$\tau$表示一组随机状态-动作轨迹$$ < S_0,A_0,S_1,A_1,...,S_{T-1},A_{T-1},S_T  > $$。并令$$G(\tau) = \sum_{t=0}^{T-1}\gamma^tR_{s_t,a_t}(s_{t+1})$$表示轨迹$\tau$的回报，$$P(\tau\mid\boldsymbol{\theta})$$表示在$$\pi_{\boldsymbol{\theta}}$$作用下轨迹$\tau$出现的似然概率。则强化学习的目标函数可以表示为：
 
-$$J(\boldsymbol{\theta}) = E\left[\sum_{t=0}^{T-1}R_{s_t,a_t}(s_{t+1})\mid\pi_{\boldsymbol{\theta}}\right] = \sum_{\tau} G(\tau)P(\tau\mid\boldsymbol{\theta})$$
+$$J(\boldsymbol{\theta}) = E\left[\sum_{t=0}^{T-1}\gamma^tR_{s_t,a_t}(s_{t+1})\mid\pi_{\boldsymbol{\theta}}\right] = \sum_{\tau} G(\tau)P(\tau\mid\boldsymbol{\theta})$$
 
 因此，对目标函数求导可得：
 
