@@ -104,7 +104,7 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\nabla_{\boldsymbol{\theta}
 
 用$\tau$表示一组随机状态-动作轨迹$$ < S_0,A_0,S_1,A_1,...,S_{T-1},A_{T-1},S_T  > $$。并令$$G(\tau) = \sum_{t=0}^{T-1}\gamma^tR_{s_t,a_t}(s_{t+1})$$表示轨迹$\tau$的回报，$$P(\tau\mid\boldsymbol{\theta})$$表示在$$\pi_{\boldsymbol{\theta}}$$作用下轨迹$\tau$出现的似然概率。则强化学习的目标函数可以表示为：
 
-$$J(\boldsymbol{\theta}) = E\left[\sum_{t=0}^{T-1}R_{s_t,a_t}(s_{t+1})\mid\pi_{\boldsymbol{\theta}}\right] = \sum_{\tau} G(\tau)P(\tau\mid\boldsymbol{\theta})$$
+$$J(\boldsymbol{\theta}) = E\left[\sum_{t=0}^{T-1}\gamma^tR_{s_t,a_t}(s_{t+1})\mid\pi_{\boldsymbol{\theta}}\right] = \sum_{\tau} G(\tau)P(\tau\mid\boldsymbol{\theta})$$
 
 因此，对目标函数求导可得：
 
@@ -115,29 +115,54 @@ $$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \nabla_{\b
 								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \nabla_{\boldsymbol{\theta}}\log \left(\prod_{t=0}^{T-1}\pi_{\boldsymbol{\theta}}(s_t,a_t)P_{s_t,a_t}(s_{t+1})\right) \\
 								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \nabla_{\boldsymbol{\theta}} \left(\sum_{t=0}^{T-1}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)+ \sum_{t=0}^{T-1}\log P_{S_t,A_t}(S_{t+1})\right) \\
 								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \\
-								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})}\left[G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right]
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})}\left[G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
+
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^t R_t \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
+
 
 \end{align}$$
 
-因此，性能梯度可以用策略梯度来表示，当利用当前策略$$\pi_{\boldsymbol{\theta}}$$采样$m$条轨迹后，可以利用$m$条轨迹的经验平均逼近目标函数的导数：
+因此，性能梯度可以用策略梯度来表示。
 
-$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx \frac{1}{m}\sum_{i=1}^m G(\tau^{(i)}) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})
+注意到对$$t' < t$$，有
+
+$$E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\gamma^{t'} R_{t'} \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\gamma^{t'} R_{t'} \right]E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = 0 $$
+
+因此
+
+$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^t R_t \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\sum_{t'=t}^{T-1}\gamma^{t'} R_{t'} \right] \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^tG_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \right] \label{eq15} \\
+
+\end{align}$$
+
+有的时候也可以把$\gamma^t$省略掉，进行下面的估计替代：
+
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}G_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \right]$$
+
+
+## 2.2 基本的REINFORCE算法
+
+
+当利用当前策略$$\pi_{\boldsymbol{\theta}}$$采样$m$条轨迹后，可以利用$m$条轨迹的经验平均逼近目标函数的导数：
+
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx \frac{1}{m}\sum_{i=1}^m \sum_{t=0}^{T-1} \gamma^t G_t^{(i)} \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})
 $$
 
-上式估计的估计是无偏的，但是方差受$G(\tau^{(i)})$的影响可能会非常大。我们可以在回报中引入常数基线$b$以减小方差且保持期望不变。
+上式估计的估计是无偏的，但是方差受$$G_t^{(i)}$$的影响可能会非常大。我们可以在回报中引入常数基线$b$以减小方差且保持期望不变。
 
 因为有
 
-$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = \nabla_{\boldsymbol{\theta}} \sum_{\tau} G(\tau)P(\tau\mid\boldsymbol{\theta}) = \nabla_{\boldsymbol{\theta}} \sum_{\tau} (G(\tau)-b)P(\tau\mid\boldsymbol{\theta})$$
+$$E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[b \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = 0 $$
 
 所以容易得到修改后的估计：
 
-$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx \frac{1}{m}\sum_{i=1}^m (G(\tau^{(i)})-b) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx \frac{1}{m}\sum_{i=1}^m \sum_{t=0}^{T-1} (\gamma^t G_t^{(i)} - b)\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})
 $$
 
 我们进而可求使得估计方差最小时的基线$b$。
 
-令$$X = (G(\tau^{(i)})-b)  \nabla_{\boldsymbol{\theta}} \log P(\tau^{(i)}\mid\boldsymbol{\theta})$$，则方差为：
+令$$X = \sum_{t=0}^{T-1} (\gamma^t G_t^{(i)} - b)\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t^{(i)},A_t^{(i)})$$，则方差为：
 
 $$Var(X) = E(X-\overline{X})^2 = EX^2 - \overline{X}^2$$
 
@@ -147,10 +172,10 @@ $$\frac{\partial Var(X)}{\partial b} = E\left[X\frac{\partial X}{\partial b}\rig
 
 求解可得：
 
-$$b= \frac{\sum_{i=1}^m  G(\tau^{(i)}) \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2 
+$$b= \frac{\sum_{i=1}^m \sum_{t=0}^{T-1}\gamma^t G_t^{(i)} \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})  
 }{\sum_{i=1}^m \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2}$$
 
-于是可以得到基本的策略梯度算法如下：
+于是可以得到基本的REINFORCE算法如下：
 
 1）初始化参数$\boldsymbol{\theta}$和步长$\alpha > 0$；
 
@@ -158,19 +183,18 @@ $$b= \frac{\sum_{i=1}^m  G(\tau^{(i)}) \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol
 
 根据策略$\pi_{\boldsymbol{\theta}}$生成$m$个采样片段$ < s_0^{(i)},a_0^{(i)},r_1^{(i)},s_1^{(i)},a_1^{(i)},r_2^{(i)},...,s_{T-1}^{(i)},a_{T-1}^{(i)},r_T^{(i)},s_T^{(i)} > i=1,2,...,m$，然后计算常数$b$:
 
-$$b= \frac{\sum_{i=1}^m  G(\tau^{(i)}) \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2 
-}{\sum_{i=1}^m \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2}$$
+$$b= \frac{\sum_{i=1}^m \sum_{t=0}^{T-1}\gamma^t G_t^{(i)} \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})}{\sum_{i=1}^m \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2}$$
 
 并更新$\theta$:
 
-$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \frac{\alpha}{m}\sum_{i=1}^m (G(\tau^{(i)})-b) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})
+$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \frac{\alpha}{m} \sum_{i=1}^m \sum_{t=0}^{T-1} (\gamma^t G_t^{(i)} - b)\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})
 $$
 
-显然，基本的策略梯度法需要得到每个完整的episode再更新$\boldsymbol{\theta}$，因此它是off-line的。
+显然，基本的REINFORCE算法需要得到每个完整的episode再更新$\boldsymbol{\theta}$，因此它是off-line的。
 
 
 
-## 2.2 策略梯度定理
+## 2.3 策略梯度定理
 
 实际上，我们还可以利用贝尔曼方程来对性能梯度和策略梯度之间的关系进行推导：
 
@@ -206,7 +230,7 @@ $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = \sum_{s}d_{\pi_{\boldsym
 
 它直观地给出了性能梯度与策略梯度之间的关系。
 
-## 2.2 REINFORCE算法
+## 2.4 带状态值基准的REINFORCE算法
 
 根据策略梯度定理，可以进而推导如下：
 
@@ -225,31 +249,8 @@ $$\begin{align}
 
 $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t G_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
-利用上述这种更新方法来更新参数的策略梯度法叫做基本的REINFORCE法。实际上，从似然概率角度也可以推导得到，因为
 
-$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})}\left[G(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
-								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^t R_t \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
-
-\end{align}$$
-
-注意到对$$t' < t$$，有
-
-$$E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\gamma^{t'} R_{t'} \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\gamma^{t'} R_{t'} \right]E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = 0 $$
-
-因此
-
-$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^t R_t \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
-								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\sum_{t'=t}^{T-1}\gamma^{t'} R_{t'} \right] \\
-								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^tG_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \right] \\
-
-	
-
-\end{align}$$
-
-
-
-
-但基本的REINFORCE法的方差很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$G_t$。收敛速度也慢，如果$$G_t$$总是大于0，会使得所有行动的概率密度都向正的方向“拉拢”。所以更常见的一种做法是引入一个基准（baseline）$b(s)$，且可以满足：
+但这种方法的方差也很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$G_t$。收敛速度也慢，如果$$G_t$$总是大于0，会使得所有行动的概率密度都向正的方向“拉拢”。所以更常见的一种做法也是引入一个基准（baseline）$b(s)$，且可以满足：
 
 $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) =\sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) =\sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}\left(Q^{\pi_{\boldsymbol{\theta}}}(s,a)-b(s)\right)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
 
@@ -263,7 +264,7 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t (G_t-b(s_t))\nabla
 
 至于$b(s)$怎么设计，取决于算法，但一般的做法是取$b(s) = V_{\boldsymbol{w}}(s)$。容易得到，这种情况下参数的更新主要取决于在状态$s_t$下执行动作$a_t$所得总奖励相对于状态均值的优势，如果有优势，则更新后的参数会增加执行该动作的概率；如果没有优势，则更新后的参数会减少执行该动作的概率。
 
-具体的带基准REINFORCE算法流程如下：
+具体的带状态值基准的REINFORCE算法流程如下：
 
 1）初始化参数$\boldsymbol{w}$和$\boldsymbol{\theta}$，步长$\alpha^{\boldsymbol{w}} > 0, \alpha^{\boldsymbol{\theta}} > 0$；
 
@@ -279,9 +280,9 @@ $$\boldsymbol{w} \leftarrow \boldsymbol{w} + \alpha^{\boldsymbol{w}}\delta_t\nab
 
 $$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}}\gamma^t\delta_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
-## 2.3 行动者-评论家（Actor-Critic）算法
+## 2.5 行动者-评论家（Actor-Critic）算法
 
-REINFORCE算法尽管每个时间步都会更新参数，但它需要每个episode的回报$G_t$，因此它还是是off-line的。而Actor-Critic算法是on-line的，它采用单步的奖励和下个状态估值的和式$$r_{t+1}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来代替REINFORCE算法中的全部回报$G_t$，并且采用一个学习到的状态值函数作为基准。
+带状态值基准的REINFORCE算法尽管每个时间步都会更新参数，但它需要每个episode的回报$G_t$，因此它还是是off-line的。而Actor-Critic算法是on-line的，它采用单步的奖励和下个状态估值的和式$$r_{t+1}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来代替REINFORCE算法中的全部回报$G_t$，并且采用一个学习到的状态值函数作为基准。
 
 参数更新公式为：
 

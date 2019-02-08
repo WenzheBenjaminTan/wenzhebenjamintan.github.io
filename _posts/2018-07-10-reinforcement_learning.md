@@ -29,16 +29,16 @@ $\gamma \in (0,1]$是奖励折扣系数，代表未来奖励的重要程度。
 我们定义在阶段$t$，某一状态的回报（return）为：
 
 $$\begin{align}
-G_t &= r_{t+1} + \gamma r_{t+2} + \gamma^2r_{t+3} + \cdots \\
-&= r_{t+1} + \gamma G_{t+1}
+G_t &= r_{t} + \gamma r_{t+1} + \gamma^2r_{t+2} + \cdots \\
+&= r_{t} + \gamma G_{t+1}
 \end{align}
 $$
 
-其中$$r_t$$表示在阶段$t$开始时取得的上一步的奖励。
+其中$$r_t$$表示在阶段$t$采取动作后所取得的奖励。
 
 定义在平稳策略$\pi$下，状态$s$的状态值函数为：
 
-$$V^{\pi}(s) = E_{\pi}(G_t\mid s_t=s) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k+1}\mid s_t=s)$$
+$$V^{\pi}(s) = E_{\pi}(G_t\mid s_t=s) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k}\mid s_t=s)$$
 
 于是对于平稳策略$\pi$，其总的回报期望为$\sum_{s\in S}V^{\pi}(s)$，因此最优平稳策略（可以证明，当$n$为$+\infty$时，最优平稳策略也是最优策略，而当$n$为有限值时，最优平稳策略不一定是最优策略）定义为：
 
@@ -55,7 +55,7 @@ $$V^*(s) = V^{\pi^*}(s) = \max_{\pi}V^{\pi}(s) (\forall s\in S)$$
 
 为了进一步考虑确定动作为$a$后的回报期望，可以再定义一个状态-动作值函数：
 
-$$Q^{\pi}(s,a) = E_{\pi}(G_t\mid s_t=s,a_t=a) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k+1}\mid s_t=s, a_t =a )$$
+$$Q^{\pi}(s,a) = E_{\pi}(G_t\mid s_t=s,a_t=a) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k}\mid s_t=s, a_t =a )$$
 
 $Q^{\pi}(s,a)$表示当处于状态$s$时执行动作$a$后遵循平稳策略$\pi$的价值。状态-动作值函数与状态值函数的关系可以表示为：
 
@@ -174,7 +174,7 @@ $$\forall s \in S, \pi'(s) = arg \max_{a\in A_s}\sum_{s' \in S}P_{s,a}(s')(R_{s,
 
 具体来说，我们在模型未知的情况下，从起始状态出发，使用某种策略进行采样，获得一个episode的轨迹：
 
-$$ < s_0,a_0,r_1,s_1,a_1,r_2,s_2,a_2,r_3,...> $$
+$$ < s_0,a_0,r_0,s_1,a_1,r_1,s_2,a_2,r_2,s_3,...> $$
 
 然后，对轨迹中出现的每一对“状态-动作”，记录其后获得的奖励之和（分为first-visit和every-visit两种记录方法），作为该“状态-动作”对的一次累积奖励采样值（记为一次return）。多次采样得到多条轨迹后，将每个“状态-动作”对的returns进行平均，就得到该策略下状态-动作值函数的估计。
 
@@ -264,7 +264,7 @@ $$Q(s,a) = \frac{\sum_{i=1}^mw^{(i)}G^{(i)}}{\sum_{j=1}^mw^{(j)}}$$
 
 对于一条给定episode轨迹：
 
-$$ < s_t,a_t,r_{t+1},s_{t+1},a_{t+1},r_{t+2},...,s_T> $$
+$$ < s_t,a_t,r_t,s_{t+1},a_{t+1},r_{t+1},...,s_T> $$
 
 其在策略$\pi$下发生的概率为：
 
@@ -388,9 +388,9 @@ $$Q(s,a) = Q(s,a) + \alpha(r + \gamma Q(s',a') - Q(s,a))$$
 根据折扣未来回报来估计的回报如下：
 
 $$\begin{align}
-G_t &= r_{t+1} + \gamma r_{t+2} + \gamma^2r_{t+3} + \cdots \\
-&= r_{t+1} + \gamma Q_{t}(s_{t+1},a_{t+1}) \\
-&= r_{t+1} + \gamma r_{t+2} + \gamma^2Q_{t}(s_{t+2},a_{t+2})
+G_t &= r_{t} + \gamma r_{t+1} + \gamma^2r_{t+2} + \cdots \\
+&= r_{t} + \gamma Q_{t}(s_{t+1},a_{t+1}) \\
+&= r_{t} + \gamma r_{t+1} + \gamma^2Q_{t}(s_{t+2},a_{t+2})
 \end{align}
 $$
 

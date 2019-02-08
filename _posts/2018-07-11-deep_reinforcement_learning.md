@@ -122,7 +122,7 @@ $$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \nabla_{\b
 
 \end{align}$$
 
-因此，性能梯度可以用策略梯度来表示。
+因此，性能梯度可以用策略梯度来表示，但该估计的方差非常大。
 
 注意到对$$t' < t$$，有
 
@@ -141,7 +141,7 @@ $$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= E_{\tau\si
 $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}G_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \right]$$
 
 
-## 2.2 基本的REINFORCE算法
+## 2.2 REINFORCE算法
 
 
 当利用当前策略$$\pi_{\boldsymbol{\theta}}$$采样$m$条轨迹后，可以利用$m$条轨迹的经验平均逼近目标函数的导数：
@@ -149,7 +149,7 @@ $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx E_{\tau\sim P(\tau
 $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx \frac{1}{m}\sum_{i=1}^m \sum_{t=0}^{T-1} \gamma^t G_t^{(i)} \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})
 $$
 
-上式估计的估计是无偏的，但是方差受$$G_t^{(i)}$$的影响可能会非常大。我们可以在回报中引入常数基线$b$以减小方差且保持期望不变。
+上式估计的方差受$$G_t^{(i)}$$的影响仍然会很大。我们可以在回报中引入常数基线$b$以减小方差且保持期望不变。
 
 因为有
 
@@ -175,13 +175,13 @@ $$\frac{\partial Var(X)}{\partial b} = E\left[X\frac{\partial X}{\partial b}\rig
 $$b= \frac{\sum_{i=1}^m \sum_{t=0}^{T-1}\gamma^t G_t^{(i)} \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})  
 }{\sum_{i=1}^m \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2}$$
 
-于是可以得到基本的REINFORCE算法如下：
+于是可以得到基本的REINFORCE算法（policy gradient based reinforcement learning）如下：
 
 1）初始化参数$\boldsymbol{\theta}$和步长$\alpha > 0$；
 
 2）迭代：
 
-根据策略$\pi_{\boldsymbol{\theta}}$生成$m$个采样片段$ < s_0^{(i)},a_0^{(i)},r_1^{(i)},s_1^{(i)},a_1^{(i)},r_2^{(i)},...,s_{T-1}^{(i)},a_{T-1}^{(i)},r_T^{(i)},s_T^{(i)} > i=1,2,...,m$，然后计算常数$b$:
+根据策略$\pi_{\boldsymbol{\theta}}$生成$m$个采样片段$ < s_0^{(i)},a_0^{(i)},r_0^{(i)},s_1^{(i)},a_1^{(i)},r_1^{(i)},...,s_{T-1}^{(i)},a_{T-1}^{(i)},r_{T-1}^{(i)},s_T^{(i)} > i=1,2,...,m$，然后计算常数$b$:
 
 $$b= \frac{\sum_{i=1}^m \sum_{t=0}^{T-1}\gamma^t G_t^{(i)} \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})}{\sum_{i=1}^m \left(\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t^{(i)},a_t^{(i)})\right)^2}$$
 
@@ -230,7 +230,7 @@ $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = \sum_{s}d_{\pi_{\boldsym
 
 它直观地给出了性能梯度与策略梯度之间的关系。
 
-## 2.4 带状态值基准的REINFORCE算法
+## 2.4 行动者-评论家（Actor-Critic）算法
 
 根据策略梯度定理，可以进而推导如下：
 
@@ -262,35 +262,17 @@ $$\sum_a b(s) \nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) = b(s) 
 
 $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t (G_t-b(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
-至于$b(s)$怎么设计，取决于算法，但一般的做法是取$b(s) = V_{\boldsymbol{w}}(s)$。容易得到，这种情况下参数的更新主要取决于在状态$s_t$下执行动作$a_t$所得总奖励相对于状态均值的优势，如果有优势，则更新后的参数会增加执行该动作的概率；如果没有优势，则更新后的参数会减少执行该动作的概率。
+至于$b(s)$怎么设计，取决于算法，但一般的做法是取$b(s) = V_{\boldsymbol{w}}(s)$，也就是说用另一个函数来估计状态均值。容易得到，这种情况下参数的更新主要取决于在状态$s_t$下执行动作$a_t$所得总奖励相对于状态均值的优势，如果有优势，则更新后的参数会增加执行该动作的概率；如果没有优势，则更新后的参数会减少执行该动作的概率。
 
-具体的带状态值基准的REINFORCE算法流程如下：
-
-1）初始化参数$\boldsymbol{w}$和$\boldsymbol{\theta}$，步长$\alpha^{\boldsymbol{w}} > 0, \alpha^{\boldsymbol{\theta}} > 0$；
-
-2）迭代：
-
-根据策略$\pi_{\boldsymbol{\theta}}$生成一个采样片段$ < s_0,a_0,r_1,s_1,a_1,r_2,s_2,a_2,r_3,...> $，对于片段当中的每一步$t=0,1,2,...$，执行如下步骤：
-
-$$G_t \leftarrow \text{从第}t\text{步计算的回报值}$$
-
-$$\delta_t \leftarrow G_t - V_{\boldsymbol{w}}(s_t)$$
-
-$$\boldsymbol{w} \leftarrow \boldsymbol{w} + \alpha^{\boldsymbol{w}}\delta_t\nabla_{\boldsymbol{w}}V_{\boldsymbol{w}}(s_t)$$
-
-$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}}\gamma^t\delta_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
-
-## 2.5 行动者-评论家（Actor-Critic）算法
-
-带状态值基准的REINFORCE算法尽管每个时间步都会更新参数，但它需要每个episode的回报$G_t$，因此它还是是off-line的。而Actor-Critic算法是on-line的，它采用单步的奖励和下个状态估值的和式$$r_{t+1}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来代替REINFORCE算法中的全部回报$G_t$，并且采用一个学习到的状态值函数作为基准。
-
-参数更新公式为：
+此外，为了避免off-line地求得全部回报$$G_t$$，我们采用单步的奖励和下个状态估值的和式$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来代替$G_t$，于是参数更新公式变为：
 
 $$\begin{align}
-\boldsymbol{\theta}_{t+1} &= \boldsymbol{\theta}_t + \alpha\gamma^t (r_{t+1}+\gamma V_{\boldsymbol{w}}(s_{t+1})-V_{\boldsymbol{w}}(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}_t}(s_t,a_t) \\
+\boldsymbol{\theta}' &= \boldsymbol{\theta} + \alpha\gamma^t (r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})-V_{\boldsymbol{w}}(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t) \\
 \end{align}$$
 
-因此，Actor-Critic算法的具体流程如下：
+这就得到了Actor-Critic算法，它是on-line的，采用时间差分的方式来不断更新两个模型，一个是策略模型（Actor），一个是价值模型（Critic）。
+
+Actor-Critic算法的具体流程如下：
 
 1）初始化参数$\boldsymbol{w}$和$\boldsymbol{\theta}$，步长$\alpha^{\boldsymbol{w}} > 0, \alpha^{\boldsymbol{\theta}} > 0$，当前状态$s=s_0$，梯度乘子$I=1$；
 
@@ -308,8 +290,6 @@ $$I \leftarrow \gamma I$$
 
 $$s \leftarrow s'$$
 
-
-可以看出，在算法中采用时间差分的方式来不断更新两个模型，一个是策略模型（Actor），一个是价值模型（Critic），因此这个算法被称为Actor-Critic。
 
 
 # 3、蒙特卡洛树搜索（Monte Carlo Tree Search，MCTS）
