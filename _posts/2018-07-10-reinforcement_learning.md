@@ -9,7 +9,7 @@ title: "强化学习"
 
 首先还是回到动态规划里面提到的马尔可夫决策过程：
 
-$$(S,A,P_{.,.}(.),R_{.,.}(.),\gamma)$$
+$$(S,A,p_{.,.}(.),r_{.,.}(.),\gamma)$$
 
 其中，
 
@@ -17,9 +17,9 @@ $S$是一组有限状态集；
 
 $A$是一组有限的动作集（或者用$A_s$在给定状态$s$下可用的动作集）；
 
-$P_{s,a}(s') = P(s_{t+1}=s' \mid s_t=s,a_t=a)$表示状态$s$下采用动作$a$后，得到下一状态为$s'$的概率，该函数是与时间$t$（时齐的情况）以及时间$t$之前的历史状态无关的。
+$p_{s,a}(s') = P(s_{t+1}=s' \mid s_t=s,a_t=a)$表示状态$s$下采用动作$a$后，得到下一状态为$s'$的概率，该函数是与时间$t$（时齐的情况）以及时间$t$之前的历史状态无关的。
 
-$R_{s,a}(s')$是实现前述状态转移后得到的奖励，在有的的模型中，奖励函数只与转移后的状态有关，即可以表示为$R(s')$；
+$r_{s,a}(s')$是实现前述状态转移后得到的奖励，在有的的模型中，奖励函数只与转移后的状态有关，即可以表示为$r(s')$；
 
 $\gamma \in (0,1]$是奖励折扣系数，代表未来奖励的重要程度。
 
@@ -29,8 +29,8 @@ $\gamma \in (0,1]$是奖励折扣系数，代表未来奖励的重要程度。
 我们定义在阶段$t$，某一状态的回报（return）为：
 
 $$\begin{align}
-G_t &= r_{t} + \gamma r_{t+1} + \gamma^2r_{t+2} + \cdots \\
-&= r_{t} + \gamma G_{t+1}
+R_t &= r_{t} + \gamma r_{t+1} + \gamma^2r_{t+2} + \cdots \\
+&= r_{t} + \gamma R_{t+1}
 \end{align}
 $$
 
@@ -38,7 +38,7 @@ $$
 
 定义在平稳策略$\pi$下，状态$s$的状态值函数为：
 
-$$V^{\pi}(s) = E_{\pi}(G_t\mid s_t=s) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k}\mid s_t=s)$$
+$$V^{\pi}(s) = E_{\pi}(R_t\mid s_t=s) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k}\mid s_t=s)$$
 
 于是对于平稳策略$\pi$，其总的回报期望为$\sum_{s\in S}V^{\pi}(s)$，因此最优平稳策略（可以证明，当$n$为$+\infty$时，最优平稳策略也是最优策略，而当$n$为有限值时，最优平稳策略不一定是最优策略）定义为：
 
@@ -55,13 +55,13 @@ $$V^*(s) = V^{\pi^*}(s) = \max_{\pi}V^{\pi}(s) (\forall s\in S)$$
 
 为了进一步考虑确定动作为$a$后的回报期望，可以再定义一个状态-动作值函数：
 
-$$Q^{\pi}(s,a) = E_{\pi}(G_t\mid s_t=s,a_t=a) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k}\mid s_t=s, a_t =a )$$
+$$Q^{\pi}(s,a) = E_{\pi}(R_t\mid s_t=s,a_t=a) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k}\mid s_t=s, a_t =a )$$
 
 $Q^{\pi}(s,a)$表示当处于状态$s$时执行动作$a$后遵循平稳策略$\pi$的价值。状态-动作值函数与状态值函数的关系可以表示为：
 
 $$V^{\pi}(s) = Q^{\pi}(s,\pi(s))$$
 
-$$Q^{\pi}(s,a) = \sum_{s' \in S}P_{s,a}(s')(R_{s,a}(s') + \gamma V^{\pi}(s'))$$
+$$Q^{\pi}(s,a) = \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s') + \gamma V^{\pi}(s'))$$
 
 
 类似地，定义$$Q^*(s,a)$$为处于状态$s$时执行动作$a$后遵循最优平稳策略$$\pi^*$$的期望累计奖励，即最优状态-动作值函数：
@@ -76,22 +76,22 @@ $$Q^*(s,a) = Q^{\pi^*}(s,a) = \max_{\pi}Q^{\pi}(s,a) (\forall s\in S,a\in A)$$
 
 将状态值函数和状态-动作值函数分别写成递归的形式，就得到了贝尔曼方程：
 
-$$V^{\pi}(s) = \sum_{s' \in S}P_{s,\pi(s)}(s')(R_{s,\pi(s)}(s') + \gamma V^{\pi}(s'))$$
+$$V^{\pi}(s) = \sum_{s' \in S}p_{s,\pi(s)}(s')(r_{s,\pi(s)}(s') + \gamma V^{\pi}(s'))$$
 
-$$Q^{\pi}(s,a) = \sum_{s' \in S}P_{s,a}(s')(R_{s,a}(s') + \gamma Q^{\pi}(s',\pi(s')))$$
+$$Q^{\pi}(s,a) = \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s') + \gamma Q^{\pi}(s',\pi(s')))$$
 
 
 根据动态规划的递归方程，可以得到：
 
 $$\begin{align}
-V^*(s) &= \max_{a \in A_s} \left\{ \sum_{s' \in S}P_{s,a}(s')(R_{s,a}(s')+\gamma V^*(s')) \right\} \\
+V^*(s) &= \max_{a \in A_s} \left\{ \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s')+\gamma V^*(s')) \right\} \\
 \end{align}
 $$
 
 从上式可以得到$$V^*(s) = \max_{a \in A_s}Q^*(s,a)$$，进而可将上式转换成$Q^*$的迭代：
 
 $$\begin{align}
-Q^*(s,a) =  \sum_{s' \in S}P_{s,a}(s')(R_{s,a}(s')+\gamma\max_{a' \in A_{s'}} Q^*(s',a'))
+Q^*(s,a) =  \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s')+\gamma\max_{a' \in A_{s'}} Q^*(s',a'))
 \end{align}
 $$
 
@@ -101,8 +101,8 @@ $$
 
 $$\begin{align}
 V^{\pi}(s) &\leq Q^{\pi}(s,\pi'(s)) \\
-	&= \sum_{s' \in S}P_{s,\pi'(s)}(s')(R_{s,\pi'(s)}(s') + \gamma V^{\pi}(s')) \\
-	&\leq \sum_{s' \in S}P_{s,\pi'(s)}(s')(R_{s,\pi'(s)}(s') + \gamma Q^{\pi}(s',\pi'(s'))) \\
+	&= \sum_{s' \in S}p_{s,\pi'(s)}(s')(r_{s,\pi'(s)}(s') + \gamma V^{\pi}(s')) \\
+	&\leq \sum_{s' \in S}p_{s,\pi'(s)}(s')(r_{s,\pi'(s)}(s') + \gamma Q^{\pi}(s',\pi'(s'))) \\
 \label{1}	&\leq V^{\pi'}(s)
 \end{align}
 $$
@@ -117,17 +117,17 @@ $$\pi^*(s) = arg \max_{a\in A_s}Q^*(s,a) (\forall s\in S)$$
 
 由贝尔曼方程，在策略$\pi$作用下，状态值函数可以递归地表示为：
 
-$$V^{\pi}(s) = \sum_{s' \in S}P_{s,\pi(s)}(s')(R_{s,\pi(s)}(s') + \gamma V^{\pi}(s'))$$
+$$V^{\pi}(s) = \sum_{s' \in S}p_{s,\pi(s)}(s')(r_{s,\pi(s)}(s') + \gamma V^{\pi}(s'))$$
 
-给定MDP五元组模型$$(S,A,P_{.,.}(.),R_{.,.}(.),\gamma)$$，策略迭代流程如下：
+给定MDP五元组模型$$(S,A,p_{.,.}(.),r_{.,.}(.),\gamma)$$，策略迭代流程如下：
 
 1）初始化：$$\forall s \in S, V(s)=0, \pi(s)=\text{arbitrary}$$；
 
 2）迭代： 
 
-策略评估：$$\forall s \in S, V(s) = \sum_{s' \in S}P_{s,\pi(s)}(s')(R_{s,\pi(s)}(s') + \gamma V(s'))$$（也可以先单独对该步进行迭代，直到得到满意的对$\pi$的评估）；
+策略评估：$$\forall s \in S, V(s) = \sum_{s' \in S}p_{s,\pi(s)}(s')(r_{s,\pi(s)}(s') + \gamma V(s'))$$（也可以先单独对该步进行迭代，直到得到满意的对$\pi$的评估）；
 
-策略改进：$$\forall s \in S, \pi'(s) = arg \max_{a\in A_s}\sum_{s' \in S}P_{s,a}(s')(R_{s,a}(s') + \gamma V(s'))$$；
+策略改进：$$\forall s \in S, \pi'(s) = arg \max_{a\in A_s}\sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s') + \gamma V(s'))$$；
 
 3）终止条件判断：如果$$\forall s \in S, \pi'(s) = \pi(s)$$，则终止迭代并输出$\pi$作为最优策略；否则令$\pi = \pi'$，继续迭代。
 
@@ -140,19 +140,19 @@ $$V^{\pi}(s) = \sum_{s' \in S}P_{s,\pi(s)}(s')(R_{s,\pi(s)}(s') + \gamma V^{\pi}
 
 由最优贝尔曼方程，可知
 
-$$ V^*(s) = \max_{a \in A_s} \left\{ \sum_{s' \in S}P_{s,a}(s')(R_{s,a}(s') + \gamma V^*(s')) \right\} $$
+$$ V^*(s) = \max_{a \in A_s} \left\{ \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s') + \gamma V^*(s')) \right\} $$
 
-因此，给定MDP五元组模型$$(S,A,P_{.,.}(.),R_{.,.}(.),\gamma)$$和收敛阈值$\theta$，可以设计如下状态值迭代流程：
+因此，给定MDP五元组模型$$(S,A,p_{.,.}(.),r_{.,.}(.),\gamma)$$和收敛阈值$\theta$，可以设计如下状态值迭代流程：
 
 1）初始化：$$\forall s \in S, V(s)=0$$；
 
 2）迭代：
 
-值迭代：$$\forall s \in S, V'(s) = \max_{a \in A_s} \left\{ \sum_{s' \in S}P_{s,a}(s')(R_{s,a}(s') + \gamma V(s')) \right\} $$；
+值迭代：$$\forall s \in S, V'(s) = \max_{a \in A_s} \left\{ \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s') + \gamma V(s')) \right\} $$；
 
 3）终止条件判断：如果$$\max_{s\in S}\mid V'(s)-V(s)\mid \geq \theta$$，则令$V=V'$，继续迭代；否则，根据$V'$输出最优策略$\pi'$如下：
 
-$$\forall s \in S, \pi'(s) = arg \max_{a\in A_s}\sum_{s' \in S}P_{s,a}(s')(R_{s,a}(s') + \gamma V'(s'))$$
+$$\forall s \in S, \pi'(s) = arg \max_{a\in A_s}\sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s') + \gamma V'(s'))$$
 
 已经证明该迭代方法收敛于正确的$V^*$值，从而输出的策略也收敛于最优策略。
 
@@ -164,7 +164,7 @@ $$\forall s \in S, \pi'(s) = arg \max_{a\in A_s}\sum_{s' \in S}P_{s,a}(s')(R_{s,
 
 # 3、无模型学习
 
-在现实的强化学习任务中，状态转移概率函数$P$和奖励函数$R$往往都是很难得知的。如果学习算法不依赖于显性的环境模型，而是依靠与环境交互得到的经验（这里的经验是指state、action、reward的采样序列）就可以求解最优策略，我们称这种强化学习算法为无模型学习算法。
+在现实的强化学习任务中，状态转移概率函数$p$和奖励函数$r$往往都是很难得知的。如果学习算法不依赖于显性的环境模型，而是依靠与环境交互得到的经验（这里的经验是指state、action、reward的采样序列）就可以求解最优策略，我们称这种强化学习算法为无模型学习算法。
 
 在无模型的情况下，策略迭代算法首先遇到的问题就是策略无法评估，因为状态转移概率未知。另一方面，策略迭代算法估计的是状态值函数$V$，而最终策略是通过状态-动作值函数$Q$来获得的。当模型已知时，从$V$到$Q$转换比较简单，但是当模型未知时，这也会变得非常困难。于是，我们将估计对象从$V$转变为$Q$，即估计每一对“状态-动作”的值。当然，我们也可以直接根据数据经验去学习状态转移概率函数和奖励函数，然后使用策略迭代或状态值迭代得到估计的最优策略，但这往往过于复杂，不如直接估计“状态-动作”值。
 
@@ -254,11 +254,11 @@ $$\pi^{\epsilon}(s,a) = \begin{cases}1-\epsilon + \frac{\epsilon}{\mid A_s\mid} 
 
 异策略方法要用到重要性采样（importance sampling），这是给定服从一种分布的样本情况下估计另一种分布下期望值的一般方法。一般地，函数$f$在概率分布$p$下的期望可表达为$E(f) = \int_xp(x)f(x)dx$。可通过从概率分布$p$上的采样$\\{x^{(1)},x^{(2)},...,x^{(m)}\\}$来估计$f$的期望，即$\widehat{E}(f) = \frac{1}{m}\sum_{i=1}^{m}f(x^{(i)})$。如果有另一个分布$q$，函数$f$在概率分布$p$下的期望可等价表达为$E(f) = \int_xq(x)\frac{p(x)}{q(x)}f(x)dx$，即可看作函数$\frac{p(x)}{q(x)}f(x)$在分布$q$下的期望，其中$\frac{p(x)}{q(x)} = w$称作重要性权重。因此，也可以通过从概率分布$q$上的采样$$\{x'^{(1)},x'^{(2)},...,x'^{(m)}\}$$来估计$f$的期望，即$\widehat{E}(f) = \frac{1}{m}\sum_{i=1}^{m}w^{(i)}f(x'^{(i)})$。这是一个无偏估计，但是如果使用分布差别很大的采样样本对原分布的期望进行估计，方差会趋近于无穷大。一种减小方差的方法是采用加权重要性采样，即：
 
-$$E[f] \approx \frac{\sum_{i=1}^{m}w^{(i)}f(x'^{(i)})}{\sum_{j=1}^mw^{(j)}}$$
+$$E[f] \approx \frac{\sum_{i=1}^{m}w^{(i)}f(x'^{(i)})}{\sum_{i=1}^mw^{(i)}}$$
 
-回到我们的问题上来，如果使用策略$\pi$上的采样轨迹来评估策略$\pi$，实际上就是对累积奖励求期望：$Q(s,a) = \frac{1}{m}\sum_{i=1}^mG^{(i)}$，其中$G^{(i)}$表示第$i$条轨迹上从状态动作对$(s,a)$开始到结束的累积奖励。如果改用策略$\pi'$的采样轨迹来评估策略$\pi$，则仅需对累积奖励进行加权求和，即
+回到我们的问题上来，如果使用策略$\pi$上的采样轨迹来评估策略$\pi$，实际上就是对累积奖励求期望：$Q(s,a) = \frac{1}{m}\sum_{i=1}^mR^{(i)}$，其中$R^{(i)}$表示第$i$条轨迹上从状态动作对$(s,a)$开始到结束的累积奖励。如果改用策略$\pi'$的采样轨迹来评估策略$\pi$，则仅需对累积奖励进行加权求和，即
 
-$$Q(s,a) = \frac{\sum_{i=1}^mw^{(i)}G^{(i)}}{\sum_{j=1}^mw^{(j)}}$$
+$$Q(s,a) = \frac{\sum_{i=1}^mw^{(i)}R^{(i)}}{\sum_{j=1}^mw^{(j)}}$$
 
 其中$$w^{(i)} = \frac{P_{\pi}^{(i)}}{P_{\pi'}^{(i)}}$$，$P_{\pi}^{(i)}$和$P_{\pi'}^{(i)}$分别表示策略$\pi$和$\pi'$产生第$i$条轨迹上从状态动作对$(s,a)$开始到结束部分的概率。
 
@@ -268,11 +268,11 @@ $$ < s_t,a_t,r_t,s_{t+1},a_{t+1},r_{t+1},...,s_T> $$
 
 其在策略$\pi$下发生的概率为：
 
-$$P_{\pi} = \prod_{i=t}^{T-1}\pi(s_i,a_i)P_{s_i,a_i}(s_{i+1})$$
+$$P_{\pi} = \prod_{i=t}^{T-1}\pi(s_i,a_i)p_{s_i,a_i}(s_{i+1})$$
 
 因此，该轨迹在target policy和behavior policy下发生的概率比值为（即重要性权重）：
 
-$$\frac{P_{\pi}}{P_{\pi'}} = \frac{\prod_{i=t}^{T-1}\pi(s_i,a_i)P_{s_i,a_i}(s_{i+1})}{\prod_{i=t}^{T-1}\pi'(s_i,a_i)P_{s_i,a_i}(s_{i+1})} = \prod_{i=t}^{T-1}\frac{\pi(s_i,a_i)}{\pi'(s_i,a_i)} = w$$
+$$\frac{P_{\pi}}{P_{\pi'}} = \frac{\prod_{i=t}^{T-1}\pi(s_i,a_i)p_{s_i,a_i}(s_{i+1})}{\prod_{i=t}^{T-1}\pi'(s_i,a_i)p_{s_i,a_i}(s_{i+1})} = \prod_{i=t}^{T-1}\frac{\pi(s_i,a_i)}{\pi'(s_i,a_i)} = w$$
 
 可以看出，该重要性采样权重仅依赖于两个策略，而与模型本身无关。
 
@@ -304,19 +304,19 @@ $$\forall s \in S, \forall a\in A, Q(s,a)=\text{arbitrary}, \pi(s)=arg\max_{a\in
 
 根据贝尔曼方程，我们首先将策略$\pi$作用下的$Q^{\pi}$函数写成如下递归形式（贝尔曼方程）：
 
-$$Q^{\pi}(s,a) = \sum_{s' \in S}P_{s,a}(s')(R_{s,a}(s') + \gamma Q^{\pi}(s',\pi(s')))$$
+$$Q^{\pi}(s,a) = \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s') + \gamma Q^{\pi}(s',\pi(s')))$$
 
 根据最优贝尔曼方程，当取得最优策略时，$Q^*$函数具有如下形式：
 
 $$\begin{align}
-Q^*(s,a) =  \sum_{s' \in S}P_{s,a}(s')(R_{s,a}(s')+\gamma\max_{a' \in A_{s'}} Q^*(s',a'))
+Q^*(s,a) =  \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s')+\gamma\max_{a' \in A_{s'}} Q^*(s',a'))
 \end{align}
 $$
 
 
 假设在时间$t$时，状态为$s$，执行的动作是$a$，而在$t+1$时刻得到了状态$s'$，我们可以用指数平滑的方式来更新值函数估计$Q^{\pi}(s,a)$：
 
-$$\begin{equation}\label{td}Q^{\pi}_{t+1}(s,a) = Q^{\pi}_{t}(s,a) + \alpha(R_{s,a}(s') + \gamma Q^{\pi}_{t}(s',\pi(s')) - Q^{\pi}_{t}(s,a))
+$$\begin{equation}\label{td}Q^{\pi}_{t+1}(s,a) = Q^{\pi}_{t}(s,a) + \alpha(r_{s,a}(s') + \gamma Q^{\pi}_{t}(s',\pi(s')) - Q^{\pi}_{t}(s,a))
 \end{equation}$$
 
 其中指数平滑系数$\alpha$称为更新步长。
@@ -381,14 +381,14 @@ $$Q(s,a) = Q(s,a) + \alpha(r + \gamma Q(s',a') - Q(s,a))$$
 
 ### 3.2.3 资格迹（eligibility trace）方法
 
-在式\eqref{td}中，只使用当前步的预测误差$$\delta_t = R_{s,a}(s') + \gamma Q^{\pi}_{t}(s',\pi(s')) - Q^{\pi}_{t}(s,a)$$来更新上一步的$Q$值。
+在式\eqref{td}中，只使用当前步的预测误差$$\delta_t = r_{s,a}(s') + \gamma Q^{\pi}_{t}(s',\pi(s')) - Q^{\pi}_{t}(s,a)$$来更新上一步的$Q$值。
 
 在资格迹的情况下，将及时进行回顾总结。例如，如果当前回报较好，则不仅更新上一状态-动作值，并为导致到达当前状态的某些先前状态-动作值分配一些回报。这将会进一步提高算法的收敛性。
 
 根据折扣未来回报来估计的回报如下：
 
 $$\begin{align}
-G_t &= r_{t} + \gamma r_{t+1} + \gamma^2r_{t+2} + \cdots \\
+R_t &= r_{t} + \gamma r_{t+1} + \gamma^2r_{t+2} + \cdots \\
 &= r_{t} + \gamma Q_{t}(s_{t+1},a_{t+1}) \\
 &= r_{t} + \gamma r_{t+1} + \gamma^2Q_{t}(s_{t+2},a_{t+2})
 \end{align}
