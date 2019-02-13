@@ -262,17 +262,17 @@ $$Q(s,a) = \frac{\sum_{i=1}^mw^{(i)}R^{(i)}}{\sum_{j=1}^mw^{(j)}}$$
 
 其中$$w^{(i)} = \frac{P_{\pi}^{(i)}}{P_{\pi'}^{(i)}}$$，$P_{\pi}^{(i)}$和$P_{\pi'}^{(i)}$分别表示策略$\pi$和$\pi'$产生第$i$条轨迹上从状态动作对$(s,a)$开始到结束部分的概率。
 
-对于一条给定episode轨迹：
+对于给定一条动作-状态轨迹$\tau$：
 
-$$ < s_t,a_t,r_t,s_{t+1},a_{t+1},r_{t+1},...,s_T> $$
+$$ < s_t,a_t,s_{t+1},a_{t+1},...,s_T> $$
 
 其在策略$\pi$下发生的概率为：
 
-$$P_{\pi} = \prod_{i=t}^{T-1}\pi(s_i,a_i)p_{s_i,a_i}(s_{i+1})$$
+$$P_{\pi}(\tau) = \prod_{i=t}^{T-1}\pi(s_i,a_i)p_{s_i,a_i}(s_{i+1})$$
 
 因此，该轨迹在target policy和behavior policy下发生的概率比值为（即重要性权重）：
 
-$$\frac{P_{\pi}}{P_{\pi'}} = \frac{\prod_{i=t}^{T-1}\pi(s_i,a_i)p_{s_i,a_i}(s_{i+1})}{\prod_{i=t}^{T-1}\pi'(s_i,a_i)p_{s_i,a_i}(s_{i+1})} = \prod_{i=t}^{T-1}\frac{\pi(s_i,a_i)}{\pi'(s_i,a_i)} = w$$
+$$\frac{P_{\pi}(\tau)}{P_{\pi'}(\tau)} = \frac{\prod_{i=t}^{T-1}\pi(s_i,a_i)p_{s_i,a_i}(s_{i+1})}{\prod_{i=t}^{T-1}\pi'(s_i,a_i)p_{s_i,a_i}(s_{i+1})} = \prod_{i=t}^{T-1}\frac{\pi(s_i,a_i)}{\pi'(s_i,a_i)} = w$$
 
 可以看出，该重要性采样权重仅依赖于两个策略，而与模型本身无关。
 

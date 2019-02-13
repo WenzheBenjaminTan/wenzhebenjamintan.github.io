@@ -130,22 +130,22 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\nabla_{\boldsymbol{\theta}
 
 ## 2.1 从似然概率角度推导策略梯度
 
-用$\tau$表示一组随机状态-动作轨迹$$ < S_0,A_0,S_1,A_1,...,S_{T-1},A_{T-1},S_T  > $$。并令$$R(\tau) = \sum_{t=0}^{T-1}\gamma^tr_{S_t,A_t}(S_{t+1})$$表示轨迹$\tau$的回报，$$p(\tau\mid\boldsymbol{\theta})$$表示在$$\pi_{\boldsymbol{\theta}}$$作用下轨迹$\tau$出现的似然概率。则强化学习的目标函数可以表示为：
+用$\tau$表示一组随机状态-动作轨迹$$ < S_0,A_0,S_1,A_1,...,S_{T-1},A_{T-1},S_T  > $$。并令$$R(\tau) = \sum_{t=0}^{T-1}\gamma^tr_{S_t,A_t}(S_{t+1})$$表示轨迹$\tau$的回报，$$P(\tau\mid\boldsymbol{\theta})$$表示在$$\pi_{\boldsymbol{\theta}}$$作用下轨迹$\tau$出现的似然概率。则强化学习的目标函数可以表示为：
 
-$$J(\boldsymbol{\theta}) = E\left[\sum_{t=0}^{T-1}\gamma^tr_{S_t,A_t}(S_{t+1})\mid\pi_{\boldsymbol{\theta}}\right] = \sum_{\tau} R(\tau)p(\tau\mid\boldsymbol{\theta})$$
+$$J(\boldsymbol{\theta}) = E\left[\sum_{t=0}^{T-1}\gamma^tr_{S_t,A_t}(S_{t+1})\mid\pi_{\boldsymbol{\theta}}\right] = \sum_{\tau} R(\tau)P(\tau\mid\boldsymbol{\theta})$$
 
 因此，对目标函数求导可得：
 
-$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \nabla_{\boldsymbol{\theta}} \sum_{\tau} R(\tau)p(\tau\mid\boldsymbol{\theta})\\
-								&= \sum_{\tau} R(\tau) \nabla_{\boldsymbol{\theta}}p(\tau\mid\boldsymbol{\theta}) \\
-								&= \sum_{\tau}p(\tau\mid\boldsymbol{\theta}) R(\tau) \frac{\nabla_{\boldsymbol{\theta}}p(\tau\mid\boldsymbol{\theta})}{p(\tau\mid\boldsymbol{\theta})} \\
-								&= \sum_{\tau}p(\tau\mid\boldsymbol{\theta}) R(\tau) \nabla_{\boldsymbol{\theta}}\log p(\tau\mid\boldsymbol{\theta}) \\
-								&= \sum_{\tau}p(\tau\mid\boldsymbol{\theta}) R(\tau) \nabla_{\boldsymbol{\theta}}\log \left(\prod_{t=0}^{T-1}\pi_{\boldsymbol{\theta}}(S_t,A_t)p_{S_t,A_t}(S_{t+1})\right) \\
-								&= \sum_{\tau}p(\tau\mid\boldsymbol{\theta}) R(\tau) \nabla_{\boldsymbol{\theta}} \left(\sum_{t=0}^{T-1}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)+ \sum_{t=0}^{T-1}\log p_{S_t,A_t}(S_{t+1})\right) \\
-								&= \sum_{\tau}p(\tau\mid\boldsymbol{\theta}) R(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \\
-								&= E_{\tau\sim p(\tau\mid\boldsymbol{\theta})}\left[R(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
+$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \nabla_{\boldsymbol{\theta}} \sum_{\tau} R(\tau)P(\tau\mid\boldsymbol{\theta})\\
+								&= \sum_{\tau} R(\tau) \nabla_{\boldsymbol{\theta}}P(\tau\mid\boldsymbol{\theta}) \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) R(\tau) \frac{\nabla_{\boldsymbol{\theta}}P(\tau\mid\boldsymbol{\theta})}{P(\tau\mid\boldsymbol{\theta})} \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) R(\tau) \nabla_{\boldsymbol{\theta}}\log p(\tau\mid\boldsymbol{\theta}) \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) R(\tau) \nabla_{\boldsymbol{\theta}}\log \left(\prod_{t=0}^{T-1}\pi_{\boldsymbol{\theta}}(S_t,A_t)p_{S_t,A_t}(S_{t+1})\right) \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) R(\tau) \nabla_{\boldsymbol{\theta}} \left(\sum_{t=0}^{T-1}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)+ \sum_{t=0}^{T-1}\log p_{S_t,A_t}(S_{t+1})\right) \\
+								&= \sum_{\tau}P(\tau\mid\boldsymbol{\theta}) R(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})}\left[R(\tau) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
 
-								&= E_{\tau\sim p(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^t r_{S_t,A_t}(S_{t+1}) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^t r_{S_t,A_t}(S_{t+1}) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
 
 
 \end{align}$$
@@ -154,19 +154,19 @@ $$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \nabla_{\b
 
 注意到对$$t' < t$$，有
 
-$$E_{\tau\sim p(\tau\mid\boldsymbol{\theta})} \left[\gamma^{t'} r_{S_{t'},A_{t'}}(S_{t'+1}) \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = E_{\tau\sim p(\tau\mid\boldsymbol{\theta})} \left[\gamma^{t'} r_{S_{t'},A_{t'}}(S_{t'+1}) \right]E_{\tau\sim p(\tau\mid\boldsymbol{\theta})} \left[\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = 0 $$
+$$E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\gamma^{t'} r_{S_{t'},A_{t'}}(S_{t'+1}) \nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\gamma^{t'} r_{S_{t'},A_{t'}}(S_{t'+1}) \right]E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] = 0 $$
 
 因此
 
-$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= E_{\tau\sim p(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^t r_{S_t,A_t}(S_{t+1}) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
-								&= E_{\tau\sim p(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\sum_{t'=t}^{T-1}\gamma^{t'} r_{S_{t'},A_{t'}}(S_{t'+1}) \right] \\
-								&= E_{\tau\sim p(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^tR_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \right] \label{eq15} \\
+$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^t r_{S_t,A_t}(S_{t+1}) \sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right] \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\sum_{t'=t}^{T-1}\gamma^{t'} r_{S_{t'},A_{t'}}(S_{t'+1}) \right] \\
+								&= E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}\gamma^tR_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \right] \label{eq15} \\
 
 \end{align}$$
 
 有的时候也可以把$\gamma^t$省略掉，进行下面的估计替代：
 
-$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx E_{\tau\sim p(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}R_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \right]$$
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) \approx E_{\tau\sim P(\tau\mid\boldsymbol{\theta})} \left[\sum_{t=0}^{T-1}R_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t) \right]$$
 
 
 ## 2.2 REINFORCE算法
