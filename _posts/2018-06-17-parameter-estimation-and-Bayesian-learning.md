@@ -16,19 +16,19 @@ title: "参数估计与贝叶斯学习"
 
 ## 1.2 最大似然估计
 
-假定我们有一个独立同分布（iid）样本集$$D = \{\boldsymbol{x}^{(s)}\}_{s=1}^N$$。我们假设$\boldsymbol{x}^{(s)}$是从某个定义在参数$\theta$上的已知概率密度族$p(\boldsymbol{x}\mid\theta)$中抽取的实例：
+假定我们有一个独立同分布（iid）样本集$$D = \{\boldsymbol{x}^{(i)}\}_{i=1}^N$$。我们假设$\boldsymbol{x}^{(i)}$是从某个定义在参数$\theta$上的已知概率密度族$p(\boldsymbol{x}\mid\theta)$中抽取的实例：
 
-$$\boldsymbol{x}^{(s)} \sim p(\boldsymbol{x}\mid\theta)$$
+$$\boldsymbol{x}^{(i)} \sim p(\boldsymbol{x}\mid\theta)$$
 
-我们希望找出这样的$\theta$，使得$\boldsymbol{x}^{(s)}$尽可能像是从$p(\boldsymbol{x}\mid\theta)$抽取出来的。因为$\boldsymbol{x}^{(s)}$是相互独立的，给定参数$\theta$，样本集$D$的似然（likelihood）是所有样本似然的乘积：
+我们希望找出这样的$\theta$，使得$\boldsymbol{x}^{(i)}$尽可能像是从$p(\boldsymbol{x}\mid\theta)$抽取出来的。因为$\boldsymbol{x}^{(i)}$是相互独立的，给定参数$\theta$，样本集$D$的似然（likelihood）是所有样本似然的乘积：
 
-$$L(D | \theta) \equiv p(D | \theta) = \prod_{s=1}^Np(\boldsymbol{x}^{(s)} | \theta)$$
+$$L(D | \theta) \equiv p(D | \theta) = \prod_{i=1}^Np(\boldsymbol{x}^{(i)} | \theta)$$
 
 在最大似然估计（maximum likelihood estimation）中，我们感兴趣的是找到这样的$\theta$，使得$$L(D \mid \theta)$$最大。
 
 通常情况下，我们可以最大化该似然的对数。通过log运算可以把乘积转换为求和，并不改变它取最大值时的解，并且当概率密度函数包含指数项时可以进一步简化计算量。对数似然（log likelihood）定义为：
 
-$$\mathcal{L}(\theta|D) \equiv \log L(D| \theta) = \sum_{s=1}^N\log p(\boldsymbol{x}^{(s)} | \theta)$$
+$$\mathcal{L}(\theta|D) \equiv \log L(D| \theta) = \sum_{i=1}^N\log p(\boldsymbol{x}^{(i)} | \theta)$$
 
 此时参数$\theta$的最大似然估计为：
 
@@ -40,15 +40,15 @@ $$\theta_{ML} = arg \max_{\theta} \mathcal{L}(\theta|D)$$
 
 $$p(x) = \frac{1}{\sqrt{2\pi}\sigma}\exp(-\frac{(x-\mu)^2}{2\sigma^2}), \ -\infty < x < \infty$$
 
-给定样本集$$D = \{x^{(s)}\}_{s=1}^N$$，其中$$x^{(s)} \sim \mathcal{N}(\mu, \sigma^2)$$，高斯样本的对数似然为：
+给定样本集$$D = \{x^{(i)}\}_{i=1}^N$$，其中$$x^{(i)} \sim \mathcal{N}(\mu, \sigma^2)$$，高斯样本的对数似然为：
 
-$$\mathcal{L}(\mu,\sigma | D) = -\frac{N}{2}\log(2\pi) - N\log \sigma - \frac{\sum_s(x^{(s)}-\mu)^2}{2\sigma^2}$$
+$$\mathcal{L}(\mu,\sigma | D) = -\frac{N}{2}\log(2\pi) - N\log \sigma - \frac{\sum_i(x^{(i)}-\mu)^2}{2\sigma^2}$$
 
 通过对该对数似然函数求偏导并置零，可得均值和方差的最大似然估计分别为：
 
-$$m = \frac{\sum_tx^{(t)}}{N}$$
+$$m = \frac{\sum_ix^{(i)}}{N}$$
 
-$$e^2 = \frac{\sum_t(x^{(t)}-m)^2}{N}$$
+$$e^2 = \frac{\sum_i(x^{(i)}-m)^2}{N}$$
 
 ### 1.2.2 估计性能的评价
 
@@ -75,27 +75,27 @@ $$r(d,\theta) = Var(d) + (b_{\theta}(d))^2$$
 
 特别地，如果$b_{\theta}(d) = 0$，则称$d$是$\theta$的无偏估计（unbiased estimator）；如果当$N\rightarrow \infty$时，$b_{\theta}(d) \rightarrow 0$，则称$d$是$\theta$的渐近无偏估计（asymptotically unbiased estimator）；如果当$N\rightarrow \infty$时，$b_{\theta}(d) \rightarrow 0$ 且 $Var(d) \rightarrow 0$，则称$d$是$\theta$的一致估计（consistent estimator）。
 
-例如，如果$x^{(s)}$是从均值$\mu$的密度抽取出来的，则样本平均值$m$是均值$\mu$的一个无偏估计，因为：
+例如，如果$x^{(i)}$是从均值$\mu$的密度抽取出来的，则样本平均值$m$是均值$\mu$的一个无偏估计，因为：
 
-$$E(m) = E[\frac{\sum_s x^{(s)}}{N}] = \frac{1}{N}\sum_s E[x^{(s)}] = \frac{N\mu}{N} = \mu$$
+$$E(m) = E[\frac{\sum_i x^{(i)}}{N}] = \frac{1}{N}\sum_i E[x^{(i)}] = \frac{N\mu}{N} = \mu$$
 
 这就意味着虽然在一个特定样本上，$m$可能与$\mu$不同，但是如果我们取许多这样的样本集$D_i$，并且估计许多$m_i = m(D_i)$，随着样本集的增加，它们的平均值将逼近$\mu$。
 
 同时，$m$也是$\mu$的一个一致估计，即当$N\rightarrow \infty$时，$Var(m) \rightarrow 0$：
 
-$$Var(m) = Var(\frac{\sum_s x^{(s)}}{N}) = \frac{1}{N^2}\sum_s Var(x^{(s)}) = \frac{N\sigma^2}{N^2} = \frac{\sigma^2}{N}$$
+$$Var(m) = Var(\frac{\sum_i x^{(i)}}{N}) = \frac{1}{N^2}\sum_i Var(x^{(i)}) = \frac{N\sigma^2}{N^2} = \frac{\sigma^2}{N}$$
 
 随着样本集中的样本点数$N$增大，$m$对$\mu$的偏离将变小。
 
 接下来我们检查$\sigma^2$的最大似然估计$e^2$：
 
-$$e^2 = \frac{\sum_s(x^{(s)}-m)^2}{N} = \frac{\sum_s(x^{(s)})^2-Nm^2}{N}$$
+$$e^2 = \frac{\sum_i(x^{(i)}-m)^2}{N} = \frac{\sum_i(x^{(i)})^2-Nm^2}{N}$$
 
-$$E[e^2] = \frac{\sum_s E[(x^{(s)})^2]-N\cdot E[m^2]}{N}$$
+$$E[e^2] = \frac{\sum_i E[(x^{(i)})^2]-N\cdot E[m^2]}{N}$$
 
 给定$Var[X] = E[X^2] - E[X]^2$，可以得到$E[X^2] = Var[X] + E[X]^2$，于是有：
 
-$$E[(x^{(s)})^2] = \sigma^2 + \mu^2$$
+$$E[(x^{(i)})^2] = \sigma^2 + \mu^2$$
 
 $$E[m^2] = \frac{\sigma^2}{N} + \mu^2$$
 
@@ -117,7 +117,7 @@ $$p(\theta| D) = \frac{p(D|\theta)p(\theta)}{p(D)} = \frac{p(D |\theta)p(\theta)
 
 为了明确表示样本集$D$中有$n$个样本，可以将其标记为$$D_n$$，易得似然概率：
 
-$$p(D_n | \theta) = \prod_{s=1}^n p(\boldsymbol{x}^{(s)} | \theta)$$
+$$p(D_n | \theta) = \prod_{i=1}^n p(\boldsymbol{x}^{(i)} | \theta)$$
 
 因此：
 
@@ -142,9 +142,9 @@ $$\theta_{Bayes} = E[\theta | D] = \int \theta p(\theta | D)d\theta$$
 
 如果后验概率$ p(\theta \mid D)$满足高斯分布，则期望值就是众数，则$\theta_{Bayes} = \theta_{MAP}$。
 
-举个例子，我们假设$$x^{(s)}\sim \mathcal{N}(\theta,\sigma_0^2)$$并且先验$\theta\sim \mathcal{N}(\mu,\sigma^2)$，其中$\mu$、$\sigma$和$\sigma_0^2$已知，可得：
+举个例子，我们假设$$x^{(i)}\sim \mathcal{N}(\theta,\sigma_0^2)$$并且先验$\theta\sim \mathcal{N}(\mu,\sigma^2)$，其中$\mu$、$\sigma$和$\sigma_0^2$已知，可得：
 
-$$p(D|\theta) = \frac{1}{(2\pi)^{N/2}\sigma_0^N}\exp(-\frac{\sum_s(x^{(s)}-\theta)^2}{2\sigma_0^2})$$
+$$p(D|\theta) = \frac{1}{(2\pi)^{N/2}\sigma_0^N}\exp(-\frac{\sum_i(x^{(i)}-\theta)^2}{2\sigma_0^2})$$
 
 $$p(\theta) = \frac{1}{\sqrt{2\pi}\sigma}\exp(-\frac{(\theta-\mu)^2}{2\sigma^2})$$
 
@@ -186,11 +186,11 @@ $$\widehat{y}(\boldsymbol{x},\boldsymbol{w}) = \boldsymbol{w}^T\boldsymbol{\phi}
 
 我们定义$$p(y\mid \boldsymbol{x},\boldsymbol{w}) \sim \mathcal{N}(\widehat{y}(\boldsymbol{x},\boldsymbol{w}),\sigma^2)$$，并假设样本是独立同分布的，可得条件对数似然如下：
 
-$$\sum_{s=1}^N\log p(y^{(s)} | \boldsymbol{x}^{(s)}, \boldsymbol{w}) = -\frac{N}{2}\log(2\pi) - N\log \sigma - \frac{\sum_{s=1}^N\|y^{(s)}-\widehat{y}^{(s)}\|^2}{2\sigma^2}$$
+$$\sum_{i=1}^N\log p(y^{(i)} | \boldsymbol{x}^{(i)}, \boldsymbol{w}) = -\frac{N}{2}\log(2\pi) - N\log \sigma - \frac{\sum_{i=1}^N\|y^{(i)}-\widehat{y}^{(i)}\|^2}{2\sigma^2}$$
 
 对比均方误差：
 
-$$MSE = \frac{1}{N}\sum_{s=1}^N\|y^{(s)}-\widehat{y}^{(s)}\|^2$$
+$$MSE = \frac{1}{N}\sum_{i=1}^N\|y^{(i)}-\widehat{y}^{(i)}\|^2$$
 
 可以看出，最大化关于$\boldsymbol{w}$的对数似然和最小化均方误差会得到相同的参数估计$\boldsymbol{w}$，因此对数似然和最小二乘法是等价的。
 
@@ -205,7 +205,7 @@ $$p(\boldsymbol{w} \mid \boldsymbol{X}, \boldsymbol{y}) \propto p(\boldsymbol{y}
 
 那么，线性模型的对数后验概率函数可表示为：
 
-$$\log p(\boldsymbol{w} | \boldsymbol{X},\boldsymbol{y}) = -\frac{\beta}{2}\sum_{s=1}^N\|y^{(s)}-\widehat{y}^{(s)}\|^2 - \frac{\alpha}{2}\boldsymbol{w}^T\boldsymbol{w} + const $$
+$$\log p(\boldsymbol{w} | \boldsymbol{X},\boldsymbol{y}) = -\frac{\beta}{2}\sum_{i=1}^N\|y^{(i)}-\widehat{y}^{(i)}\|^2 - \frac{\alpha}{2}\boldsymbol{w}^T\boldsymbol{w} + const $$
 
 因此，最大化后验概率和带权重衰减项$$\frac{\alpha}{2}\boldsymbol{w}^T\boldsymbol{w}$$的最小二乘回归是等价的。
 

@@ -116,17 +116,17 @@ $$\boldsymbol{S} = \boldsymbol{W}\boldsymbol{D}\boldsymbol{W}^T$$
 
 这称为$\boldsymbol{S}$的谱分解（spectral decomposition）。
 
-我们已经知道，如果$$\boldsymbol{x}\sim \mathcal{N}_d(\boldsymbol{\mu}, \Sigma)$$，则投影后$$\boldsymbol{W}^T\boldsymbol{x}\sim \mathcal{N}_k(\boldsymbol{W}^T\boldsymbol{\mu}, \boldsymbol{W}^T\Sigma\boldsymbol{W})$$，即将$d$元正态的样本投影到$k$元正态上。实例$$\boldsymbol{x}^{(s)}$$投影到$\boldsymbol{z}$-空间为：
+我们已经知道，如果$$\boldsymbol{x}\sim \mathcal{N}_d(\boldsymbol{\mu}, \Sigma)$$，则投影后$$\boldsymbol{W}^T\boldsymbol{x}\sim \mathcal{N}_k(\boldsymbol{W}^T\boldsymbol{\mu}, \boldsymbol{W}^T\Sigma\boldsymbol{W})$$，即将$d$元正态的样本投影到$k$元正态上。实例$$\boldsymbol{x}^{(i)}$$投影到$\boldsymbol{z}$-空间为：
 
-$$\boldsymbol{z}^{(s)} = \boldsymbol{W}^T(\boldsymbol{x}^{(s)} - \boldsymbol{\mu})$$
+$$\boldsymbol{z}^{(i)} = \boldsymbol{W}^T(\boldsymbol{x}^{(i)} - \boldsymbol{\mu})$$
 
 它可以逆投影到原来的空间：
 
-$$\widehat{\boldsymbol{x}}^{(s)} = \boldsymbol{W}\boldsymbol{z}^{(s)} + \boldsymbol{\mu}$$
+$$\widehat{\boldsymbol{x}}^{(i)} = \boldsymbol{W}\boldsymbol{z}^{(i)} + \boldsymbol{\mu}$$
 
-$$\widehat{\boldsymbol{x}}^{(s)}$$是$$\boldsymbol{x}^{(s)}$$从它在$\boldsymbol{z}$-空间中的表示的重构。我们定义重构误差（reconstruction error）为实例与它的从低维空间重构之间的距离：
+$$\widehat{\boldsymbol{x}}^{(i)}$$是$$\boldsymbol{x}^{(i)}$$从它在$\boldsymbol{z}$-空间中的表示的重构。我们定义重构误差（reconstruction error）为实例与它的从低维空间重构之间的距离：
 
-$$\sum_s \|\widehat{\boldsymbol{x}}^{(s)} - \boldsymbol{x}^{(s)}\|^2$$
+$$\sum_i \|\widehat{\boldsymbol{x}}^{(i)} - \boldsymbol{x}^{(i)}\|^2$$
 
 重构误差取决于我们考虑了多少个主成分。
 
@@ -139,7 +139,7 @@ PCA并不利用输出信息，因此它是非监督的。
 
 首先考虑二分类问题，训练数据集为：
 
-$$D = \{(\boldsymbol{x}^{(1)},y^{(1)}), (\boldsymbol{x}^{(2)},y^{(2)}), ..., (\boldsymbol{x}^{(N)},y^{(N)})\}, \boldsymbol{x}^{(s)} \in \mathcal{X} \subseteq \mathbb{R}^d, y^{(s)} \in \mathcal{Y} = \{0,1\}, s =1,2,...,N$$
+$$D = \{(\boldsymbol{x}^{(1)},y^{(1)}), (\boldsymbol{x}^{(2)},y^{(2)}), ..., (\boldsymbol{x}^{(N)},y^{(N)})\}, \boldsymbol{x}^{(i)} \in \mathcal{X} \subseteq \mathbb{R}^d, y^{(i)} \in \mathcal{Y} = \{0,1\}, i =1,2,...,N$$
 
 进一步，令$$X_c$$、$$\boldsymbol{m}_c$$、$$\boldsymbol{S}_c$$分别表示第$$c\in \{0,1\}$$类样例的集合、均值向量（维度为$d$）、协方差矩阵估计（维度为$d\times d$）。
 

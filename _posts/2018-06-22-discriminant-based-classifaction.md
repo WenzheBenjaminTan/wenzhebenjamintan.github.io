@@ -63,7 +63,7 @@ $$p(C_2 \mid \boldsymbol{x}) = \frac{1}{1+e^{\boldsymbol{w}^T\boldsymbol{x}+w_0}
 
 给定训练数据集$$D = \{(\boldsymbol{x}^{(1)},y^{(1)}), (\boldsymbol{x}^{(2)},y^{(2)}), ..., (\boldsymbol{x}^{(N)},y^{(N)})\}$$，可以利用“最大似然法”来估计参数$\boldsymbol{w}$、$w_0$。对数似然函数为：
 
-$$\mathcal{L}(\boldsymbol{w}, w_0) = \sum_{s=1}^N \log p(y^{(s)} \mid \boldsymbol{x}^{(s)}; \boldsymbol{w}, w_0)$$
+$$\mathcal{L}(\boldsymbol{w}, w_0) = \sum_{i=1}^N \log p(y^{(i)} \mid \boldsymbol{x}^{(i)}; \boldsymbol{w}, w_0)$$
 
 该参数估计过程又叫逻辑斯谛回归。
 

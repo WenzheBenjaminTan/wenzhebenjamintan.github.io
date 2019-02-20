@@ -126,17 +126,17 @@ $$\mathbf{P} = \left[\sum_{i=1}^N\boldsymbol{\phi}(\mathbf{x}_i)\boldsymbol{\phi
 
 ### 3.2.2 梯度下降法（Gradient Descent, GD）
 
-考虑一般回归模型形式，损失函数可以表示为：
+考虑一般回归模型形式，损失函数可以通用性地表示为：
 
-$$C(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(f_{\boldsymbol{\theta}}(\mathbf{x}_i)-y_i)^2$$
+$$C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^NJ(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)$$
 
 因为目标是使得损失函数最小，可以采用梯度下降的方式来进行参数更新迭代。参数的梯度方向可以表示为：
 
-$$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} =\frac{1}{N} \sum_{i=1}^N(f_{\boldsymbol{\theta}}(\mathbf{x}_i)-y_i)\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
+$$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} =\frac{1}{N} \sum_{i=1}^N\frac{\partial J(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 参数更新公式为：
 
-$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N(f_{\boldsymbol{\theta}}(\mathbf{x}_i)-y_i)\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N\frac{\partial J(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 
 其中$\eta$为更新步长，又称学习速率。在机器学习中的几乎所有算法都采用这种结构，朝着损失函数梯度下降的方向来不断更新参数。
@@ -158,7 +158,7 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol
 
 虽然梯度下降法效果很好，并广泛使用，但是也存在着问题和挑战：
 
-1）选择一个合理的学习速率很难。如果学习速率过小，则收敛速度很慢；如果学习速率过大，那么会阻碍收敛，即在极值点附近会振荡。通常采用的方法是学习速率调度（leanring rate schedules），即在每次更新过程中对学习速率进行调整。一般使用某种事先设定的策略或者每次迭代中衰减一个较小的值。无论哪种调整方法，都需要事先进行固定设置，这遍无法自适应每次学习的数据集特点。
+1）选择一个合理的学习速率很难。如果学习速率过小，则收敛速度很慢；如果学习速率过大，那么会阻碍收敛，即在极值点附近会振荡。通常采用的方法是学习速率调度（leanring rate schedules），即在每次更新过程中对学习速率进行调整。一般使用某种事先设定的策略或者每次迭代中衰减一个较小的值。无论哪种调整方法，都需要事先进行固定设置，这便无法自适应每次学习的数据集特点。
 
 2）模型所有的参数每次更新都是使用相同的学习速率。如果数据特征是稀疏的或者每个特征有着不同的取值统计分布，那么便不能在每次更新中每个参数都使用相同的学习速率，那些很少出现的特征应该使用一个相对较大的学习速率。
 

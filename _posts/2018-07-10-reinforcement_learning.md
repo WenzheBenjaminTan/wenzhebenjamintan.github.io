@@ -38,7 +38,7 @@ $$
 
 定义在平稳策略$\pi$下，状态$s$的状态值函数为：
 
-$$V^{\pi}(s) = E_{\pi}(R_t\mid s_t=s) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k}\mid s_t=s)$$
+$$V^{\pi}(s) = E\left[R_t\mid s_t=s\right] = E\left[\sum_{k=0}^{+\infty}\gamma^kr_{t+k}\mid s_t=s\right]$$
 
 于是对于平稳策略$\pi$，其总的回报期望为$\sum_{s\in S}V^{\pi}(s)$，因此最优平稳策略（可以证明，当$n$为$+\infty$时，最优平稳策略也是最优策略，而当$n$为有限值时，最优平稳策略不一定是最优策略）定义为：
 
@@ -55,13 +55,13 @@ $$V^*(s) = V^{\pi^*}(s) = \max_{\pi}V^{\pi}(s) (\forall s\in S)$$
 
 为了进一步考虑确定动作为$a$后的回报期望，可以再定义一个状态-动作值函数：
 
-$$Q^{\pi}(s,a) = E_{\pi}(R_t\mid s_t=s,a_t=a) = E_{\pi}(\sum_{k=0}^{+\infty}\gamma^kr_{t+k}\mid s_t=s, a_t =a )$$
+$$Q^{\pi}(s,a) = E\left[R_t\mid s_t=s,a_t=a\right] = E\left[\sum_{k=0}^{+\infty}\gamma^kr_{t+k}\mid s_t=s, a_t =a \right]$$
 
 $Q^{\pi}(s,a)$表示当处于状态$s$时执行动作$a$后遵循平稳策略$\pi$的价值。状态-动作值函数与状态值函数的关系可以表示为：
 
 $$V^{\pi}(s) = Q^{\pi}(s,\pi(s))$$
 
-$$Q^{\pi}(s,a) = \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s') + \gamma V^{\pi}(s'))$$
+$$Q^{\pi}(s,a) = \sum_{s' \in S}p_{s,a}(s')\left(r_{s,a}(s') + \gamma V^{\pi}(s')\right)$$
 
 
 类似地，定义$$Q^*(s,a)$$为处于状态$s$时执行动作$a$后遵循最优平稳策略$$\pi^*$$的期望累计奖励，即最优状态-动作值函数：
@@ -252,13 +252,13 @@ $$\pi^{\epsilon}(s,a) = \begin{cases}1-\epsilon + \frac{\epsilon}{\mid A_s\mid} 
 
 在异策略方法中，会使用两个不同的策略$\pi$和$\pi'$，策略$\pi$用于学习成为最优策略，称为target policy，而策略$\pi'$则用于探索，称为behavior policy。我们希望评估的是$Q^{\pi}$，但所有episodes都是服从策略$\pi'$生成的。为了利用从策略$\pi'$产生的episodes来评估策略$\pi$的value，我们需要策略$\pi$下的所有state-action对都可能被策略$\pi'$生成，也即要求对所有满足$\pi(s,a) > 0$的$(s,a)$均有$\pi'(s,a) > 0$，这个条件可以称为是覆盖（coverage）。
 
-异策略方法要用到重要性采样（importance sampling），这是给定服从一种分布的样本情况下估计另一种分布下期望值的一般方法。一般地，函数$f$在概率分布$p$下的期望可表达为$E(f) = \int_xp(x)f(x)dx$。可通过从概率分布$p$上的采样$\\{x^{(1)},x^{(2)},...,x^{(m)}\\}$来估计$f$的期望，即$\widehat{E}(f) = \frac{1}{m}\sum_{i=1}^{m}f(x^{(i)})$。如果有另一个分布$q$，函数$f$在概率分布$p$下的期望可等价表达为$E(f) = \int_xq(x)\frac{p(x)}{q(x)}f(x)dx$，即可看作函数$\frac{p(x)}{q(x)}f(x)$在分布$q$下的期望，其中$\frac{p(x)}{q(x)} = w$称作重要性权重。因此，也可以通过从概率分布$q$上的采样$$\{x'^{(1)},x'^{(2)},...,x'^{(m)}\}$$来估计$f$的期望，即$\widehat{E}(f) = \frac{1}{m}\sum_{i=1}^{m}w^{(i)}f(x'^{(i)})$。这是一个无偏估计，但是如果使用分布差别很大的采样样本对原分布的期望进行估计，方差会趋近于无穷大。一种减小方差的方法是采用加权重要性采样，即：
+异策略方法要用到重要性采样（importance sampling），这是给定服从一种分布的样本情况下估计另一种分布下期望值的一般方法。一般地，函数$f$在概率分布$p$下的期望可表达为$E(f) = \int_xp(x)f(x)dx$。可通过从概率分布$p$上的采样$\\{x^{(1)},x^{(2)},...,x^{(N)}\\}$来估计$f$的期望，即$\widehat{E}(f) = \frac{1}{N}\sum_{i=1}^{N}f(x^{(i)})$。如果有另一个分布$q$，函数$f$在概率分布$p$下的期望可等价表达为$E(f) = \int_xq(x)\frac{p(x)}{q(x)}f(x)dx$，即可看作函数$\frac{p(x)}{q(x)}f(x)$在分布$q$下的期望，其中$\frac{p(x)}{q(x)} = w$称作重要性权重。因此，也可以通过从概率分布$q$上的采样$$\{x'^{(1)},x'^{(2)},...,x'^{(N)}\}$$来估计$f$的期望，即$\widehat{E}(f) = \frac{1}{N}\sum_{i=1}^{N}w^{(i)}f(x'^{(i)})$。这是一个无偏估计，但是如果使用分布差别很大的采样样本对原分布的期望进行估计，方差会趋近于无穷大。一种减小方差的方法是采用加权重要性采样，即：
 
-$$E[f] \approx \frac{\sum_{i=1}^{m}w^{(i)}f(x'^{(i)})}{\sum_{i=1}^mw^{(i)}}$$
+$$E[f] \approx \frac{\sum_{i=1}^{N}w^{(i)}f(x'^{(i)})}{\sum_{i=1}^Nw^{(i)}}$$
 
-回到我们的问题上来，如果使用策略$\pi$上的采样轨迹来评估策略$\pi$，实际上就是对累积奖励求期望：$Q(s,a) = \frac{1}{m}\sum_{i=1}^mR^{(i)}$，其中$R^{(i)}$表示第$i$条轨迹上从状态动作对$(s,a)$开始到结束的累积奖励。如果改用策略$\pi'$的采样轨迹来评估策略$\pi$，则仅需对累积奖励进行加权求和，即
+回到我们的问题上来，如果使用策略$\pi$上的采样轨迹来评估策略$\pi$，实际上就是对累积奖励求期望：$Q(s,a) = \frac{1}{N}\sum_{i=1}^NR^{(i)}$，其中$R^{(i)}$表示第$i$条轨迹上从状态动作对$(s,a)$开始到结束的累积奖励。如果改用策略$\pi'$的采样轨迹来评估策略$\pi$，则仅需对累积奖励进行加权求和，即
 
-$$Q(s,a) = \frac{\sum_{i=1}^mw^{(i)}R^{(i)}}{\sum_{j=1}^mw^{(j)}}$$
+$$Q(s,a) = \frac{\sum_{i=1}^Nw^{(i)}R^{(i)}}{\sum_{i=1}^Nw^{(i)}}$$
 
 其中$$w^{(i)} = \frac{P_{\pi}^{(i)}}{P_{\pi'}^{(i)}}$$，$P_{\pi}^{(i)}$和$P_{\pi'}^{(i)}$分别表示策略$\pi$和$\pi'$产生第$i$条轨迹上从状态动作对$(s,a)$开始到结束部分的概率。
 
@@ -304,12 +304,12 @@ $$\forall s \in S, \forall a\in A, Q(s,a)=\text{arbitrary}, \pi(s)=arg\max_{a\in
 
 根据贝尔曼方程，我们首先将策略$\pi$作用下的$Q^{\pi}$函数写成如下递归形式（贝尔曼方程）：
 
-$$Q^{\pi}(s,a) = \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s') + \gamma Q^{\pi}(s',\pi(s')))$$
+$$Q^{\pi}(s,a) = \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s') + \gamma Q^{\pi}(s',\pi(s'))) = E_{s'\sim p_{s,a}}\left[ r_{s,a}(s') + \gamma Q^{\pi}(s',\pi(s')) \right]$$
 
 根据最优贝尔曼方程，当取得最优策略时，$Q^*$函数具有如下形式：
 
 $$\begin{align}
-Q^*(s,a) =  \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s')+\gamma\max_{a' \in A_{s'}} Q^*(s',a'))
+Q^*(s,a) =  \sum_{s' \in S}p_{s,a}(s')(r_{s,a}(s')+\gamma\max_{a' \in A_{s'}} Q^*(s',a')) =E_{s'\sim p_{s,a}} \left[ r_{s,a}(s')+\gamma\max_{a' \in A_{s'}} Q^*(s',a') \right]
 \end{align}
 $$
 
@@ -341,10 +341,10 @@ $$\forall s \in S, \forall a\in A, Q(s,a)=\text{arbitrary}, \pi^{\epsilon}(s,a)=
 
 $$Q(s,a) = Q(s,a) + \alpha(r + \gamma Q(s',a') - Q(s,a))$$
 
-求得状态$s$下的最优动作为$a^* = arg\max_{a'' \in A_s}Q(s,a'')$，且对所有$a'' \in A_s$，更新策略：
+求得状态$s$下的最优动作为$a^* = arg\max_{\widetilde{a} \in A_s}Q(s,\widetilde{a})$，且对所有$\widetilde{a} \in A_s$，更新策略：
 
-$$\pi^{\epsilon}(s,a'') = \begin{cases}1-\epsilon + \frac{\epsilon}{\mid A_s\mid} & a'' = a^* \\
-\frac{\epsilon}{\mid A_s\mid} & a'' \neq a^* \\
+$$\pi^{\epsilon}(s,\widetilde{a}) = \begin{cases}1-\epsilon + \frac{\epsilon}{\mid A_s\mid} & \widetilde{a} = a^* \\
+\frac{\epsilon}{\mid A_s\mid} & \widetilde{a} \neq a^* \\
 \end{cases}$$
 
 更新当前状态和当前动作：$s=s',a=a'$。
@@ -373,7 +373,7 @@ $$\forall s \in S, \forall a\in A, Q(s,a)=\text{arbitrary}, \pi(s)=arg\max_{a\in
 
 $$Q(s,a) = Q(s,a) + \alpha(r + \gamma Q(s',a') - Q(s,a))$$
 
-更新策略$\pi(s) = arg\max_{a'' \in A_s}Q(s,a'')$；
+更新策略$\pi(s) = arg\max_{\widetilde{a} \in A_s}Q(s,\widetilde{a})$；
 
 更新当前状态：$s=s'$。
 
@@ -424,13 +424,13 @@ $$\forall s \in S, \forall a\in A, Q(s,a)=\text{arbitrary}, \pi(s)=arg\max_{a\in
 
 计算资格迹值：$E(s,a) = E(s,a) + 1$；
 
-$$\forall \widehat{s} \in S, \forall \widehat{a}\in A_s$$，更新$Q(\widehat{s},\widehat{a})$和$E(\widehat{s},\widehat{a})$：
+$$\forall \widetilde{s} \in S, \forall \widetilde{a}\in A_{\widetilde{s}}$$，更新$Q(\widetilde{s},\widetilde{a})$和$E(\widetilde{s},\widetilde{a})$：
 
-$$Q(\widehat{s},\widehat{a}) = Q(\widehat{s},\widehat{a}) + \alpha\delta E(\widehat{s},\widehat{a})$$
+$$Q(\widetilde{s},\widetilde{a}) = Q(\widetilde{s},\widetilde{a}) + \alpha\delta E(\widetilde{s},\widetilde{a})$$
 
-$$E(\widehat{s},\widehat{a}) = \gamma\lambda E(\widehat{s},\widehat{a})$$
+$$E(\widetilde{s},\widetilde{a}) = \gamma\lambda E(\widetilde{s},\widetilde{a})$$
 
-$$\forall \widehat{s} \in S$$，更新策略$\pi(\widehat{s}) = arg\max_{a'' \in A_\widehat{s}}Q(\widehat{s},a'')$；
+$$\forall \widetilde{s} \in S$$，更新策略$\pi(\widetilde{s}) = arg\max_{\widetilde{a} \in A_\widetilde{s}}Q(\widetilde{s},\widetilde{a})$；
 
 更新当前状态：$s=s'$。
 

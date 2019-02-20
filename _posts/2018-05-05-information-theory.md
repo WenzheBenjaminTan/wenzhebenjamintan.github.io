@@ -21,19 +21,19 @@ title: "信息论"
 
 自信息仅仅是处理单个事件的输出，如果是计算某类事件的自信息期望，它就是熵（定义了该类事件的不确定性）：
 
-$$H(X) = \mathbb{E}_{x\sim p(x)}[I(X = x)] = -\mathbb{E}_{x\sim p(x)}[\log p(x)] = -\sum_xp(x)\log p(x)$$
+$$Ent(X) = \mathbb{E}_{x\sim p(x)}[I(X = x)] = -\mathbb{E}_{x\sim p(x)}[\log p(x)] = -\sum_xp(x)\log p(x)$$
 
 熵刻画了按照真实分布$p$来识别一个样本所需要的编码长度期望（即平均编码长度）。如，含有4个字母$$\{A,B,C,D\}$$，真实分布$$p=\{\frac{1}{2},\frac{1}{4},\frac{1}{4},0\}$$，则识别样本需要的平均编码长度为1.5。
 
-对于离散型随机变量$X$，假设其取值集合大小为$K$，则容易证明：$$0\leq H(X) \leq \log K$$。
+对于离散型随机变量$X$，假设其取值集合大小为$K$，则容易证明：$$0\leq Ent(X) \leq \log K$$。
 
 # 4、条件熵（conditional entropy）
 
-对于随机变量$X$和$Y$，条件熵$$H(Y\mid X)$$定义为给定$X$条件下$Y$的条件概率分布的熵对$X$的期望：
+对于随机变量$X$和$Y$，条件熵$$Ent(Y\mid X)$$定义为给定$X$条件下$Y$的条件概率分布的熵对$X$的期望：
 
-$$H(Y\mid X) = \mathbb{E}_{x\sim p(x)}[H(Y\mid X = x)] = -\sum_x\sum_y p(x,y)\log p(y\mid x)$$
+$$Ent(Y\mid X) = \mathbb{E}_{x\sim p(x)}[Ent(Y\mid X = x)] = -\sum_x\sum_y p(x,y)\log p(y\mid x)$$
 
-容易证明：$$H(X,Y) = H(X) + H(Y\mid X)$$
+容易证明：$$Ent(X,Y) = Ent(X) + Ent(Y\mid X)$$
 
 即描述$X$和$Y$所需要的信息是描述$X$所需要的信息加上给定$X$条件下描述$Y$所需要的额外信息的和。
 
@@ -56,7 +56,7 @@ KL散度具有如下两个性质：
 
 交叉熵用于刻画使用错误分布$q$来表示真实分布$p$中的样本的平均编码长度：
 
-$$H(p,q) = -\mathbb{E}_{x\sim p(x)}\log q(x) = H(p) + D_{KL} (p\| q)$$
+$$Ent(p,q) = -\mathbb{E}_{x\sim p(x)}\log q(x) = Ent(p) + D_{KL} (p\| q)$$
 
 从上式可以看出$$D_{KL} (p\| q)$$刻画了使用错误分布$q$编码真实分布$p$带来的平均编码长度的增量。
 
