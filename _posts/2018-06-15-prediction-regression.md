@@ -111,7 +111,7 @@ $$C(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(\boldsymbol{\theta}^T\boldsy
 
 目的是找到一组参数$\boldsymbol{\theta}$，使得损失函数最小。根据极小值必要条件，可得：
 
-$$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \frac{1}{N} \sum_{i=1}^N(\boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i)-y_i)\boldsymbol{\phi}(\mathbf{x}_i) =\mathbf{0}$$
+$$\nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) = \frac{1}{N} \sum_{i=1}^N(\boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i)-y_i)\boldsymbol{\phi}(\mathbf{x}_i) =\mathbf{0}$$
 
 可得最小二乘解为：
 
@@ -132,11 +132,11 @@ $$C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^NJ(f_{\boldsymbol{\theta}}(\mat
 
 因为目标是使得损失函数最小，可以采用梯度下降的方式来进行参数更新迭代。参数的梯度方向可以表示为：
 
-$$\frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} =\frac{1}{N} \sum_{i=1}^N\frac{\partial J(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
+$$\nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^N\frac{\partial J(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 参数更新公式为：
 
-$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N\frac{\partial J(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N\frac{\partial J(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 
 其中$\eta$为更新步长，又称学习速率。在机器学习中的几乎所有算法都采用这种结构，朝着损失函数梯度下降的方向来不断更新参数。
@@ -154,7 +154,7 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol
 小批量梯度下降法的思路是在每一步梯度迭代时使用一个小批量样本（大于1小于N的数量）来进行更新。该方法克服了上述两种方法的缺点，又同时兼顾两种方法的优点。
 
 
-### 3.2.3 梯度下降法的一些问题
+#### 3.2.2.1 梯度下降法的一些问题
 
 虽然梯度下降法效果很好，并广泛使用，但是也存在着问题和挑战：
 
@@ -164,11 +164,11 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \frac{\partial C(\boldsymbol
 
 3）对于非凸目标函数，容易陷入那些次优的局部极值点中，如在人工神经网络的学习过程中。而更严重的问题还不是局部极值点，而是鞍点（不是极值点的驻点）。
 
-### 3.2.4 梯度下降法的改进
+#### 3.2.2.2 梯度下降法的改进
 
-我们假设梯度下降法要优化的参数为$x$，目标函数在$x$处的导数为$dx$，则一般的梯度下降法表示为：
+我们假设梯度下降法要优化的参数为$\theta$，损失函数在$\theta$处的导数为$$\nabla_{\theta}$$，则一般的梯度下降法表示为：
 
-$$x += - learning\_rate * dx$$
+$$\theta += - learning\_rate * \nabla_{\theta}$$
 
 这种更新可能会让学习过程比较曲折，一些学者提出了各种加速的更新方法。
 
@@ -176,17 +176,17 @@ $$x += - learning\_rate * dx$$
 
 Momentum更新方法的思想是对梯度方向进行累积，对那些当前梯度方向与上一次梯度方向相同的参数，进行动量加强，而对于那些梯度方向与上一次梯度方向不同的参数，进行动量削减。更新过程表示为：
 
-$$accumulation = momentum\_coefficient * accumulation + dx$$
+$$accumulation = momentum\_coefficient * accumulation + \nabla_{\theta}$$
 
-$$x += - learning\_rate * accumulation$$
+$$\theta += - learning\_rate * accumulation$$
 
 2) AdaGrad更新方法
 
 这种方法是在学习率上面动手脚，使得每个参数更新都会有自己与众不同的学习率。其更新过程如下：
 
-$$cache += dx^2$$
+$$cache += {\nabla_{\theta}}^2$$
 
-$$x += - learning\_rate * dx / \sqrt{cahche}$$
+$$\theta += - learning\_rate * \nabla_{\theta} / \sqrt{cache}$$
 
 可以看出实际上是增加了一个附加变量$cache$来缩放梯度，并且不停地增加这一附加变量。因为对每个参数计算其相应梯度的平方和，并将其平方根去除学习速率，所以可以对每个参数自适应不同的学习速率：对稀疏特征，得到更大的学习更新，对非稀疏特征，得到较小的学习更新，因此该改进尤其适合处理稀疏特征数据。
 
@@ -194,9 +194,9 @@ $$x += - learning\_rate * dx / \sqrt{cahche}$$
 
 RMSProp更新方法是由AdaGrad演化过来的。因为在学习过程中，我们需要持续的活力来不断更新数据，而不是衰退到停止。因此可以修改更新过程为：
 
-$$cache = decay\_rate*cache + (1-decay\_rate)*dx^2$$
+$$cache = decay\_rate*cache + (1-decay\_rate)*\nabla_{\theta}^2$$
 
-$$x += - learning\_rate * dx / \sqrt{cahche}$$
+$$\theta += - learning\_rate * \nabla_{\theta} / \sqrt{cahche}$$
 
 其仍然保持了AdaGrad对更新步长的补偿效果，但是不会再发生更新停止的情况。
 
@@ -204,12 +204,38 @@ $$x += - learning\_rate * dx / \sqrt{cahche}$$
 
 Adam可以认为是AdaGrad方法和Momentum方法的结合，可称之为“极品”。其更新过程如下：
 
-$$m = beta1 * m + (1-beta1) * dx$$
+$$m = beta1 * m + (1-beta1) * \nabla_{\theta}$$
 
-$$v = beta2*v + (1-beta2)*dx^2$$
+$$v = beta2*v + (1-beta2)*\nabla_{\theta}^2$$
 
-$$x += - learning\_rate * m / \sqrt{v}$$
+$$\theta += - learning\_rate * m / \sqrt{v}$$
 
 
+### 3.2.3 自然梯度下降法（Natural Gradient Descent, NGD）
 
+梯度下降法只考虑了在梯度方向对参数进行更新，并没有考虑模型层面的更新程度，当采用随机梯度下降法或小批量梯度下降法时损失函数可能会出现较大的波动，甚至发散。而自然梯度下降法则能够抵抗这种波动性，是一种稳定的优化方法。
+
+在自然梯度法中，我们假定模型的输出$$f_{\boldsymbol{\theta}}(\mathbf{x})$$是一个概率分布，于是两个模型之间的差异可以用KL散度来表示：
+
+$$KL(f_{\boldsymbol{\theta}_1}\| f_{\boldsymbol{\theta}_2}) = \sum_{\boldsymbol{x}} f_{\boldsymbol{\theta}_1}(\mathbf{x})\log\frac{f_{\boldsymbol{\theta}_1}(\mathbf{x})}{f_{\boldsymbol{\theta}_2}(\mathbf{x})}$$
+
+按照梯度下降法的思想，我们定义每一轮的迭代优化都要解决这样一个子问题：
+
+$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta} + \Delta\boldsymbol{\theta}) \\
+    s.t.  \ 	& \|\Delta\boldsymbol{\theta}\| < \epsilon
+\end{align}$$
+
+将损失函数进行一阶泰勒展开，问题就变为：
+
+$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
+    s.t.  \ 	& \|\Delta\boldsymbol{\theta}\| < \epsilon
+\end{align}$$
+
+对目标函数求导，并对更新量做一定的限制，就可以得到梯度下降法。如果我们改为对模型的距离进行约束，就得到另一个优化问题：
+
+$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
+    s.t.  \ 	& KL(f_{\boldsymbol{\theta}}\| f_{\boldsymbol{\theta} + \Delta\boldsymbol{\theta}}) < \epsilon
+\end{align}$$
+
+这就是自然梯度法的优化形式。可以看出，有了模型层面的约束，每一轮迭代无论参数发生多大的变化，模型的变化都会限制在一定的范围内，因此无论我们使用什么样的模型，这个约束都会起效果，因此这个约束是具有普适性的，在任何模型上都能发挥同样稳定的效果。
 

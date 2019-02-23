@@ -327,19 +327,86 @@ $$s \leftarrow s'$$
 其中$\delta$是优势函数估计。
 
 
-## A3C
+## 2.5 A3C
 
-## A2C
+真正将Actor-Critic应用到实际中并得到优异效果的是A3C（Asynchronous Advantage Actor-Critic）算法，从算法的名字可以看出，算法突出了异步和优势两个概念。
 
-## TRPO
+由于Actor-Critic算法是on-policy的（每一次模型更新都需要“新样本”），为了更快地收集样本，我们需要用并行的方法来收集。在A3C方法中，我们要同时启动$N$个线程，每个线程中有一个Agent与环境进行交互。收集完样本后，每一个线程将独立完成训练并得到参数更新量，并异步地更新到全局的模型参数中。下一次训练时，线程的模型参数和全局参数完成同步，再使用新的参数进行新的一轮训练。
 
-## PPO
+前面提到Actor-Critic算法中使用TD-Error的形式$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来估计$R_t$，这个方法虽然增加了学习的稳定性（即减小了方差），但是学习的偏差也相应变大，为了更好地平衡偏差和方差，A3C方法使用$n$步回报估计法，这个方法可以在训练早期更快地提升价值模型。对应的优势函数估计公式变为：
 
-## DPPO
+$$\sum_{i=0}^{n-1}\gamma^ir_{t+i} + \gamma^{n}V_{\boldsymbol{w}}(s_{t+n}) - V_{\boldsymbol{w}}(s_t)$$
 
-## DPG
+最后，为了增加模型的探索性，模型的目标函数中加入了策略的熵。由于熵可以衡量概率分布的不确定性，所以我们希望模型的熵尽可能大一些，这样模型就可以拥有更好的多样性。这样，完整的策略梯度更新公式就变为：
 
-## DDPG
+$$\begin{align}
+\boldsymbol{\theta}' &= \boldsymbol{\theta} + \alpha\gamma^t (\sum_{i=0}^{n-1}\gamma^ir_{t+i} + \gamma^{n}V_{\boldsymbol{w}}(s_{t+n}) - V_{\boldsymbol{w}}(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t) + \beta \nabla_{\boldsymbol{\theta}} Ent(\pi_{\boldsymbol{\theta}}(s_t)) \\
+\end{align}$$
+
+其中$\beta$为策略的熵在目标中的权重。
+
+价值模型的目标函数与DQN类似，不再赘述。于是，A3C的完整算法如下：
+
+定义：全局时间钟为$T$；全局的价值和策略参数分别为$\boldsymbol{w}$和$\boldsymbol{\theta}$，线程内部的价值和策略参数分别为$\boldsymbol{w'}$和$\boldsymbol{\theta'}$。
+
+1：初始化线程时间钟 $t\leftarrow 0$；
+
+2：repeat
+
+3：&emsp; 将梯度清零：$d\boldsymbol{w} \leftarrow 0$, $d\boldsymbol{\theta} \leftarrow 0$；
+
+4：&emsp; 同步模型参数：$d\boldsymbol{w'} \leftarrow \boldsymbol{w}$, $d\boldsymbol{\theta'} \leftarrow \boldsymbol{\theta}$；
+
+5：&emsp; $$t_{start} = t$$；
+
+6：&emsp; 获取当前状态$$s_t$$；
+
+7：&emsp; repeat
+
+8：&emsp; &emsp; 根据当前策略$$\pi_{\boldsymbol{\theta'}}(s_t,a_t)$$执行$$a_t$$；
+
+9：&emsp; &emsp; $t\leftarrow t+1$；
+
+10：&emsp; &emsp; $T\leftarrow T+1$；
+
+11：&emsp; until $$s_t$$是终止状态或者$$t-t_{start} == n$$
+
+12：&emsp; 如果$$s_t$$是终止状态，令$R=0$，否则令$$R = V_{\boldsymbol{w'}}(s_t)$$；
+
+13：&emsp; for $i = t-1,...,t_{start}$ do
+
+14：&emsp; &emsp; $$R \leftarrow r_i + \gamma R$$；
+
+15：&emsp; &emsp; 积累价值模型梯度：$$d\boldsymbol{w}\leftarrow d\boldsymbol{w} + \partial(R-V_{\boldsymbol{w'}}(s_i))^2/\partial \boldsymbol{w'}$$；
+
+16：&emsp; &emsp; 积累策略模型梯度：$$d\boldsymbol{\theta}\leftarrow d\boldsymbol{\theta} +\gamma^i(R-V_{\boldsymbol{w'}}(s_i))\nabla_{\boldsymbol{\theta'}}\log\pi_{\boldsymbol{\theta'}}(s_i,a_i) + \beta \nabla_{\boldsymbol{\theta'}} Ent(\pi_{\boldsymbol{\theta'}}(s_i))$$；
+
+17：&emsp; end for
+
+18：&emsp; 使用$d\boldsymbol{w}$ 和 $d\boldsymbol{\theta}$分别异步更新$\boldsymbol{w}$和$\boldsymbol{\theta}$；
+
+19：until $T > T_{max}$
+
+## 2.6 其他策略梯度法
+
+策略梯度法有两个软肋：
+
+1）波动性：REINFORCE算法通过采样一条或几条轨迹后来估计回报，估计波动就很大；为了减少方差对算法的影响，Actor-Critic算法增加了一个模型用于估计当前状态的价值，通过引入一定的偏差换取方差的降低；而A3C算法只是通过多步回报估计法平衡了方差和偏差。总的来说，波动性的问题依然存在。
+
+2）样本利用率：这个问题是所有on-policy算法都要解决的。因为on-policy算法在每一次策略发生改变时，都要丢弃前面产生的样本，这将带来很大的样本浪费，我们需要考虑用off-policy的算法来进行学习。
+
+TRPO和PPO算法主要用于解决第一个问题，而ACER和DPG算法主要用于解决第二个问题。
 
 
+### TRPO
+
+### PPO
+
+### ACER
+
+### DPG
+
+# 3、Model-based 算法
+
+前面我们面对环境未知的问题时采用了比较“被动”的方法：既然环境的状态转移是未知的，我们就不去关注它。但其实我们可以通过对状态转移概率进行建模，使我们可以对强化学习过程进行整体优化，这称为Model-based 算法。
 
