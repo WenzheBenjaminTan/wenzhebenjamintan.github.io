@@ -105,7 +105,7 @@ $$\phi(\mathbf{x};\boldsymbol{\beta}) = \frac{1}{1+\exp(-\mathbf{x}^T\boldsymbol
 
 ### 3.2.1 最小二乘法（Least Squares，LS）
 
-最小二乘法一般用于线性形式的模型。回归损失函数定义为观察值与估计值之差的平方和（二次损失函数）：
+最小二乘法一般用于线性形式的模型。损失函数（又称代价函数，cost function）定义为观察值与估计值之差的平方和（二次损失函数）：
 
 $$C(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(\boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i)-y_i)^2$$
 
@@ -128,15 +128,15 @@ $$\mathbf{P} = \left[\sum_{i=1}^N\boldsymbol{\phi}(\mathbf{x}_i)\boldsymbol{\phi
 
 考虑一般回归模型形式，损失函数可以通用性地表示为：
 
-$$C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^NJ(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)$$
+$$C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^Nc(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)$$
 
 因为目标是使得损失函数最小，可以采用梯度下降的方式来进行参数更新迭代。参数的梯度方向可以表示为：
 
-$$\nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^N\frac{\partial J(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
+$$\nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^N\frac{\partial c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 参数更新公式为：
 
-$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N\frac{\partial J(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N\frac{\partial c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 
 其中$\eta$为更新步长，又称学习速率。在机器学习中的几乎所有算法都采用这种结构，朝着损失函数梯度下降的方向来不断更新参数。
