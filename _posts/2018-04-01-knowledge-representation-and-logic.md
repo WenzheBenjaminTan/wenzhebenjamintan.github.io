@@ -181,7 +181,7 @@ $$(,),\neg,\wedge,\vee,\rightarrow,\leftrightarrow,A_1,A_2,...$$
 
 如果这两个条件都成立，归纳法可证明序列中的任意项均具有该属性。
 
-对位证明法是另外一种非常有用的证明方法。该方法基于“$A\rightarrow B$”与“$(\neg A)\rightarrow(\neg B)$”的等价性进行证明。从$\neg B$开始，推断出多个中间结果，最后以$\neg A$作为结论。
+对位证明法是另外一种非常有用的证明方法。该方法基于“$A\rightarrow B$”与“$(\neg B)\rightarrow(\neg A)$”的等价性进行证明。从$\neg B$开始，推断出多个中间结果，最后以$\neg A$作为结论。
 
 还有一种证明方法是反证法，该方法基于“$A\rightarrow B$”与“$\neg （A \wedge(\neg B))$”的等价性进行证明。从“$A \wedge(\neg B)$”开始，推导出与假设前提象矛盾的结果。
 
@@ -315,7 +315,7 @@ $$(,),\neg,\wedge,\vee,\rightarrow,\leftrightarrow,A_1,A_2,...$$
 
 其中，第(1)项我们一般称为“代换公理”，而第(2)、(3)项可以用来证明“概括定理”。
 
-概括定理：如果$\Gamma\vdash A$ 并且$x$不在$\Gamma$的任何公式中自由出现，则$\Gamma \vdash \forall A$。
+概括定理：如果$\Gamma\vdash A$ 并且$x$不在$\Gamma$的任何公式中自由出现，则$\Gamma \vdash \forall xA$。
 
 令$$\Gamma_i = < A_1,A_2,...,A_i >$$为$$A_i$$的一个推演序列。我们归纳证明$$\Gamma_{i-1}\vdash\forall xA_i$$。
 
