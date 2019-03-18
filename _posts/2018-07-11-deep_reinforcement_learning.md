@@ -250,11 +250,11 @@ $$\begin{align} &= P(s\rightarrow s,0,\pi_{\boldsymbol{\theta}})\sum_a  Q^{\pi_{
 	&= \sum_{x\in S}\sum_{k=0}^{\infty}\gamma^k P(s\rightarrow x,k,\pi_{\boldsymbol{\theta}})\sum_a  Q^{\pi_{\boldsymbol{\theta}}}(x,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(x,a)
 \end{align}$$
 
-我们定义$$d_{\pi_{\boldsymbol{\theta}}}(x) = \sum_{k=0}^{\infty}\gamma^k P(s\rightarrow x,k,\pi_{\boldsymbol{\theta}})$$，其表示按照策略$$\pi_{\boldsymbol{\theta}}$$从起始状态$s$到状态$x$的总可能性，并且根据步数进行了折扣加权。
+我们定义$$\rho_{\pi_{\boldsymbol{\theta}}}(x) = \sum_{k=0}^{\infty}\gamma^k P(s\rightarrow x,k,\pi_{\boldsymbol{\theta}})$$，其表示按照策略$$\pi_{\boldsymbol{\theta}}$$从起始状态$s$到状态$x$的总可能性，并且根据步数进行了折扣加权，称作状态$x$的加权访问概率。
 
 策略梯度定理可以表示为如下：
 
-$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = \sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = \sum_{s}\rho_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
 
 它直观地给出了性能梯度与策略梯度之间的关系。
 
@@ -263,7 +263,7 @@ $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = \sum_{s}d_{\pi_{\boldsym
 根据策略梯度定理，可以进而推导如下：
 
 $$\begin{align}
-\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) \\
+\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \sum_{s}\rho_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) \\
 					&= \sum_s\sum_{k=0}^{\infty} P(s_0\rightarrow s,k,\pi_{\boldsymbol{\theta}})\sum_a \gamma^k Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) \\
 					&= E_{\pi_{\boldsymbol{\theta}}}\left(\sum_{a}\gamma^tQ^{\pi_{\boldsymbol{\theta}}}(S_t,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(S_t,a)\right) \\
 					&=E_{\pi_{\boldsymbol{\theta}}}\left(\gamma^t\sum_{a}\pi_{\boldsymbol{\theta}}(S_t,a)Q^{\pi_{\boldsymbol{\theta}}}(S_t,a)\frac{\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(S_t,a)}{\pi_{\boldsymbol{\theta}}(S_t,a)}\right) \\
@@ -278,9 +278,9 @@ $$\begin{align}
 $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t R_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
 
-但这种方法的方差也很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$R_t$。收敛速度也慢，如果$$R_t$$总是大于0，会使得所有行动的概率密度都向正的方向“拉拢”。所以更常见的一种做法也是引入一个基准（baseline）$b(s)$，且可以满足：
+但这种方法的方差也很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$R_t$。所以更常见的一种做法也是引入一个基准（baseline）$b(s)$，且可以满足：
 
-$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) =\sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) =\sum_{s}d_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}\left(Q^{\pi_{\boldsymbol{\theta}}}(s,a)-b(s)\right)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) =\sum_{s}\rho_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) =\sum_{s}\rho_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}\left(Q^{\pi_{\boldsymbol{\theta}}}(s,a)-b(s)\right)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
 
 $b(s)$可以取任何常数或函数，只要不和$a$相关就不影响上式的结果。因为：
 
@@ -398,9 +398,86 @@ $$\begin{align}
 TRPO和PPO算法主要用于解决第一个问题，而ACER和DPG算法主要用于解决第二个问题。
 
 
-### TRPO
+### 2.6.1 TRPO
+
+TRPO是置信区域策略优化（Trust Region Policy Optimization）算法的简称，它可以确保策略模型在优化时单调提升。其主要思路是找到一种衡量策略之间优劣的计算方法，并以此为目标最大化新策略与旧策略相比的优势。
+
+1) 策略差距的推导
+
+我们先定义基于某个策略的期望价值：
+
+$$\eta(\pi) = E_{s_0,a_0,...\sim \pi}\left[\sum_{t=0}^{\infty}\gamma^tr_{s_t,a_t}(s_{t+1})\right]$$
+
+其中$$s_0\sim P(s_0\rightarrow s_0,0,\pi)$$，$$a_t\sim\pi(s_t,a_t)$$，$$s_{t+1}\sim p_{s_t,a_t}(s_{t+1})$$。
+
+接下来给出状态-动作值函数、状态值函数和优势函数的定义：
+
+$$Q^{\pi}(s_t,a_t) = E_{s_{t+1},a_{t+1},...\sim \pi}\left[\sum_{l=0}^{\infty}\gamma^lr_{s_{t+l},a_{t+l}}(s_{t+l+1})\right]$$
+
+$$V^{\pi}(s_t) = E_{a_t,s_{t+1},...\sim \pi}\left[\sum_{l=0}^{\infty}\gamma^lr_{s_{t+l},a_{t+l}}(s_{t+l+1})\right]$$
+
+$$A^{\pi}(s_t,a_t) = Q^{\pi}(s_t,a_t) - V^{\pi}(s_t)$$
+
+于是我们可以得到：
+
+$$\begin{align}&E_{s_0,a_0,...\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^tA^{\pi}(s_t,a_t)\right] \\
+&= E_{s_0,a_0,...\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^tE_{s'\sim p_{s_t,a_t}(s')}\left[r_{s_t,a_t}(s') + \gamma V^{\pi}(s') - V^{\pi}(s_t)\right]\right] \\
+&= E_{s_0,a_0,...\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^t(r_{s_t,a_t}(s_{t+1}) + \gamma V^{\pi}(s_{t+1}) - V^{\pi}(s_t))\right] \\
+&= E_{s_0,a_0,...\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^tr_{s_t,a_t}(s_{t+1})\right] + E_{s_0,a_0,...\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^t(\gamma V^{\pi}(s_{t+1}) - V^{\pi}(s_t))\right] \\
+&= \eta(\widetilde{\pi}) + E_{s_0,a_0,...\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^t(\gamma E_{a_{t+1},s_{t+2},...\sim \pi}\left[\sum_{l=0}^{\infty}\gamma^{l}r_{s_{t+l+1},a_{t+l+1}}(s_{t+l+2})\right] - E_{a_{t},s_{t+1},...\sim \pi}\left[\sum_{l=0}^{\infty}\gamma^lr_{s_{t+l},a_{t+l}}(s_{t+l+1})\right])\right] \\
+&= \eta(\widetilde{\pi}) + E_{s_0,a_0,...\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^t(E_{a_t,s_{t+1},...\sim \pi}\left[\sum_{l=0}^{\infty}\gamma^{l+1}r_{s_{t+l+1},a_{t+l+1}}(s_{t+l+2}) - \sum_{l=0}^{\infty}\gamma^lr_{s_{t+l},a_{t+l}}(s_{t+l+1})\right]) \right] \\
+&= \eta(\widetilde{\pi}) + E_{s_0,a_0,...\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^t(E_{a_t,s_{t+1},...\sim \pi}\left[-r_{s_{t},a_{t}}(s_{t+1})\right]) \right] \\
+&= \eta(\widetilde{\pi}) + E_{s_0,a_0,...\sim \widetilde{\pi}}\left[-\eta(\pi)\right] \\
+&= \eta(\widetilde{\pi}) - \eta(\pi)
+
+\end{align}$$
+
+经过前面的推导，我们找到了两个策略差距的基本形式。上面的公式并不能直接计算，我们还要对公式做进一步的变换：
+
+$$\begin{align}
+\eta(\widetilde{\pi}) - \eta(\pi) &= E_{s_0,a_0,...\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^tA^{\pi}(s_t,a_t)\right] \\
+				&= \sum_{t=0}^{\infty}\sum_sP(s_0\rightarrow s,t,\widetilde{\pi})\sum_a\widetilde{\pi}(s,a)\gamma^tA^{\pi}(s,a) \\
+				&= \sum_s\sum_{t=0}^{\infty}\gamma^tP(s_0\rightarrow s,t,\widetilde{\pi})\sum_a\widetilde{\pi}(s,a)A^{\pi}(s,a) \\
+				&= \sum_s\rho_{\widetilde{\pi}}(s)\sum_a\widetilde{\pi}(s,a)A^{\pi}(s,a) 
+\end{align}
+$$
+
+也就是说，我们从某个策略$$\pi_0$$出发，通过计算找到一个策略$$\pi_1$$，使得：
+
+$$\sum_s\rho_{\pi_1}(s)\sum_a\pi_1(s,a)A^{\pi_0}(s,a)\geq 0 $$
+
+那么我们就可以确定策略$$\pi_1$$在总体上优于$$\pi_0$$。依次类推，我们可以不断地找到效果更好的策略，直至达到目标，这就是算法单调提升的基本原理。
+
+2）策略提升的可行公式
+
+上一节得到了策略提升的目标，但是受目标公式所限，这样寻找策略的方法在实际中几乎是不可行的。因为公式中包含$$\rho_{\pi_1}(s)$$，也就是说对于每一个可能的新策略，我们都需要根据该新策略与环境交互得到所有状态的加权访问概率，这样的更新过程会非常慢。
+
+因此，为了让计算变得可行，我们需要找到与上面公式近似且可解的形式，可对原公式近似如下：
+
+$$L_{\pi}(\widetilde{\pi}) = \eta(\pi) + \sum_s\rho_{\pi}(s)\sum_a\widetilde{\pi}(s,a)A^{\pi}(s,a)$$
+
+可以看出，唯一的变动在于状态加权访问概率上，用$$\rho_{\pi}(s)$$取代了$$\rho_{\widetilde{\pi}}(s)$$。实际上可以证明，对当前策略$\pi$来说，$$L_{\pi}$$和$\eta$在数值和一阶导数上都是相等的：
+
+$$L_{\pi_{\theta_0}}(\pi_{\theta_0}) = \eta(\pi_{\theta_0})$$
+
+$$\nabla_{\theta}L_{\pi_{\theta_0}}(\pi_{\theta})\mid_{\theta=\theta_0} = \nabla_{\theta}\eta(\pi_{\theta})\mid_{\theta=\theta_0}$$
+
+既然数值相同，导数方向相同，那么我们沿着近似目标函数的导数方向做有限步长的变化，也同样可以提升策略。
+
+我们重写一遍新策略的回报函数和替代回报函数如下：
+
+$$\eta(\widetilde{\pi}) = \eta(\pi) + E_{s_t\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^t\overline{A}^{\pi,\widetilde{\pi}}(s_t)\right]$$
+
+$$L_{\pi}(\widetilde{\pi}) = \eta(\pi) + E_{s_t\sim \pi}\left[\sum_{t=0}^{\infty}\gamma^t\overline{A}^{\pi,\widetilde{\pi}}(s_t)\right]$$
+
+3）自然梯度法求解
+
+
+
 
 ### PPO
+
+
 
 ### ACER
 

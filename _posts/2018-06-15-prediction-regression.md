@@ -239,3 +239,24 @@ $$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabl
 
 这就是自然梯度法的优化形式。可以看出，有了模型层面的约束，每一轮迭代无论参数发生多大的变化，模型的变化都会限制在一定的范围内，因此无论我们使用什么样的模型，这个约束都会起效果，因此这个约束是具有普适性的，在任何模型上都能发挥同样稳定的效果。
 
+假设$$f_{\boldsymbol{\theta}}$$对于$\boldsymbol{\theta}$来说是连续、可导、有界、性质优良的函数，通过推演，可将优化问题化为：
+
+$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
+    s.t.  \ 	& \frac{1}{2}\Delta\boldsymbol{\theta}^T\boldsymbol{I}_{f_{\boldsymbol{\theta}}}\Delta\boldsymbol{\theta} < \epsilon
+\end{align}$$
+
+其中$$\boldsymbol{I}_{f_{\boldsymbol{\theta}}} = E_{\boldsymbol{x}\sim f_{\boldsymbol{\theta}}}\left[\nabla_{\boldsymbol{\theta}}\log f_\boldsymbol{\theta}(\boldsymbol{x})\nabla_{\boldsymbol{\theta}}\log f_\boldsymbol{\theta}(\boldsymbol{x})^T\right]$$ 为Fisher信息矩阵（Fisher Information Matrix）。
+
+此时，拉格朗日函数可表示为：
+
+$$L(\Delta\boldsymbol{\theta}, \lambda) = C(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} + \lambda[\frac{1}{2}\Delta\boldsymbol{\theta}^T\boldsymbol{I}_{f_{\boldsymbol{\theta}}}\Delta\boldsymbol{\theta} - \epsilon]$$
+
+对$$\Delta\boldsymbol{\theta}$$求导，并求解相应的极值点，可得：
+
+$$\nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) + \lambda\boldsymbol{I}_{f_{\boldsymbol{\theta}}}\Delta\boldsymbol{\theta} = 0$$
+
+于是：
+
+$$\Delta\boldsymbol{\theta} = -\frac{1}{\lambda}\boldsymbol{I}_{f_{\boldsymbol{\theta}}}^{-1}\nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta})$$
+
+公式中$$\frac{1}{\lambda}$$可以当作梯度下降法的学习率类似的分量，那么自然梯度下降法的优化方向就可以看作为$$\boldsymbol{I}_{f_{\boldsymbol{\theta}}}^{-1}\nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta})$$，与梯度下降法不同，它需要额外求解Fisher信息矩阵的逆。

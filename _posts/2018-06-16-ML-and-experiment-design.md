@@ -62,6 +62,8 @@ $$x^{(i)}_j$$ : 样本输入$\boldsymbol{x}^{(i)}$的第$j$个分量
 
 $\boldsymbol{a}^{[l]}$：人工神经网络中，第$l$层的激活值向量
 
+$\boldsymbol{w}^{< i >}$ : 第$i$轮迭代时参数$\boldsymbol{w}$的值
+
 $\mathcal{H}$ : 假设空间
 
 $h$ : 假设，学得的模型
