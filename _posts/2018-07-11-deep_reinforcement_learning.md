@@ -470,8 +470,143 @@ $$\eta(\widetilde{\pi}) = \eta(\pi) + E_{s_t\sim \widetilde{\pi}}\left[\sum_{t=0
 
 $$L_{\pi}(\widetilde{\pi}) = \eta(\pi) + E_{s_t\sim \pi}\left[\sum_{t=0}^{\infty}\gamma^t\overline{A}^{\pi,\widetilde{\pi}}(s_t)\right]$$
 
-3）自然梯度法求解
+我们定义$$n_t$$表示当$$i < t$$时，$$a_i\neq \widetilde{a}_i$$的次数，则可得：
 
+$$E_{s_t\sim \widetilde{\pi}}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] = P(n_t=0)E_{s_t\sim \widetilde{\pi}\mid n_t=0}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] + P(n_t>0)E_{s_t\sim \widetilde{\pi}\mid n_t>0}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right]$$
+
+设$$a_i\neq \widetilde{a}_i$$发生的概率为常数$$\alpha$$，则对于前$t$个状态，动作完全相同的概率$$P(n_t=0) = (1-\alpha)^t$$，且此时
+
+$$E_{s_t\sim \widetilde{\pi}\mid n_t=0}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] = E_{s_t\sim \pi\mid n_t=0}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right]$$
+
+因此等式变为：
+
+$$E_{s_t\sim \widetilde{\pi}}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] = (1-\alpha)^tE_{s_t\sim \pi\mid n_t=0}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] + (1-(1-\alpha)^t)E_{s_t\sim \widetilde{\pi}\mid n_t>0}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right]$$
+
+两边分别减去
+
+$$E_{s_t\sim \pi}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] = (1-\alpha)^tE_{s_t\sim \pi\mid n_t=0}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] + (1-(1-\alpha)^t)E_{s_t\sim \pi\mid n_t>0}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right]$$
+
+可得：
+
+$$E_{s_t\sim \widetilde{\pi}}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] - E_{s_t\sim \pi}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] = (1-(1-\alpha)^t)(E_{s_t\sim \widetilde{\pi}\mid n_t>0}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] - E_{s_t\sim \pi\mid n_t>0}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right]) $$
+
+因此
+
+$$\mid E_{s_t\sim \widetilde{\pi}}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] - E_{s_t\sim \pi}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right]\mid \leq 2(1-(1-\alpha)^t)\epsilon$$
+
+其中， $$\epsilon = \max_s\mid \overline{A}^{\pi,\widetilde{\pi}}(s)\mid$$。
+
+进而可得：
+
+$$\begin{align}\mid\eta(\widetilde{\pi}) - L_{\pi}(\widetilde{\pi})\mid &= \mid E_{s_t\sim \widetilde{\pi}}\left[\sum_{t=0}^{\infty}\gamma^t\overline{A}^{\pi,\widetilde{\pi}}(s_t)\right] - E_{s_t\sim \pi}\left[\sum_{t=0}^{\infty}\gamma^t\overline{A}^{\pi,\widetilde{\pi}}(s_t)\right]\mid \\
+							&= \sum_{t=0}^{\infty}\gamma^t\mid E_{s_t\sim \widetilde{\pi}}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right] - E_{s_t\sim \pi}\left[ \overline{A}^{\pi,\widetilde{\pi}}(s_t) \right]\mid \\
+							&\leq 2\epsilon\sum_{t=0}^{\infty}\gamma^t(1-(1-\alpha)^t) \\
+							&= \frac{2\epsilon\gamma\alpha}{(1-\gamma)(1-\gamma(1-\alpha))} \\
+							&\leq \frac{2\epsilon\gamma\alpha}{(1-\gamma)^2}
+\end{align}$$
+
+令$$KL_{max}(\pi,\widetilde{\pi})=\max_sKL(\pi(s,\cdot)\|\widetilde{\pi}(s,\cdot))$$，易得$$\alpha\leq KL_{max}(\pi,\widetilde{\pi})$$，于是有：
+
+$$\eta(\widetilde{\pi}) \geq L_{\pi}(\widetilde{\pi}) - C\times KL_{max}(\pi,\widetilde{\pi})$$
+
+其中$$C = \frac{2\epsilon\gamma}{(1-\gamma)^2}$$。
+
+我们再令$$M_i(\pi) = L_{\pi_i}(\pi) - C \times KL_{max}(\pi_i,\pi)$$为第$i$轮迭代得到的函数，通过推导可得：
+
+$$\eta(\pi_{i+1})\geq L_{\pi_i}(\pi_{i+1}) - C \times KL_{max}(\pi_i,\pi_{i+1}) = M_i(\pi_{i+1})$$
+
+$$\eta(\pi_i) = L_{\pi_i}(\pi_i) =  L_{\pi_i}(\pi_i) - C \times KL_{max}(\pi_i,\pi_i) =  M_i(\pi_i)$$
+
+根据上面两个公式可以得到：
+
+$$\eta(\pi_{i+1}) - \eta(\pi_i) \geq M_i(\pi_{i+1}) - M_i(\pi_i)$$
+
+只要我们取$$\pi_{i+1} = arg\max_{\pi}M_i(\pi)$$，那么上面不等式右边就是一个非负值，这样我们就能确保策略对应的期望价值非负上升。
+
+3）优化模型
+
+经过前面的推导，我们已经知道算法的目标函数为：
+
+$$maxmize_{\pi} \left[L_{\pi_{old}}(\pi) - C\times KL_{max}(\pi_{old},\pi)\right]$$
+
+在实践中，这个优化模型还有很多问题，我们将一一解决。
+
+该优化目标中包含KL散度。虽然在理论上可以得到比较好的效果，但是在实际上更新过程过于保守，每一轮迭代更新的步长都偏小，导致优化的速度很慢。为了解决这个问题，我们将优化模型形式进行转变，得到如下有约束的优化问题：
+
+$$\begin{align} & maxmize_{\pi}  L_{\pi_{old}}(\pi) \\
+			s.t.\ & KL_{max}(\pi_{old},\pi) \leq \delta
+\end{align}$$
+
+当问题变成这个形式后，原问题中较复杂的部分都被转移到了约束中。我们需要对KL散度的上界进行约束，这实际上相当于对所有状态的KL散度进行约束，这样的约束条件多而复杂。为了简化运算，我们将上界变为均值，虽然约束条件有所放宽，但这样可以降低计算的难度，而且从实践效果看这样不会造成效果过度下降。我们令$$\overline{KL}_{\rho}(\pi_1,\pi_2) = E_{s\sim\rho}\left[KL(\pi_1(s,\cdot)\| \pi_2(s,\cdot))\right]$$，于是可将问题进一步转变成如下形式：
+
+$$\begin{align} & maxmize_{\pi} L_{\pi_{old}}(\pi) =  \eta(\pi_{old}) + \sum_s\rho_{\pi_{old}}(s)\sum_a\pi(s,a)A^{\pi_{old}}(s,a)\\
+			s.t.\ & \overline{KL}_{\rho_{\pi_{old}}}(\pi_{old},\pi) \leq \delta
+\end{align}$$
+
+目标函数的第二项可以写作如下形式：
+
+$$\sum_s\rho_{\pi_{old}}(s)E_{a\sim\pi}\left[A^{\pi_{old}}(s,a)\right]$$
+
+如果我们采用蒙特卡洛法对动作进行采样，就需要事先知道新策略的形式，这对优化造成了阻碍。我们可以采用重要性采样方法来进行规避，于是公式变为：
+
+$$\sum_a\pi(s,a)A^{\pi_{old}}(s,a) = \sum_a \pi_{old}(s,a)\frac{\pi(s,a)}{\pi_{old}(s,a)}A^{\pi_{old}}(s,a) = E_{a\sim\pi_{old}}\left[\frac{\pi(s,a)}{\pi_{old}(s,a)}A^{\pi_{old}}(s,a)\right]$$
+
+
+4）自然梯度法求解
+
+我们可以进一步将问题转化为可以用自然梯度法求解的形式。
+
+回顾一下，自然梯度法模型的标准形式为
+
+$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
+    s.t.  \ 	& \frac{1}{2}\Delta\boldsymbol{\theta}^T\boldsymbol{I}_{f_{\boldsymbol{\theta}}}\Delta\boldsymbol{\theta} < \epsilon
+\end{align}$$
+
+其中$$\boldsymbol{I}_{f_{\boldsymbol{\theta}}} = E_{\boldsymbol{x}\sim f_{\boldsymbol{\theta}}}\left[\nabla_{\boldsymbol{\theta}}\log f_\boldsymbol{\theta}(\boldsymbol{x})\nabla_{\boldsymbol{\theta}}\log f_\boldsymbol{\theta}(\boldsymbol{x})^T\right]$$ 为Fisher信息矩阵（Fisher Information Matrix）。
+
+令策略$\pi$的参数为$$\boldsymbol{\theta}$$，对目标函数进行一阶泰勒展开即可得到：
+
+$$L_{\pi_{old}}(\pi) = L_{\pi_{old}}(\pi; \boldsymbol{\theta}_{old}+\Delta\boldsymbol{\theta}) \simeq L_{\pi_{old}}(\pi_{old}; \boldsymbol{\theta}_{old}) + \nabla_{\boldsymbol{\theta}}L_{\pi_{old}}(\pi_{old}; \boldsymbol{\theta}_{old}) \Delta\boldsymbol{\theta}$$
+
+由于约束条件为：
+
+$$E_{s\sim\rho_{\pi_{old}}}\left[KL(\pi_{old}(s,\cdot)\| \pi(s,\cdot))\right] \leq \delta $$
+
+可类似地通过采样转化为：
+
+$$\frac{1}{N} \sum_{i=1}^N\frac{1}{2}\Delta\boldsymbol{\theta}^T\boldsymbol{I}_{\pi_{old}(s^{(i)})}\Delta\boldsymbol{\theta}\leq \delta$$
+
+于是，我们得到了优化策略参数的模型：
+
+$$\begin{align}& maxmize_{\Delta\boldsymbol{\theta}} \nabla_{\boldsymbol{\theta}}L_{\pi_{old}}(\pi_{old}; \boldsymbol{\theta}_{old}) \Delta\boldsymbol{\theta} \\
+	& \frac{1}{N} \sum_{i=1}^N\frac{1}{2}\Delta\boldsymbol{\theta}^T\boldsymbol{I}_{\pi_{old}(s^{(i)})}\Delta\boldsymbol{\theta}\leq \delta
+\end{align}$$
+
+当我们完成更新量的计算，就可以将其添加到原来的策略参数上，完成一轮优化迭代：
+
+$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta}_{old} + \Delta \boldsymbol{\theta}$$
+
+如果采用拉格朗日法求解，可得：
+
+$$\Delta \boldsymbol{\theta} = \frac{\alpha}{N}\sum_{i=1}^N \boldsymbol{I}_{\pi_{old}(s^{(i)})}^{-1}\nabla_{\boldsymbol{\theta}}L_{\pi_{old}}(\pi_{old}; \boldsymbol{\theta}_{old})$$
+
+如果直接采用上述公式进行计算，就需要计算Fisher信息矩阵的逆矩阵，而逆矩阵的计算量比较大，直接计算会降低模型的训练速度，因此我们需要寻找一种方法来减少这部分的计算量。TRPO算法采用了共轭梯度法来求解更新量，从而避免了Fisher信息矩阵的逆矩阵计算。
+
+将问题转化为无约束的二次优化问题：
+
+$$minimize_{\Delta\boldsymbol{\theta}} \frac{1}{N}\sum_{i=1}^N\frac{1}{2}\Delta\boldsymbol{\theta}^T\boldsymbol{I}_{\pi_{old}(s^{(i)})}\Delta\boldsymbol{\theta} - \nabla_{\boldsymbol{\theta}}L_{\pi_{old}}(\pi_{old}; \boldsymbol{\theta}_{old}) \Delta\boldsymbol{\theta}$$
+
+于是可得$$\boldsymbol{Q} = \frac{1}{N}\sum_{i=1}^N\boldsymbol{I}_{\pi_{old}(s^{(i)})}$$，$$\boldsymbol{b} = [\nabla_{\boldsymbol{\theta}}L_{\pi_{old}}(\pi_{old}; \boldsymbol{\theta}_{old})]^T$$。从而可以不断得到下一个共轭方向。
+
+再计算更新步长时，我们应该考虑原约束条件，其相当于给我们划定了一个置信区域（Trust Region），以保证我们的优化满足策略提升的要求。前面假设我们用共轭梯度法求出了更新方向$$\boldsymbol{d}$$，现在令最大步长为$\beta$，也就是说参数更新的最大值为$$\beta\boldsymbol{d}$$，于是可得到：
+
+$$ \frac{1}{N} \sum_{i=1}^N\frac{1}{2}\beta^2\boldsymbol{d}^T\boldsymbol{I}_{\pi_{old}(s^{(i)})}\boldsymbol{d} = \delta$$
+
+将公式整理后得到：
+
+$$\beta = \sqrt{\frac{2\delta}{ \frac{1}{N} \sum_{i=1}^N\boldsymbol{d}^T\boldsymbol{I}_{\pi_{old}(s^{(i)})}\boldsymbol{d}}}$$
+
+这样我们就得到了满足约束条件的最大步长，然后可以采用backtrack的线搜索方法找到满足优化条件的合适步长。具体方法为：先尝试以$\beta$为步长的情况下，策略提升是否可以满足，如果已经满足则步长选择结束；如果无法满足，则将步长减少一半再进行测试，直到满足为止。
 
 
 
