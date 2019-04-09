@@ -13,12 +13,12 @@ $$p(\boldsymbol{x}) = \sum_{i=1}^K p(\boldsymbol{x}\mid \mathcal{G}_i)p(\mathcal
 
 给定实例集和$K$，聚类任务要做的是：第一，估计给定实例所属的分支标号；第二，估计各支密度和混合比例。
 
-一般来说，解决了第一个问题后，第二个问题是好解决的（或者说第二个问题是比较一般性的），所以最主要是解决第一个问题。
+一般来说，解决了第一个问题后，第二个问题是好解决的（或者说第二个问题是比较一般性的），所以对聚类任务来说最主要是解决第一个问题。
 
 
 # 2、$k$-均值聚类
 
-假定我们有数据集$$D = \{\boldsymbol{x}^{(s)}\}_{i=1}^N$$。而且我们以某种方法得到了$k$个参考向量（reference vector）$$\boldsymbol{m}_j, j = 1,...,k$$。给定样本$$\boldsymbol{x}^{(i)}$$，我们可以得到它的簇为：
+假定我们有数据集$$D = \{\boldsymbol{x}^{(i)}\}_{i=1}^N$$。而且我们以某种方法得到了$k$个参考向量（reference vector）$$\boldsymbol{m}_j, j = 1,...,k$$。给定样本$$\boldsymbol{x}^{(i)}$$，我们可以得到它的簇为：
 
 $$j = arg\min_{\widetilde{j}} \|\boldsymbol{x}^{(i)} - \boldsymbol{m}_{\widetilde{j}}\|$$
 

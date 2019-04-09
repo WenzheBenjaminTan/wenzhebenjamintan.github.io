@@ -252,9 +252,9 @@ $$p(x_i | C) = \frac{1}{\sqrt{2\pi}\sigma_{C,i}}\exp(-\frac{(x_i-\mu_{C,i})^2}{2
 
 ## 4.2 贝叶斯最优分类器
 
-假设一共有$K$种可能的类别标记，即$\mathcal{Y} = \\{C_1,C_2,...,C_K\\}$，$\lambda_{ij}$是将一个真实标记为$$C_j$$的样本误分类为$$C_i$$所产生的损失。则在获得类后验概率$p(C\mid\boldsymbol{x})$后，可得到将样本$\boldsymbol{x}$分类为$$C_i$$所产生的期望损失（expected loss），又称“条件风险”（conditional risk）：
+假设一共有$K$种可能的类别标记，即$\mathcal{Y} = \\{C_1,C_2,...,C_K\\}$，$$L_{ij}$$是将一个真实标记为$$C_j$$的样本误分类为$$C_i$$所产生的损失。则在获得类后验概率$p(C\mid\boldsymbol{x})$后，可得到将样本$\boldsymbol{x}$分类为$$C_i$$所产生的期望损失（expected loss），又称“条件风险”（conditional risk）：
 
-$$R(C_i | \boldsymbol{x}) = \sum_{j=1}^K\lambda_{ij}p(C_j | \boldsymbol{x})$$
+$$R(C_i | \boldsymbol{x}) = \sum_{j=1}^KL_{ij}p(C_j | \boldsymbol{x})$$
 
 我们的任务是寻找一个分类器$h: \mathcal{X} \rightarrow \mathcal{Y}$以最小化总体风险：
 
@@ -266,9 +266,9 @@ $$h^*(\boldsymbol{x}) = arg\min_{C\in\mathcal{Y}}R(C | \boldsymbol{x})$$
 
 此时，$$h^*$$称为贝叶斯最优分类器（Bayes optimal classifier），与之对应的总体风险$$R(h^*)$$称为贝叶斯风险（Bayes risk）。
 
-如果我们的目标是最小化分类错误率，则误判损失$$\lambda_{ij}$$可写为0/1损失函数的形式：
+如果我们的目标是最小化分类错误率，则误判损失$$L_{ij}$$可写为0/1损失函数的形式：
 
-$$\lambda_{ij} = \begin{cases} 0 & \text{if } i=j \\ 1 & \text{otherwise} \end{cases}$$
+$$L_{ij} = \begin{cases} 0 & \text{if } i=j \\ 1 & \text{otherwise} \end{cases}$$
 
 此时条件风险为：
 
