@@ -130,6 +130,51 @@ $$\mathbf{P} = \left[\sum_{i=1}^N\boldsymbol{\phi}(\mathbf{x}_i)\boldsymbol{\phi
 
 $$C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^Nc(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)$$
 
+常用的损失函数有：
+
+1）二次损失函数
+
+$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = (f_{\boldsymbol{\theta}}(\mathbf{x}_i) - y_i)^2$$
+
+2）绝对值损失函数
+
+$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \mid f_{\boldsymbol{\theta}}(\mathbf{x}_i) - y_i\mid$$
+
+3）0-1损失函数
+
+$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \begin{cases} 1 & f_{\boldsymbol{\theta}}(\mathbf{x}_i) = y_i \\
+								0 & f_{\boldsymbol{\theta}}(\mathbf{x}_i) \neq y_i\end{cases}$$
+
+4）交叉熵损失函数
+
+当$$y_i$$和$$f_{\boldsymbol{\theta}}(\mathbf{x}_i)$$的取值在$[0,1]$区间时可以使用交叉熵损失函数：
+
+$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = -[y_i\log f_{\boldsymbol{\theta}}(\mathbf{x}_i) + (1-y_i)\log (1-f_{\boldsymbol{\theta}}(\mathbf{x}_i)]$$
+
+5）对数损失函数
+
+当模型输出为$y$的条件概率$$P_{\boldsymbol{\theta}}(y\mid\mathbf{x}_i)$$时，可以使用对数损失函数：
+
+$$c(P_{\boldsymbol{\theta}}(y\mid\mathbf{x}_i), y_i) = -\log P_{\boldsymbol{\theta}}(y_i\mid\mathbf{x}_i)$$
+
+6）Hinge损失函数
+
+当目标值$$y_i$$为-1或1，$$f_{\boldsymbol{\theta}}(\mathbf{x}_i)$$为分类器输出的预测值，并不直接是类标签，可以使用Hinge损失函数：
+
+$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \max(0, 1 - y_i f_{\boldsymbol{\theta}}(\mathbf{x}_i) )$$
+
+7）指数损失函数
+
+当目标值$$y_i$$为-1或1，$$f_{\boldsymbol{\theta}}(\mathbf{x}_i)$$为分类器输出的预测值，并不直接是类标签，同样可以使用指数损失函数：
+
+$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \exp(-y_i f_{\boldsymbol{\theta}}(\mathbf{x}_i))$$
+
+
+
+
+
+
+
 因为目标是使得损失函数最小，可以采用梯度下降的方式来进行参数更新迭代。参数的梯度方向可以表示为：
 
 $$\nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^N\frac{\partial c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
