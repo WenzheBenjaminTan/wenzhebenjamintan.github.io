@@ -9,11 +9,11 @@ title: "聚类"
 
 $$p(\boldsymbol{x}) = \sum_{i=1}^K p(\boldsymbol{x}\mid \mathcal{G}_i)p(\mathcal{G}_i)$$
 
-其中$$\mathcal{G}_i$$是混合分支（mixture component），也称为分组（group）或簇（cluster）。$$p(\boldsymbol{x}\mid \mathcal{G}_i)$$是支密度（component density），而$$p(\mathcal{G}_i)$$是混合比例（mixture proportion）。分支数$K$是超级参数，应当预先指定。
+其中$$\mathcal{G}_i$$是混合分支（mixture component），也称为分组（group）或簇（cluster）。$$p(\boldsymbol{x}\mid \mathcal{G}_i)$$是支密度（component density），而$$p(\mathcal{G}_i)$$是混合比例（mixture proportion）。如果支密度服从高斯分布，则该模型称为高斯混合模型（Gaussian Mixture Model）。分支数$K$是超级参数，应当预先指定。
 
-给定实例集和$K$，聚类任务要做的是：第一，估计给定实例所属的分支标号；第二，估计各支密度和混合比例。
+给定实例集和$K$，聚类任务要做的是：第一，估计给定实例所属的分支标号（或属于每个分支的概率）；第二，估计各支密度和混合比例。对于第一个任务中涉及的变量称为聚类问题提前假定的隐藏变量，即每个实例都属于一个特定的分支。
 
-一般来说，解决了第一个问题后，第二个问题是好解决的（或者说第二个问题是比较一般性的），所以对聚类任务来说最主要是解决第一个问题。
+一般来说，完成了第一个任务后，第二个任务是好完成的（或者说第二个问题是比较一般性的），所以对聚类任务来说最主要是完成第一个任务，不过求解过程一般是在第一个任务和第二个任务之间反复迭代。
 
 
 # 2、$k$-均值聚类
@@ -55,31 +55,15 @@ $$\begin{align} \mathcal{L}(\Theta\mid D) & = \log\prod_i p(\boldsymbol{x}^{(i)}
 
 其中$\Theta$是包含支密度$$p(\boldsymbol{x}\mid \mathcal{G}_j)$$和混合比例$$p(\mathcal{G}_j)$$的有效统计量。不过，我们不能解析地求解该参数，而需要借助于迭代优化。
 
-期望最大化（Expectation-Maximization，EM）算法用于包含隐藏变量的参数最大似然估计。要解决的问题涉及两组随机变量，其中一组$D$是可观测的，另一组$Z$是隐藏的。算法的目标是找到参数向量$\Theta$，它最大化可观测变量$D$的对数似然$$\mathcal{L}(\Theta\mid D)$$。由于$$\mathcal{L}(\Theta\mid D)$$无法直接求解，我们对$D$关联附加的隐藏变量（hidden variable）$Z$，并使用二者表示潜在的模型，最大化$D$和$Z$联合分布的对数似然（又称完全对数似然）$$\mathcal{L}_c(\Theta\mid D,Z)$$。显然，$$\mathcal{L}_c(\Theta\mid D,Z)$$也不能直接求解，但我们可以根据$D$和当前估计的参数值$$\Theta_l$$（其中$l$是当前迭代次数）先得到隐变量$Z$的概率分布$p(Z\mid D,\Theta_l)$，进而求得$$\mathcal{L}_c$$关于$Z$的期望$\mathfrak{L}$，这是算法的期望（E）步；然后在最大化（M）步，我们寻找新的参数值$$\Theta_{l+1}$$，它最大化期望$\mathfrak{L}$。于是可得求解步骤：
+期望最大化（Expectation-Maximization，EM）算法用于包含隐藏变量的参数最大似然估计。要解决的问题涉及两组随机变量，其中一组$D$是可观测的，另一组$Z$是隐藏的。算法的目标是找到参数向量$\Theta$，它最大化可观测变量$D$的对数似然$$\mathcal{L}(\Theta\mid D)$$。由于$$\mathcal{L}(\Theta\mid D)$$无法直接求解，我们对$D$关联附加的隐藏变量（hidden variable）$Z$，并使用二者表示潜在的模型，最大化$D$和$Z$联合分布的对数似然（又称完全对数似然）$$\mathcal{L}_c(\Theta\mid D,Z)$$。显然，$$\mathcal{L}_c(\Theta\mid D,Z)$$也不能直接求解，但我们可以根据$D$和当前估计的参数值$$\Theta_l$$（其中$l$是当前迭代次数）先得到隐变量$Z$的概率分布$p(Z\mid D,\Theta_l)$，进而求得$Z$的期望$E[Z\mid D,\Theta_l]$，这是算法的期望（E）步；然后在最大化（M）步，我们寻找新的参数值$$\Theta_{l+1}$$，它最大化完全对数似然$$\mathcal{L}_c(\Theta\mid D,E[Z\mid D,\Theta_l])$$。于是可得求解步骤：
 
-1）E步：$$\mathfrak{L}(\Theta\mid \Theta_l) = E_{Z\mid D, \Theta_l}[\mathcal{L}_c(\Theta\mid D,Z)]$$；
+1）E步：$$E[Z\mid D,\Theta_l] = \sum_z p(Z=z\mid D,\Theta_l)$$；
 
-2）M步：$$\Theta_{l+1} = arg\max\limits_{\Theta}\mathfrak{L}(\Theta\mid \Theta_l)$$。
+2）M步：$$\Theta_{l+1} = arg\max\limits_{\Theta}\mathcal{L}_c(\Theta\mid D,E[Z\mid D,\Theta_l])$$。
 
 在聚类问题中，隐藏的变量是数据的分支。我们定义一个指示变量（indicator variable）向量$$\boldsymbol{z}^{(i)} = \{z_1^{(i)}, z_2^{(i)},..., z_k^{(i)}\}$$，其中如果$$\boldsymbol{x}^{(i)}$$属于分支$$\mathcal{G}_j$$，则$$z_j^{(i)} = 1$$，否则$$z_j^{(i)} = 0$$。
 
 1）E步：
-
-对于独立同分布的样本集，我们得到完全对数似然
-
-$$\begin{align} \mathcal{L}_c(\Theta\mid D,Z) & = \log \prod_i p(\boldsymbol{x}^{(i)},\boldsymbol{z}^{(i)}\mid \Theta) \\
-						& = \sum_i\log p(\boldsymbol{x}^{(i)},\boldsymbol{z}^{(i)}\mid \Theta) \\
-						& = \sum_i \log p(\boldsymbol{z}^{(i)}\mid \Theta) + p(\boldsymbol{x}^{(i)}\mid \boldsymbol{z}^{(i)},\Theta) \\
-						& = \sum_i \sum_j z_j^{(i)}[\log p(\mathcal{G}_j\mid \Theta) + \log p(\boldsymbol{x}^{(i)}\mid \mathcal{G}_j, \Theta)] 
-\end{align}$$
-
-因此可得期望为
-
-$$\begin{align} \mathfrak{L}(\Theta\mid \Theta_l) & = E_{Z\mid D, \Theta_l}[\mathcal{L}_c(\Theta\mid D,Z)] \\
-						& = \sum_i \sum_j E(z_j^{(i)} \mid D,\Theta_l)[\log p(\mathcal{G}_j\mid \Theta) + \log p(\boldsymbol{x}^{(i)}\mid \mathcal{G}_j, \Theta)]
-\end{align}$$
-
-其中
 
 $$\begin{align} E(z_j^{(i)} \mid D,\Theta_l) & =  E(z_j^{(i)} \mid \boldsymbol{x}^{(i)},\Theta_l) \text{（样本是独立同分布的）} \\
 						& = p(z_j^{(i)} = 1 \mid \boldsymbol{x}^{(i)},\Theta_l) \text{（$z_j^{(i)}$是0/1随机变量）} \\
@@ -88,11 +72,28 @@ $$\begin{align} E(z_j^{(i)} \mid D,\Theta_l) & =  E(z_j^{(i)} \mid \boldsymbol{x
 
 我们可以看到，隐藏变量的期望值是一个概率值，在0和1之间，与$k$-均值聚类的0/1“硬”标记不同，它是"软"标记。
 
+
+
 2）M步：
 
-我们最大化$\mathfrak{L}$
+对于独立同分布的样本集，我们得到完全对数似然
 
-$$\begin{align} \Theta_{l+1} & = arg\max\limits_{\Theta}\mathfrak{L}(\Theta\mid \Theta_l) \\
+$$\begin{align} \mathcal{L}_c(\Theta\mid D,Z) & = \log \prod_i p(\boldsymbol{x}^{(i)},\boldsymbol{z}^{(i)}\mid \Theta) \\
+						& = \sum_i\log p(\boldsymbol{x}^{(i)},\boldsymbol{z}^{(i)}\mid \Theta) \\
+						& = \sum_i \log p(\boldsymbol{z}^{(i)}\mid \Theta) + \log p(\boldsymbol{x}^{(i)}\mid \boldsymbol{z}^{(i)},\Theta) \\
+						& = \sum_i \sum_j z_j^{(i)}[\log p(\mathcal{G}_j\mid \Theta) + \log p(\boldsymbol{x}^{(i)}\mid \mathcal{G}_j, \Theta)] 
+\end{align}$$
+
+因此可得
+
+$$\begin{align} \mathcal{L}_c(\Theta\mid D,E[Z\mid D,\Theta_l]) &= \sum_i \sum_j E(z_j^{(i)} \mid D,\Theta_l)[\log p(\mathcal{G}_j\mid \Theta) + \log p(\boldsymbol{x}^{(i)}\mid \mathcal{G}_j, \Theta)] \\ 						
+							&= \sum_i \sum_j p(\mathcal{G}_j \mid \boldsymbol{x}^{(i)},\Theta_l)[\log p(\mathcal{G}_j\mid \Theta) + \log p(\boldsymbol{x}^{(i)}\mid \mathcal{G}_j, \Theta)]
+
+\end{align}$$
+
+进而
+
+$$\begin{align} \Theta_{l+1} & = arg\max\limits_{\Theta}\mathcal{L}_c(\Theta\mid D,E[Z\mid D,\Theta_l]) \\
 				& = arg\max\limits_{\Theta} \sum_i \sum_j p(\mathcal{G}_j \mid \boldsymbol{x}^{(i)},\Theta_l)[\log p(\mathcal{G}_j\mid \Theta) + \log p(\boldsymbol{x}^{(i)}\mid \mathcal{G}_j, \Theta)]
 \end{align}$$
 
@@ -108,7 +109,7 @@ $$\pi_j = \frac{\sum_i p(\mathcal{G}_j \mid \boldsymbol{x}^{(i)},\Theta_l)}{N}$$
 
 对于$\Phi$，我们求解：
 
-$$\nabla_{\Phi} \sum_i \sum_j p(\mathcal{G}_j \mid \boldsymbol{x}^{(i)},\Theta_l)\log p(\boldsymbol{x}^{(i)}\mid \mathcal{G}_j, \Phi)$$
+$$\nabla_{\Phi} \sum_i \sum_j p(\mathcal{G}_j \mid \boldsymbol{x}^{(i)},\Theta_l)\log p(\boldsymbol{x}^{(i)}\mid \mathcal{G}_j, \Phi) = 0$$
 
 如果我们假设分支密度为高斯分布，即$$p(\boldsymbol{x}\mid \mathcal{G}_j, \Phi) \sim \mathcal{N}(\boldsymbol{m}_j, \boldsymbol{S}_j)$$，则对于E步，我们可以计算：
 
