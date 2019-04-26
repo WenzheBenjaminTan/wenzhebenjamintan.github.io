@@ -10,11 +10,11 @@ title: "算法复杂度"
 
 设$f$和$g$是从$\mathbb{N}$到$\mathbb{N}$的两个函数。
 
-1）如果存在常数$c$使得$\frac{f(n)}{g(n)} \leq c$对充分大的$n$恒成立，则称$f(n)=O(g(n))$，也称$f(n)=\omega(g(n))$；
+1）如果存在常数$c$使得$\frac{f(n)}{g(n)} \leq c$对充分大的$n$恒成立，则称$f(n)=O(g(n))$（less than or equal，$g(n)$是$f(n)$的上界，对于算法来说就是最差性能），也称$g(n)=\Omega(f(n))$（greater than or equal，$f(n)$是$g(n)$的下界）；
 
-2）如果$f(n)=O(g(n))$且$g(n)=O(f(n))$，则称$f(n)=\Theta (g(n))$；
+2）如果$f(n)=O(g(n))$且$g(n)=O(f(n))$，则称$f(n)=\Theta (g(n))$（equal）；
 
-3）如果对任意$\epsilon > 0$均有$\frac{f(n)}{g(n)} \leq \epsilon$对充分大的$n$恒成立，则称$f(n)=o(g(n))$，也称$f(n)=\Omega(g(n))$。
+3）如果对任意$\epsilon > 0$均有$\frac{f(n)}{g(n)} \leq \epsilon$对充分大的$n$恒成立，则称$f(n)=o(g(n))$（less than），也称$g(n)=\omega(f(n))$（grater than）。
 
 对于输入规模为$n$的的算法，其计算复杂度由易到难排名如下：
 
