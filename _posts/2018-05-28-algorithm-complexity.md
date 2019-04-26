@@ -14,7 +14,7 @@ title: "算法复杂度"
 
 2）如果$f(n)=O(g(n))$且$g(n)=O(f(n))$，则称$f(n)=\Theta (g(n))$（equal）；
 
-3）如果对任意$\epsilon > 0$均有$\frac{f(n)}{g(n)} \leq \epsilon$对充分大的$n$恒成立，则称$f(n)=o(g(n))$（less than），也称$g(n)=\omega(f(n))$（grater than）。
+3）如果对任意$\epsilon > 0$均有$\frac{f(n)}{g(n)} < \epsilon$对充分大的$n$恒成立，则称$f(n)=o(g(n))$（less than），也称$g(n)=\omega(f(n))$（greater than）。
 
 对于输入规模为$n$的的算法，其计算复杂度由易到难排名如下：
 
