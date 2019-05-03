@@ -52,7 +52,7 @@ $$\boldsymbol{w} = \boldsymbol{w} + \alpha (r+\gamma Q_{\boldsymbol{w}}(s',a')-Q
 
 更新当前状态：$s=s'$。
 
-因为在函数拟合中使用的训练样本并不满足独立同分布特性，因此该算法不一定能保证收敛。
+该算法是on-line和off-policy的，但因为在函数拟合中使用的训练样本并不满足独立同分布特性，因此不一定能保证收敛。
 
 ### 1.1.2 DQN
 
@@ -260,6 +260,8 @@ $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = \sum_{s}\rho_{\pi_{\bold
 
 ## 2.4 行动者-评论家（Actor-Critic）算法
 
+### 2.4.1 基本的Actor-Critic算法
+
 根据策略梯度定理，可以进而推导如下：
 
 $$\begin{align}
@@ -268,17 +270,51 @@ $$\begin{align}
 					&= E_{\pi_{\boldsymbol{\theta}}}\left(\sum_{a}\gamma^tQ^{\pi_{\boldsymbol{\theta}}}(S_t,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(S_t,a)\right) \\
 					&=E_{\pi_{\boldsymbol{\theta}}}\left(\gamma^t\sum_{a}\pi_{\boldsymbol{\theta}}(S_t,a)Q^{\pi_{\boldsymbol{\theta}}}(S_t,a)\frac{\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(S_t,a)}{\pi_{\boldsymbol{\theta}}(S_t,a)}\right) \\
 					&=E_{\pi_{\boldsymbol{\theta}}}\left(\gamma^tQ^{\pi_{\boldsymbol{\theta}}}(S_t,A_t)\frac{\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(S_t,A_t)}{\pi_{\boldsymbol{\theta}}(S_t,A_t)}\right) \\
-					&=E_{\pi_{\boldsymbol{\theta}}}\left(\gamma^tR_t\frac{\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(S_t,A_t)}{\pi_{\boldsymbol{\theta}}(S_t,A_t)}\right) \\
-					&=E_{\pi_{\boldsymbol{\theta}}}\left(\gamma^tR_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right) \\
+					&=E_{\pi_{\boldsymbol{\theta}}}\left(\gamma^tQ^{\pi_{\boldsymbol{\theta}}}(S_t,A_t)\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(S_t,A_t)\right) \\
 \end{align}$$
 
+其中，对于$$Q^{\pi_{\boldsymbol{\theta}}}(s,a)$$我们可以像值函数拟合方法一样采用$$Q_{\boldsymbol{w}}(s,a)$$来拟合它（$\boldsymbol{w}$为参数向量），于是得到策略梯度法的更新公式：
 
-所以策略梯度法的更新公式可以写为：
+$$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t Q_{\boldsymbol{w}}(s_t,a_t)\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
+
+这就是基本的Actor-Critic算法，它是on-line和on-policy的。Actor-Critic算法同时对策略和值函数进行建模，通过值函数的估计来辅助策略函数的更新。在这个过程中策略模型被称为（Actor），价值模型被称为评论家（Critic）。
+
+因为根据贝尔曼方程可得到：
+
+$$Q^{\pi}(s,a) = E\left[r_{s,a}(s') + \gamma Q^{\pi}(s',\pi(s'))\right]$$
+
+所以价值模型可以使用$$r_{t}+\gamma Q_{\boldsymbol{w}}(s_{t+1}, \pi_{\boldsymbol{\theta}}(s_{t+1}))$$与$$Q_{\boldsymbol{w}}(s_t, a_t)$$之间的均方误差（MSE）作为损失函数。
+
+基本的Actor-Critic算法的具体流程如下：
+
+1）初始化：
+设定参数$\boldsymbol{w}$和$\boldsymbol{\theta}$，步长$\alpha^{\boldsymbol{w}} > 0, \alpha^{\boldsymbol{\theta}} > 0$，梯度乘子$I=1$；
+
+设定初始状态$s$，并根据策略$\pi_{\boldsymbol{\theta}}$生成初始动作$a$；
+
+2）迭代：
+
+基于当前状态$s$和动作$a$，观测奖励$r$和下一状态$s'$；
+
+根据策略$\pi_{\boldsymbol{\theta}}$生成下一动作$a'$；
+
+$$\boldsymbol{w} \leftarrow \boldsymbol{w} + \alpha^{\boldsymbol{w}}(r+\gamma Q_{\boldsymbol{w}}(s',a')-Q_{\boldsymbol{w}}(s,a))\nabla_{\boldsymbol{w}}Q_{\boldsymbol{w}}(s,a)$$
+
+$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}}IQ_{\boldsymbol{w}}(s,a)\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s,a)$$
+
+$$I \leftarrow \gamma I$$
+
+更新当前状态和动作：$$s \leftarrow s'$$，$$a \leftarrow a'$$。
+
+### 2.4.2 Advantage Actor-Critic算法
+
+
+实际上，$$R_t$$可以视为$$Q^{\pi_{\boldsymbol{\theta}}}(s_t,a_t)$$的估计，所以策略梯度法的更新公式可以写为：
 
 $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t R_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
 
-但这种方法的方差也很大，因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$R_t$。所以更常见的一种做法也是引入一个基准（baseline）$b(s)$，且可以满足：
+因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$R_t$，所以其方差是很大的。更常见的一种做法也是引入一个基准（baseline）$b(s)$，且可以满足：
 
 $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) =\sum_{s}\rho_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) =\sum_{s}\rho_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}\left(Q^{\pi_{\boldsymbol{\theta}}}(s,a)-b(s)\right)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
 
@@ -290,7 +326,7 @@ $$\sum_a b(s) \nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) = b(s) 
 
 $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t (R_t-b(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
-至于$b(s)$怎么设计，取决于算法，但一般的做法是取$b(s) = V_{\boldsymbol{w}}(s)$，也就是说用另一个函数来估计状态均值。容易得到，这种情况下参数的更新主要取决于在状态$s_t$下执行动作$a_t$所得总奖励相对于状态均值的优势，如果有优势，则更新后的参数会增加执行该动作的概率；如果没有优势，则更新后的参数会减少执行该动作的概率。实际上，此时$$R_t - b(s_t)$$是对动作优势函数$$A^{\pi_{\boldsymbol{\theta}}}(s_t,a_t) = Q^{\pi_{\boldsymbol{\theta}}}(s_t,a_t) - V^{\pi_{\boldsymbol{\theta}}}(s_t)$$的估计，因为$$R_t$$可以视为$$Q^{\pi_{\boldsymbol{\theta}}}(s_t,a_t)$$的估计，$$b(s_t) = V_{\boldsymbol{w}}(s_t)$$可以视为$$V^{\pi_{\boldsymbol{\theta}}}(s_t)$$的估计。
+至于$b(s)$怎么设计，取决于算法，但一般的做法是取$b(s) = V_{\boldsymbol{w}}(s)$，也就是说用另一个函数来估计状态均值。容易得到，这种情况下参数的更新主要取决于在状态$s_t$下执行动作$a_t$所得总奖励相对于状态均值的优势，如果有优势，则更新后的参数会增加执行该动作的概率；如果没有优势，则更新后的参数会减少执行该动作的概率。而$$R_t - b(s_t)$$正是对动作优势函数$$A^{\pi_{\boldsymbol{\theta}}}(s_t,a_t) = Q^{\pi_{\boldsymbol{\theta}}}(s_t,a_t) - V^{\pi_{\boldsymbol{\theta}}}(s_t)$$的估计，因为$$R_t$$为$$Q^{\pi_{\boldsymbol{\theta}}}(s_t,a_t)$$的估计，$$b(s_t) = V_{\boldsymbol{w}}(s_t)$$可以视为$$V^{\pi_{\boldsymbol{\theta}}}(s_t)$$的估计。
 
 此外，为了避免off-line地求得全部回报$$R_t$$，我们采用单步的奖励和下个状态估值的和式$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来估计$R_t$（注意，这个估计是有偏的），于是参数更新公式变为：
 
@@ -298,15 +334,15 @@ $$\begin{align}
 \boldsymbol{\theta}' &= \boldsymbol{\theta} + \alpha\gamma^t (r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})-V_{\boldsymbol{w}}(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t) \\
 \end{align}$$
 
-这就得到了Actor-Critic算法，它是on-line和on-policy的，采用时间差分的方式来不断更新两个模型，一个是策略模型（Actor），一个是价值模型（Critic）。
+这就得到了Advantage Actor-Critic算法，此时评论家（Critic）变成了状态值函数。
 
-因为根据贝尔曼方程可得到：
+类似地，根据贝尔曼方程可得到：
 
 $$V^{\pi}(s) = E\left[r_{s,\pi(s)}(s') + \gamma V^{\pi}(s')\right]$$
 
-所以价值模型可以使用$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$与$$V_{\boldsymbol{w}}(s_t)$$之间的均方误差（MSE）作为损失函数。
+所以状态值函数模型可以使用$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$与$$V_{\boldsymbol{w}}(s_t)$$之间的均方误差（MSE）作为损失函数。
 
-Actor-Critic算法的具体流程如下：
+Advantage Actor-Critic算法的具体流程如下：
 
 1）初始化参数$\boldsymbol{w}$和$\boldsymbol{\theta}$，步长$\alpha^{\boldsymbol{w}} > 0, \alpha^{\boldsymbol{\theta}} > 0$，当前状态$s=s_0$，梯度乘子$I=1$；
 
@@ -327,13 +363,13 @@ $$s \leftarrow s'$$
 其中$\delta$是优势函数估计。
 
 
-## 2.5 A3C
+### 2.4.3 异步并行版本的Actor-Critic算法（A3C）
 
-真正将Actor-Critic应用到实际中并得到优异效果的是A3C（Asynchronous Advantage Actor-Critic）算法，从算法的名字可以看出，算法突出了异步和优势两个概念。
+真正将Actor-Critic应用到实际中并得到优异效果的是A3C（Asynchronous Advantage Actor-Critic）算法，从算法的名字可以看出，算法突出了异步并行的概念。
 
 由于Actor-Critic算法是on-policy的（每一次模型更新都需要“新样本”），为了更快地收集样本，我们需要用并行的方法来收集。在A3C方法中，我们要同时启动$N$个线程，每个线程中有一个Agent与环境进行交互。收集完样本后，每一个线程将独立完成训练并得到参数更新量，并异步地更新到全局的模型参数中。下一次训练时，线程的模型参数和全局参数完成同步，再使用新的参数进行新的一轮训练。
 
-前面提到Actor-Critic算法中使用TD-Error的形式$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来估计$R_t$，这个方法虽然增加了学习的稳定性（即减小了方差），但是学习的偏差也相应变大，为了更好地平衡偏差和方差，A3C方法使用$n$步回报估计法，这个方法可以在训练早期更快地提升价值模型。对应的优势函数估计公式变为：
+前面提到Advantage Actor-Critic算法中使用TD-Error的形式$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1}) - \gamma V_{\boldsymbol{w}}(s_{t})$$来估计$A_t$，这个方法虽然增加了学习的稳定性（即减小了方差），但是学习的偏差也相应变大，为了更好地平衡偏差和方差，A3C方法使用$n$步回报估计法，这个方法可以在训练早期更快地提升价值模型。对应的优势函数估计公式变为：
 
 $$\sum_{i=0}^{n-1}\gamma^ir_{t+i} + \gamma^{n}V_{\boldsymbol{w}}(s_{t+n}) - V_{\boldsymbol{w}}(s_t)$$
 
@@ -387,7 +423,7 @@ $$\begin{align}
 
 19：until $T > T_{max}$
 
-## 2.6 其他策略梯度法
+## 2.5 其他策略梯度法
 
 策略梯度法有两个软肋：
 
@@ -398,7 +434,7 @@ $$\begin{align}
 TRPO和PPO算法主要用于解决第一个问题，而ACER和DPG算法主要用于解决第二个问题。
 
 
-### 2.6.1 TRPO
+### 2.5.1 TRPO
 
 TRPO是置信区域策略优化（Trust Region Policy Optimization）算法的简称，它可以确保策略模型在优化时单调提升。其主要思路是找到一种衡量策略之间优劣的计算方法，并以此为目标最大化新策略与旧策略相比的优势。
 
