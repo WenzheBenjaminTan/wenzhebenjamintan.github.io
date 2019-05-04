@@ -369,7 +369,7 @@ $$s \leftarrow s'$$
 
 由于Actor-Critic算法是on-policy的（每一次模型更新都需要“新样本”），为了更快地收集样本，我们需要用并行的方法来收集。在A3C方法中，我们要同时启动$N$个线程，每个线程中有一个Agent与环境进行交互。收集完样本后，每一个线程将独立完成训练并得到参数更新量，并异步地更新到全局的模型参数中。下一次训练时，线程的模型参数和全局参数完成同步，再使用新的参数进行新的一轮训练。
 
-前面提到Advantage Actor-Critic算法中使用TD-Error的形式$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1}) - \gamma V_{\boldsymbol{w}}(s_{t})$$来估计$A_t$，这个方法虽然增加了学习的稳定性（即减小了方差），但是学习的偏差也相应变大，为了更好地平衡偏差和方差，A3C方法使用$n$步回报估计法，这个方法可以在训练早期更快地提升价值模型。对应的优势函数估计公式变为：
+前面提到Advantage Actor-Critic算法中使用$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来有偏估计$R_t$，这个方法虽然增加了学习的稳定性（即减小了方差），但是学习的偏差也相应变大，为了更好地平衡偏差和方差，A3C方法使用$n$步回报估计法，这个方法可以在训练早期更快地提升价值模型。对应的优势函数估计公式变为：
 
 $$\sum_{i=0}^{n-1}\gamma^ir_{t+i} + \gamma^{n}V_{\boldsymbol{w}}(s_{t+n}) - V_{\boldsymbol{w}}(s_t)$$
 
@@ -385,23 +385,23 @@ $$\begin{align}
 
 定义：全局时间钟为$T$；全局的价值和策略参数分别为$\boldsymbol{w}$和$\boldsymbol{\theta}$，线程内部的价值和策略参数分别为$\boldsymbol{w'}$和$\boldsymbol{\theta'}$。
 
-1：初始化线程时间钟 $t\leftarrow 0$；
+01：初始化全局时间钟$T\leftarrow 0$，线程时间钟 $t\leftarrow 0$；
 
-2：repeat
+02：repeat（对每个线程）
 
-3：&emsp; 将梯度清零：$d\boldsymbol{w} \leftarrow 0$, $d\boldsymbol{\theta} \leftarrow 0$；
+03：&emsp; 将梯度清零：$d\boldsymbol{w} \leftarrow 0$, $d\boldsymbol{\theta} \leftarrow 0$；
 
-4：&emsp; 同步模型参数：$d\boldsymbol{w'} \leftarrow \boldsymbol{w}$, $d\boldsymbol{\theta'} \leftarrow \boldsymbol{\theta}$；
+04：&emsp; 同步模型参数：$\boldsymbol{w'} \leftarrow \boldsymbol{w}$, $\boldsymbol{\theta'} \leftarrow \boldsymbol{\theta}$；
 
-5：&emsp; $$t_{start} = t$$；
+05：&emsp; $$t_{start} = t$$；
 
-6：&emsp; 获取当前状态$$s_t$$；
+06：&emsp; 获取该线程内当前状态$$s_t$$；
 
-7：&emsp; repeat
+07：&emsp; repeat
 
-8：&emsp; &emsp; 根据当前策略$$\pi_{\boldsymbol{\theta'}}(s_t,a_t)$$执行$$a_t$$；
+08：&emsp; &emsp; 根据当前策略$$\pi_{\boldsymbol{\theta'}}(s_t,a_t)$$执行$$a_t$$；
 
-9：&emsp; &emsp; $t\leftarrow t+1$；
+09：&emsp; &emsp; $t\leftarrow t+1$；
 
 10：&emsp; &emsp; $T\leftarrow T+1$；
 
@@ -422,6 +422,18 @@ $$\begin{align}
 18：&emsp; 使用$d\boldsymbol{w}$ 和 $d\boldsymbol{\theta}$分别异步更新$\boldsymbol{w}$和$\boldsymbol{\theta}$；
 
 19：until $T > T_{max}$
+
+### 2.4.4 同步并行版本的Actor-Critic算法
+
+由于十分优异的效果，A3C算法的影响力极大。但大家一直存在一个疑问：算法中的异步更新是否是必要的？凭直觉，异步或者同步更新并不是决定算法优劣的主要因素，那么为什么不尝试使用同步更新的方法呢？
+
+在OpenAI的Baseline项目中，实现了同步并行版本的A2C算法，而且其在并发行和系统简洁性上都优于A3C。下面我们具体介绍一下其实现的细节。
+
+该算法在与环境交互时采用了Master-Slave结构，其中的Master用于执行Agent模型，在Env给出状态观测值后判断应当执行的Action；而Slave用于模拟Env，在收到Agent的Action后，将后续的状态观测值、回报、是否结束等信息返回给Master，Master将Slave返回过来的数据收集起来并进行训练。
+
+整体算法流程分为两个部分：环境交互和样本训练。在与环境交互时，使用$$step\_model$$分别从每个线程的环境中执行$steps$步，并输出一批经验样本。在交互完成后使用$$train\_model$$和这一批经验样本来计算每个线程中的梯度，并取平均值，然后更新$$step\_model$$中的参数。
+
+
 
 ## 2.5 其他策略梯度法
 
