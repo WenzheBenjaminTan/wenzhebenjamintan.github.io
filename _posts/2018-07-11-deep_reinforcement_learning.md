@@ -97,11 +97,11 @@ Experience Replay的具体操作步骤如下：
 
 我们进一步展开DQN中的Q-target计算公式可得：
 
-$$y^{DQN} = r + \gamma Q(s',arg\max_{a'} Q(s',a';\boldsymbol{\theta}^-); \boldsymbol{\theta}^-))$$
+$$y^{DQN} = r + \gamma Q(s',arg\max_{a'} Q(s',a';\boldsymbol{\theta}^-); \boldsymbol{\theta}^-)$$
 
 也就是说根据状态$s'$选择动作$a'$的过程，以及估计$Q(s',a')$使用的是同一张$Q$值表，或者说是使用的同一个网络参数，这可能会导致过高的估计值（overestimate）。而Double DQN就是用来解决这种过估计的，它的想法是引入另一个神经网络来减小这种误差。而DQN中本来就有两个神经网络，我们刚好可以利用这一点，改用MainNet来选择动作$a'$，而继续用TargetNet来估计$Q(s',a')$。于是采用Double DQN的Q-target计算公式变为：
 
-$$y^{DoubleDQN} = r + \gamma Q(s',arg\max_{a'} Q(s',a';\boldsymbol{\theta}); \boldsymbol{\theta}^-))$$
+$$y^{DoubleDQN} = r + \gamma Q(s',arg\max_{a'} Q(s',a';\boldsymbol{\theta}); \boldsymbol{\theta}^-)$$
 
 其中$$\boldsymbol{\theta}^-$$是TargetNet的参数，$$\boldsymbol{\theta}$$是MainNet的参数。
 
@@ -279,11 +279,6 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t Q_{\boldsymbol{w}}
 
 这就是基本的Actor-Critic算法，它是on-line和on-policy的。Actor-Critic算法同时对策略和值函数进行建模，通过值函数的估计来辅助策略函数的更新。在这个过程中策略模型被称为（Actor），价值模型被称为评论家（Critic）。
 
-因为根据贝尔曼方程可得到：
-
-$$Q^{\pi}(s,a) = E\left[r_{s,a}(s') + \gamma Q^{\pi}(s',\pi(s'))\right]$$
-
-所以价值模型可以使用$$r_{t}+\gamma Q_{\boldsymbol{w}}(s_{t+1}, \pi_{\boldsymbol{\theta}}(s_{t+1}))$$与$$Q_{\boldsymbol{w}}(s_t, a_t)$$之间的均方误差（MSE）作为损失函数。
 
 基本的Actor-Critic算法的具体流程如下：
 
@@ -306,6 +301,8 @@ $$I \leftarrow \gamma I$$
 
 更新当前状态和动作：$$s \leftarrow s'$$，$$a \leftarrow a'$$。
 
+由于是采用“半梯度下降法”让$$Q_{\boldsymbol{w}}(s,a)$$逐渐去拟合$$Q^{\pi_{\boldsymbol{\theta}}}(s,a)$$，这种方法的收敛性并不好。
+
 ### 2.4.2 Advantage Actor-Critic算法
 
 
@@ -314,7 +311,7 @@ $$I \leftarrow \gamma I$$
 $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t R_t\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t)$$
 
 
-因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$R_t$，所以其方差是很大的。更常见的一种做法也是引入一个基准（baseline）$b(s)$，且可以满足：
+因为其更新的幅度依赖于某episode中$t$时刻到结束时刻的真实样本回报$R_t$，所以估计方差仍然是很大的。更常见的一种做法也是引入一个基准（baseline）$b(s)$，且可以满足：
 
 $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) =\sum_{s}\rho_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}Q^{\pi_{\boldsymbol{\theta}}}(s,a)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a) =\sum_{s}\rho_{\pi_{\boldsymbol{\theta}}}(s)\sum_{a}\left(Q^{\pi_{\boldsymbol{\theta}}}(s,a)-b(s)\right)\nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s,a)$$
 
@@ -328,7 +325,7 @@ $$\boldsymbol{\theta}' = \boldsymbol{\theta} + \alpha\gamma^t (R_t-b(s_t))\nabla
 
 至于$b(s)$怎么设计，取决于算法，但一般的做法是取$b(s) = V_{\boldsymbol{w}}(s)$，也就是说用另一个函数来估计状态均值。容易得到，这种情况下参数的更新主要取决于在状态$s_t$下执行动作$a_t$所得总奖励相对于状态均值的优势，如果有优势，则更新后的参数会增加执行该动作的概率；如果没有优势，则更新后的参数会减少执行该动作的概率。而$$R_t - b(s_t)$$正是对动作优势函数$$A^{\pi_{\boldsymbol{\theta}}}(s_t,a_t) = Q^{\pi_{\boldsymbol{\theta}}}(s_t,a_t) - V^{\pi_{\boldsymbol{\theta}}}(s_t)$$的估计，因为$$R_t$$为$$Q^{\pi_{\boldsymbol{\theta}}}(s_t,a_t)$$的估计，$$b(s_t) = V_{\boldsymbol{w}}(s_t)$$可以视为$$V^{\pi_{\boldsymbol{\theta}}}(s_t)$$的估计。
 
-此外，为了避免off-line地求得全部回报$$R_t$$，我们采用单步的奖励和下个状态估值的和式$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来估计$R_t$（注意，这个估计是有偏的），于是参数更新公式变为：
+此外，为了避免off-line地求得全部回报$$R_t$$，我们采用单步的奖励和下个状态估值的和式$$r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})$$来估计$R_t$（注意，这会使估计的偏差增大），于是参数更新公式变为：
 
 $$\begin{align}
 \boldsymbol{\theta}' &= \boldsymbol{\theta} + \alpha\gamma^t (r_{t}+\gamma V_{\boldsymbol{w}}(s_{t+1})-V_{\boldsymbol{w}}(s_t))\nabla_{\boldsymbol{\theta}}\log\pi_{\boldsymbol{\theta}}(s_t,a_t) \\
@@ -336,7 +333,7 @@ $$\begin{align}
 
 这就得到了Advantage Actor-Critic算法，此时评论家（Critic）变成了状态值函数。
 
-类似地，根据贝尔曼方程可得到：
+根据贝尔曼方程可得到：
 
 $$V^{\pi}(s) = E\left[r_{s,\pi(s)}(s') + \gamma V^{\pi}(s')\right]$$
 
@@ -360,7 +357,7 @@ $$I \leftarrow \gamma I$$
 
 $$s \leftarrow s'$$
 
-其中$\delta$是优势函数估计。
+其中$\delta$是优势函数的估计。
 
 
 ### 2.4.3 异步并行版本的Actor-Critic算法（A3C）
@@ -439,11 +436,11 @@ $$\begin{align}
 
 策略梯度法有两个软肋：
 
-1）波动性：REINFORCE算法通过采样一条或几条轨迹后来估计回报，估计波动就很大；为了减少方差对算法的影响，Actor-Critic算法增加了一个模型用于估计当前状态的价值，通过引入一定的偏差换取方差的降低；而A3C算法只是通过多步回报估计法平衡了方差和偏差。总的来说，波动性的问题依然存在。
+1）波动性：REINFORCE算法通过采样一条或几条轨迹后来估计回报，估计波动就很大，而基本的Actor-Critic算法采用状态-动作值函数拟合后估计的波动更大；Advantage Actor-Critic算法引入状态值时间差分的方式来估计优势函数，通过增加偏差的方式来换取方差的降低；并行版本的Actor-Critic算法只是通过多步回报估计的方式平衡了方差和偏差。总的来说，波动性的问题依然存在。
 
 2）样本利用率：这个问题是所有on-policy算法都要解决的。因为on-policy算法在每一次策略发生改变时，都要丢弃前面产生的样本，这将带来很大的样本浪费，我们需要考虑用off-policy的算法来进行学习。
 
-TRPO和PPO算法主要用于解决第一个问题，而ACER和DPG算法主要用于解决第二个问题。
+解决第一个问题的代表算法是TRPO，而解决第二个问题的代表算法是DPG。
 
 
 ### 2.5.1 TRPO
@@ -456,7 +453,7 @@ TRPO是置信区域策略优化（Trust Region Policy Optimization）算法的�
 
 $$\eta(\pi) = E_{s_0,a_0,...\sim \pi}\left[\sum_{t=0}^{\infty}\gamma^tr_{s_t,a_t}(s_{t+1})\right]$$
 
-其中$$s_0\sim P(s_0\rightarrow s_0,0,\pi)$$，$$a_t\sim\pi(s_t,a_t)$$，$$s_{t+1}\sim p_{s_t,a_t}(s_{t+1})$$。
+其中$$s_0\sim P(s_0\rightarrow s_0,0,\pi)$$，$$a_t\sim\pi(s_t)$$，$$s_{t+1}\sim p_{s_t,a_t}(s_{t+1})$$。
 
 接下来给出状态-动作值函数、状态值函数和优势函数的定义：
 
@@ -593,11 +590,11 @@ $$\begin{align} & maxmize_{\pi} L_{\pi_{old}}(\pi) =  \eta(\pi_{old}) + \sum_s\r
 
 目标函数的第二项可以写作如下形式：
 
-$$\sum_s\rho_{\pi_{old}}(s)E_{a\sim\pi}\left[A^{\pi_{old}}(s,a)\right]$$
+$$\sum_s\rho_{\pi_{old}}(s)E_{a\sim\pi(s)}\left[A^{\pi_{old}}(s,a)\right]$$
 
-如果我们采用蒙特卡洛法对动作进行采样，就需要事先知道新策略的形式，这对优化造成了阻碍。我们可以采用重要性采样方法来进行规避，于是公式变为：
+如果我们采用蒙特卡洛法对动作进行采样，就需要事先知道新策略的形式，这对优化造成了阻碍。我们可以采用重要性采样方法来进行规避：
 
-$$\sum_a\pi(s,a)A^{\pi_{old}}(s,a) = \sum_a \pi_{old}(s,a)\frac{\pi(s,a)}{\pi_{old}(s,a)}A^{\pi_{old}}(s,a) = E_{a\sim\pi_{old}}\left[\frac{\pi(s,a)}{\pi_{old}(s,a)}A^{\pi_{old}}(s,a)\right]$$
+$$\sum_a\pi(s,a)A^{\pi_{old}}(s,a) = \sum_a \pi_{old}(s,a)\frac{\pi(s,a)}{\pi_{old}(s,a)}A^{\pi_{old}}(s,a) = E_{a\sim\pi_{old}(s)}\left[\frac{\pi(s,a)}{\pi_{old}(s,a)}A^{\pi_{old}}(s,a)\right]$$
 
 
 4）自然梯度法求解
@@ -658,13 +655,77 @@ $$\beta = \sqrt{\frac{2\delta}{ \frac{1}{N} \sum_{i=1}^N\boldsymbol{d}^T\boldsym
 
 
 
-### PPO
+### 2.5.2 DPG 与 DDPG
+
+DPG（Deterministic Policy Gradient）算法采用off-policy的学习方式，行动策略采用随机策略（一般使用$\epsilon$-贪心策略），保证充足的探索，而评估策略采用确定性策略，可以有效减少需要采集的数据点。
+
+在DPG算法中用到一个重要结论：在对Actor-Critic算法的目标函数中的价值估计部分，如果我们使用一个值函数模型对它进行拟合，则该值函数模型与策略无关。这样，我们就可以使用off-policy的方法来进行计算了。
+
+设行动策略表示为$$\beta_{\boldsymbol{\theta}}$$，评估策略表示为$$\mu_{\boldsymbol{\theta}}$$，用于拟合的值函数模型为$$Q_{\boldsymbol{w}}(s,a)$$，则off-policy确定性策略梯度为：
+
+$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = E_{s\sim\rho_{\beta_{\boldsymbol{\theta}}}}\left[\nabla_{\boldsymbol{\theta}}\mu_{\boldsymbol{\theta}}(s)\nabla_a Q_{\boldsymbol{w}}(s,a)\mid_{ a=\mu_{\boldsymbol{\theta}}(s)}\right]$$
+
+
+于是得到DPG算法的具体流程如下：
+
+1）初始化：
+设定参数$\boldsymbol{w}$和$\boldsymbol{\theta}$，步长$\alpha^{\boldsymbol{w}} > 0, \alpha^{\boldsymbol{\theta}} > 0$，梯度乘子$I=1$；
+
+设定初始状态$s$；
+
+2）迭代：
+
+基于$s$，根据策略$\beta_{\boldsymbol{\theta}}$生成一个动作$a$
+
+基于$s$和$a$，观测奖励$r$和下一状态$s'$；
+
+根据策略$\mu_{\boldsymbol{\theta}}$生成下一动作$a'$；
+
+$$\boldsymbol{w} \leftarrow \boldsymbol{w} + \alpha^{\boldsymbol{w}}(r+\gamma Q_{\boldsymbol{w}}(s',a')-Q_{\boldsymbol{w}}(s,a))\nabla_{\boldsymbol{w}}Q_{\boldsymbol{w}}(s,a)$$
+
+$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}}I\nabla_{\boldsymbol{\theta}}\mu_{\boldsymbol{\theta}}(s)\nabla_{\widetilde{a}} Q_{\boldsymbol{w}}(s,\widetilde{a})\mid_{ \widetilde{a}=a'}$$
+
+$$I \leftarrow \gamma I$$
+
+更新当前状态：$$s \leftarrow s'$$。
+
+DDPG（Deep Deterministic Policy Gradient）算法实际上是将DQN中的两大利器Experience Replay 和 Fixed Q-targes应用到了DPG中，在该算法中采用深度神经网络逼近值函数$$Q_{\boldsymbol{w}}(s,a)$$和确定性策略$$\mu_{\boldsymbol{\theta}}(s)$$。
+
+DDPG的伪代码实现如下：
+
+01：初始化critic网络$$Q(s,a\mid \boldsymbol{w})$$和actor网络$$\mu(s\mid \boldsymbol{\theta})$$；
+
+02：用上面的两个网络初始化对应的目标网络$$Q'\leftarrow Q$$，$$\mu'\leftarrow \mu$$
+
+03：初始化Replay Buffer：$R$
+
+04：for episode = 1,...,M do
+
+05：&emsp; $$s_1 = env.reset()$$；
+
+06：&emsp; for t = 1,...,T do
+
+07：&emsp; &emsp; $$a_t = \mu(s_t\mid \boldsymbol{\theta}) + \mathcal{N}_t$$（其中$$\mathcal{N}_t$$为行动策略的随机探索因子）
+
+08：&emsp; &emsp; $$s_{t+1},r_t,terminate, = env.setp(a_t)$$；
+
+09：&emsp; &emsp; $$R.save((s_t,a_t,r_t,s_{t+1}))$$；
+
+10：&emsp; &emsp; 从$R$中随机采样$N$个样本$$(s_i,a_i,r_i,s_{i+1})$$，并令$$y_i = r_i + \gamma Q'(s_{i+1},\mu'(s_{i+1}\mid\boldsymbol{\theta}')\mid\boldsymbol{w}')$$；
+
+11：&emsp; &emsp; 根据critic loss来更新critic网络：$$L = \frac{1}{N}\sum_i(y_i - Q(s_i,a_i\mid \boldsymbol{w}))^2$$；
+
+12：&emsp; &emsp; 根据梯度下降法来更新actor网络：$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) =\frac{1}{N}\sum_i \nabla_{\boldsymbol{\theta}}\mu(s_i\mid\boldsymbol{\theta})\nabla_{a} Q(s_i,a\mid\boldsymbol{w})\mid_{a=\mu(s_i\mid\boldsymbol{\theta})}$$；
+
+13：&emsp; &emsp; 更新目标网络：$$\boldsymbol{w}' \leftarrow \tau\boldsymbol{w} + (1-\tau)\boldsymbol{w}'$$，$$\boldsymbol{\theta}' \leftarrow \tau\boldsymbol{\theta} + (1-\tau)\boldsymbol{\theta}'$$；
+
+14：&emsp; end for
+
+15：end for
 
 
 
-### ACER
 
-### DPG
 
 # 3、Model-based 算法
 
