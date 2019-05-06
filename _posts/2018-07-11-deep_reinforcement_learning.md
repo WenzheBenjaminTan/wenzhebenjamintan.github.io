@@ -58,9 +58,9 @@ $$\boldsymbol{w} = \boldsymbol{w} + \alpha (r+\gamma Q_{\boldsymbol{w}}(s',a')-Q
 
 深度Q网络结构模型（Deep Q-Network，DQN）可谓是深度强化学习的开山之作，由DeepMind在NIPS 2013上发表，后又在Nature 2015上提出改进版本。
 
-用人工神经网络来拟合Q函数有两种形式：一种形式是将状态和动作当作输入，然后通过人工神经网络分析后得到动作的Q值，这对于动作空间是连续的时尤其有效；而当动作空间是离散的时，可以采用另一种更直观的形式，即只输入状态，然后输出所有的动作Q值。这相当于先接收外部的信息，然后通过大脑加工输出每种动作的值，最后选择拥有最大值的动作当作下一步要做的动作。DQN就是采用第二种形式来拟合Q函数的。
+用人工神经网络来拟合Q函数有两种形式：一种形式是将状态和动作当作输入，然后通过人工神经网络分析后得到动作的Q值，这对于动作空间是连续的时尤其有效；而当动作空间是离散的时，可以采用另一种更直观的形式，即只输入状态，然后输出所有的动作Q值。这相当于先接收外部的信息，然后通过大脑加工输出每种动作的值，最后选择拥有最大值的动作当作下一步要做的动作。由于当动作空间是连续的时候，采用第一种形式去求$$arg\max_{\widetilde{a} \in A_s}Q_{\boldsymbol{w}}(s,\widetilde{a})$$是非常困难的，所以DQN一般只采用第二种形式来拟合Q函数，也就是说DQN对于处理动作空间是连续的学习问题是有局限的。
 
-但是采用“半梯度下降法”来训练人工神经网络，因为训练样本相互关联（当利用每条episode顺序训练时），训练过程中策略会进行剧烈的振荡，从而使收敛速度十分缓慢。该问题严重影响了深度学习在强化学习中的应用。为了降低样本关联性，DQN采用了两大利器：Experience Replay 和 Fixed Q-targes。
+采用“半梯度下降法”来训练人工神经网络，因为训练样本相互关联（当利用每条episode顺序训练时），训练过程中策略会进行剧烈的振荡，从而使收敛速度十分缓慢。该问题严重影响了深度学习在强化学习中的应用。为了降低样本关联性，DQN采用了两大利器：Experience Replay 和 Fixed Q-targes。
 
 
 **1、Experience Replay**
@@ -118,9 +118,9 @@ $$
 
 # 2、策略梯度法（policy gradient）
 
-策略梯度法是另一种深度强化学习方法，它将策略看作一个基于策略参数的概率函数，通过不断计算策略期望总奖励关于策略参数的梯度来更新策略参数，最终收敛于最优策略。策略梯度法对于状态空间或者动作空间特别大甚至是连续的情况尤其有效。
+策略梯度法是另一种深度强化学习方法，它将策略看作一个基于策略参数的函数，通过不断计算策略期望总奖励关于策略参数的梯度来更新策略参数，最终收敛于最优策略。策略梯度法对于状态空间特别大甚至是连续的情况尤其有效。如果动作空间是离散的，常用随机型策略网络来表示，网络的输入是状态$s$，输出是每种动作$a$的概率；如果动作空间是连续的，一般用确定型策略网络表示，网络的输入是状态$s$，输出直接是动作$a$。一般我们说策略梯度法都是针对随机型策略，确定型策略将在DPG算法时具体介绍。
 
-策略可以表示为$\pi_{\boldsymbol{\theta}}(s,a)$，即在策略参数$\boldsymbol{\theta}$下，根据当前状态$s$选择动作$a$的概率。
+随机型策略可以表示为$\pi_{\boldsymbol{\theta}}(s,a)$，即在策略参数$\boldsymbol{\theta}$下，根据当前状态$s$选择动作$a$的概率。
 
 我们定义强化学习的目标函数$J(\boldsymbol{\theta})$为在策略$\pi_{\boldsymbol{\theta}}$下的回报期望。学习过程可以表示为：
 
@@ -657,19 +657,21 @@ $$\beta = \sqrt{\frac{2\delta}{ \frac{1}{N} \sum_{i=1}^N\boldsymbol{d}^T\boldsym
 
 ### 2.5.2 DPG 与 DDPG
 
-DPG（Deterministic Policy Gradient）算法采用off-policy的学习方式，行动策略采用随机策略（一般使用$\epsilon$-贪心策略），保证充足的探索，而评估策略采用确定性策略，可以有效减少需要采集的数据点。
+DPG（Deterministic Policy Gradient）算法采用off-policy的学习方式，行动策略采用随机策略（一般使用$\epsilon$-贪心策略），保证充足的探索，而评估策略采用确定型策略，可以有效减少需要采集的数据点。该算法尤其适合动作空间连续的情况，策略网络输入为状态$s$，输出直接为动作$a$。
 
-在DPG算法中用到一个重要结论：在对Actor-Critic算法的目标函数中的价值估计部分，如果我们使用一个值函数模型对它进行拟合，则该值函数模型与策略无关。这样，我们就可以使用off-policy的方法来进行计算了。
+前面介绍的Actor-Critic算法，目标函数导数要求输入的状态$s$必须是与策略相关的，因此只能用on-policy的学习方式。当采用确定型策略时，我们可以得到：
 
-设行动策略表示为$$\beta_{\boldsymbol{\theta}}$$，评估策略表示为$$\mu_{\boldsymbol{\theta}}$$，用于拟合的值函数模型为$$Q_{\boldsymbol{w}}(s,a)$$，则off-policy确定性策略梯度为：
+$$\begin{align}\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) &= \nabla_{\boldsymbol{\theta}} V^{\pi_{\boldsymbol{\theta}}}(s), \forall s \in S\\
+								&= \nabla_{\boldsymbol{\theta}} Q^{\pi_{\boldsymbol{\theta}}}(s, \pi_{\boldsymbol{\theta}}(s)) \\
+								&= \nabla_{\boldsymbol{\theta}}\pi_{\boldsymbol{\theta}}(s)\nabla_a Q^{\pi_{\boldsymbol{\theta}}}(s,a)\mid_{ a=\pi_{\boldsymbol{\theta}}(s)} (链式法则)\\
+\end{align}$$
 
-$$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = E_{s\sim\rho_{\beta_{\boldsymbol{\theta}}}}\left[\nabla_{\boldsymbol{\theta}}\mu_{\boldsymbol{\theta}}(s)\nabla_a Q_{\boldsymbol{w}}(s,a)\mid_{ a=\mu_{\boldsymbol{\theta}}(s)}\right]$$
+我们可以用一个$Q$网络去拟合上式中$$Q^{\pi_{\boldsymbol{\theta}}}$$函数，输入为状态$s$和连续动作$a$，输出为状态-动作值。这样，我们就可以使用off-policy的方法来进行计算了。
 
-
-于是得到DPG算法的具体流程如下：
+设行动策略表示为$$\beta_{\boldsymbol{\theta}}$$，评估策略表示为$$\mu_{\boldsymbol{\theta}}$$，用于拟合的值函数模型为$$Q_{\boldsymbol{w}}(s,a)$$，则DPG算法的具体流程如下：
 
 1）初始化：
-设定参数$\boldsymbol{w}$和$\boldsymbol{\theta}$，步长$\alpha^{\boldsymbol{w}} > 0, \alpha^{\boldsymbol{\theta}} > 0$，梯度乘子$I=1$；
+设定参数$\boldsymbol{w}$和$\boldsymbol{\theta}$，步长$\alpha^{\boldsymbol{w}} > 0, \alpha^{\boldsymbol{\theta}} > 0$；
 
 设定初始状态$s$；
 
@@ -683,13 +685,11 @@ $$\nabla_{\boldsymbol{\theta}} J(\boldsymbol{\theta}) = E_{s\sim\rho_{\beta_{\bo
 
 $$\boldsymbol{w} \leftarrow \boldsymbol{w} + \alpha^{\boldsymbol{w}}(r+\gamma Q_{\boldsymbol{w}}(s',a')-Q_{\boldsymbol{w}}(s,a))\nabla_{\boldsymbol{w}}Q_{\boldsymbol{w}}(s,a)$$
 
-$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}}I\nabla_{\boldsymbol{\theta}}\mu_{\boldsymbol{\theta}}(s)\nabla_{\widetilde{a}} Q_{\boldsymbol{w}}(s,\widetilde{a})\mid_{ \widetilde{a}=a'}$$
-
-$$I \leftarrow \gamma I$$
+$$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}}\nabla_{\boldsymbol{\theta}}\mu_{\boldsymbol{\theta}}(s)\nabla_{\widetilde{a}} Q_{\boldsymbol{w}}(s,\widetilde{a})\mid_{ \widetilde{a}=a'}$$
 
 更新当前状态：$$s \leftarrow s'$$。
 
-DDPG（Deep Deterministic Policy Gradient）算法实际上是将DQN中的两大利器Experience Replay 和 Fixed Q-targes应用到了DPG中，在该算法中采用深度神经网络逼近值函数$$Q_{\boldsymbol{w}}(s,a)$$和确定性策略$$\mu_{\boldsymbol{\theta}}(s)$$。
+前面曾经提到，DQN的局限性是处理连续动作空间，因为求解贪心动作$$arg\max_{\widetilde{a} \in A_s}Q_{\boldsymbol{w}}(s,\widetilde{a})$$非常困难，而DPG中不需要根据Q函数去求解贪心动作，因此可以将DQN的思想应用到DPG中来，既能弥补其处理连续动作空间的局限，又能发挥其处理数据依赖性的优势。DDPG（Deep Deterministic Policy Gradient）算法正是将DQN中的两大利器Experience Replay 和 Fixed Q-targes应用到了DPG中，在该算法中采用深度神经网络逼近值函数$$Q_{\boldsymbol{w}}(s,a)$$和确定性策略$$\mu_{\boldsymbol{\theta}}(s)$$。
 
 DDPG的伪代码实现如下：
 
