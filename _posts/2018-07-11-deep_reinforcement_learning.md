@@ -60,7 +60,7 @@ $$\boldsymbol{w} = \boldsymbol{w} + \alpha (r+\gamma Q_{\boldsymbol{w}}(s',a')-Q
 
 用人工神经网络来拟合Q函数有两种形式：一种形式是将状态和动作当作输入，然后通过人工神经网络分析后得到动作的Q值，这对于动作空间是连续的时尤其有效；而当动作空间是离散的时，可以采用另一种更直观的形式，即只输入状态，然后输出所有的动作Q值。这相当于先接收外部的信息，然后通过大脑加工输出每种动作的值，最后选择拥有最大值的动作当作下一步要做的动作。由于当动作空间是连续的时候，采用第一种形式去求$$arg\max_{\widetilde{a} \in A_s}Q_{\boldsymbol{w}}(s,\widetilde{a})$$是非常困难的，所以DQN一般只采用第二种形式来拟合Q函数，也就是说DQN对于处理连续动作空间的学习问题是有局限的。
 
-采用“半梯度下降法”来训练人工神经网络，因为训练样本相互关联（当利用每条episode顺序训练时），训练过程中策略会进行剧烈的振荡，从而使收敛速度十分缓慢。该问题严重影响了深度学习在强化学习中的应用。为了降低样本关联性，DQN采用了两大利器：Experience Replay 和 Fixed Q-targes。
+采用“半梯度下降法”来训练人工神经网络，因为训练样本相互关联（当利用每条episode顺序训练时），训练过程中策略会进行剧烈的振荡，从而使收敛速度十分缓慢。该问题严重影响了深度学习在强化学习中的应用。为了降低样本关联性，DQN采用了两大利器：Experience Replay 和 Fixed Q-targets。
 
 
 **1、Experience Replay**
@@ -685,7 +685,7 @@ $$\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\thet
 
 更新当前状态：$$s \leftarrow s'$$。
 
-前面曾经提到，DQN的局限性是处理连续动作空间，因为求解贪心动作$$arg\max_{\widetilde{a} \in A_s}Q_{\boldsymbol{w}}(s,\widetilde{a})$$非常困难，而DPG中不需要根据Q函数去求解贪心动作，因此可以将DQN的思想应用到DPG中来，既能弥补其处理连续动作空间的局限，又能发挥其降低样本关联性的优势。DDPG（Deep Deterministic Policy Gradient）算法正是将DQN中的两大利器Experience Replay 和 Fixed Q-targes应用到了DPG中，在该算法中采用深度神经网络逼近值函数$$Q_{\boldsymbol{w}}(s,a)$$和确定性策略$$\mu_{\boldsymbol{\theta}}(s)$$。
+前面曾经提到，DQN的局限性是处理连续动作空间，因为求解贪心动作$$arg\max_{\widetilde{a} \in A_s}Q_{\boldsymbol{w}}(s,\widetilde{a})$$非常困难，而DPG中不需要根据$Q$函数去求解贪心动作，因此可以将DQN的思想应用到DPG中来，既能弥补其处理连续动作空间的局限，又能发挥其降低样本关联性的优势。DDPG（Deep Deterministic Policy Gradient）算法正是将DQN中的两大利器Experience Replay 和 Fixed Q-targets应用到了DPG中，在该算法中采用深度神经网络逼近值函数$$Q_{\boldsymbol{w}}(s,a)$$和确定性策略$$\mu_{\boldsymbol{\theta}}(s)$$。
 
 DDPG的伪代码实现如下：
 
