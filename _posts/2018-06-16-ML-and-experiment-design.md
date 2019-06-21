@@ -68,7 +68,11 @@ $\mathcal{H}$ : 假设空间
 
 $h$ : 假设，学得的模型
 
-$\boldsymbol{a} \bullet \boldsymbol{a}'$ : 向量$\boldsymbol{a}$ 与$\boldsymbol{a}'$ 的内积 
+$\boldsymbol{a} \bullet \boldsymbol{a}'$ : 向量$\boldsymbol{a}$ 与$\boldsymbol{a}'$ 的内积
+
+$\boldsymbol{a} \times \boldsymbol{a}'$ : 向量$\boldsymbol{a}$ 与$\boldsymbol{a}'$ 的外积
+
+$\boldsymbol{a} \odot \boldsymbol{a}'$ : 向量$\boldsymbol{a}$ 与$\boldsymbol{a}'$ 的点积 
 
 $1(\cdot)$ : 指示函数，在$\cdot$为真和假时分别取值为1，0
 
