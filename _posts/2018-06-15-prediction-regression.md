@@ -107,11 +107,11 @@ $$\phi(\mathbf{x};\boldsymbol{\beta}) = \frac{1}{1+\exp(-\mathbf{x}^T\boldsymbol
 
 最小二乘法一般用于线性形式的模型。损失函数（又称代价函数，cost function）定义为观察值与估计值之差的平方和（二次损失函数）：
 
-$$C(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(\boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i)-y_i)^2$$
+$$\ell(\boldsymbol{\theta}) =\frac{1}{2N} \sum_{i=1}^N(\boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i)-y_i)^2$$
 
 目的是找到一组参数$\boldsymbol{\theta}$，使得损失函数最小。根据极小值必要条件，可得：
 
-$$\nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) = \frac{1}{N} \sum_{i=1}^N(\boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i)-y_i)\boldsymbol{\phi}(\mathbf{x}_i) =\mathbf{0}$$
+$$\nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}) = \frac{1}{N} \sum_{i=1}^N(\boldsymbol{\theta}^T\boldsymbol{\phi}(\mathbf{x}_i)-y_i)\boldsymbol{\phi}(\mathbf{x}_i) =\mathbf{0}$$
 
 可得最小二乘解为：
 
@@ -128,46 +128,46 @@ $$\mathbf{P} = \left[\sum_{i=1}^N\boldsymbol{\phi}(\mathbf{x}_i)\boldsymbol{\phi
 
 考虑一般回归模型形式，损失函数可以通用性地表示为：
 
-$$C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^Nc(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)$$
+$$\ell(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^N\ell(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)$$
 
 常用的损失函数有：
 
 1）二次损失函数
 
-$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = (f_{\boldsymbol{\theta}}(\mathbf{x}_i) - y_i)^2$$
+$$\ell(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = (f_{\boldsymbol{\theta}}(\mathbf{x}_i) - y_i)^2$$
 
 2）绝对值损失函数
 
-$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \mid f_{\boldsymbol{\theta}}(\mathbf{x}_i) - y_i\mid$$
+$$\ell(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \mid f_{\boldsymbol{\theta}}(\mathbf{x}_i) - y_i\mid$$
 
 3）0-1损失函数
 
-$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \begin{cases} 1 & f_{\boldsymbol{\theta}}(\mathbf{x}_i) = y_i \\
+$$\ell(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \begin{cases} 1 & f_{\boldsymbol{\theta}}(\mathbf{x}_i) = y_i \\
 								0 & f_{\boldsymbol{\theta}}(\mathbf{x}_i) \neq y_i\end{cases}$$
 
 4）交叉熵损失函数
 
 当$$y_i$$和$$f_{\boldsymbol{\theta}}(\mathbf{x}_i)$$的取值在$[0,1]$区间时可以使用交叉熵损失函数：
 
-$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = -[y_i\log f_{\boldsymbol{\theta}}(\mathbf{x}_i) + (1-y_i)\log (1-f_{\boldsymbol{\theta}}(\mathbf{x}_i)]$$
+$$\ell(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = -[y_i\log f_{\boldsymbol{\theta}}(\mathbf{x}_i) + (1-y_i)\log (1-f_{\boldsymbol{\theta}}(\mathbf{x}_i)]$$
 
 5）对数损失函数
 
 当模型输出为$y$的条件概率$$P_{\boldsymbol{\theta}}(y\mid\mathbf{x}_i)$$时，可以使用对数损失函数：
 
-$$c(P_{\boldsymbol{\theta}}(y\mid\mathbf{x}_i), y_i) = -\log P_{\boldsymbol{\theta}}(y_i\mid\mathbf{x}_i)$$
+$$\ell(P_{\boldsymbol{\theta}}(y\mid\mathbf{x}_i), y_i) = -\log P_{\boldsymbol{\theta}}(y_i\mid\mathbf{x}_i)$$
 
 6）Hinge损失函数
 
 当目标值$$y_i$$为-1或1，$$f_{\boldsymbol{\theta}}(\mathbf{x}_i)$$为分类器输出的预测值，并不直接是类标签，可以使用Hinge损失函数：
 
-$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \max(0, 1 - y_i f_{\boldsymbol{\theta}}(\mathbf{x}_i) )$$
+$$\ell(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \max(0, 1 - y_i f_{\boldsymbol{\theta}}(\mathbf{x}_i) )$$
 
 7）指数损失函数
 
 当目标值$$y_i$$为-1或1，$$f_{\boldsymbol{\theta}}(\mathbf{x}_i)$$为分类器输出的预测值，并不直接是类标签，同样可以使用指数损失函数：
 
-$$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \exp(-y_i f_{\boldsymbol{\theta}}(\mathbf{x}_i))$$
+$$\ell(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \exp(-y_i f_{\boldsymbol{\theta}}(\mathbf{x}_i))$$
 
 
 
@@ -177,11 +177,11 @@ $$c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = \exp(-y_i f_{\boldsymbol{\thet
 
 因为目标是使得损失函数最小，可以采用梯度下降的方式来进行参数更新迭代。参数的梯度方向可以表示为：
 
-$$\nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^N\frac{\partial c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
+$$\nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}) =\frac{1}{N} \sum_{i=1}^N\frac{\partial \ell(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 参数更新公式为：
 
-$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \nabla_{\boldsymbol{\theta}} C(\boldsymbol{\theta}) = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N\frac{\partial c(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
+$$\boldsymbol{\theta}' = \boldsymbol{\theta} - \eta \nabla_{\boldsymbol{\theta}} \ell(\boldsymbol{\theta}) = \boldsymbol{\theta} - \frac{\eta}{N} \sum_{i=1}^N\frac{\partial \ell(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i)}{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}\frac{\partial f_{\boldsymbol{\theta}}(\mathbf{x}_i)}{\partial \boldsymbol{\theta}}$$
 
 
 其中$\eta$为更新步长，又称学习速率。在机器学习中的几乎所有算法都采用这种结构，朝着损失函数梯度下降的方向来不断更新参数。
@@ -270,19 +270,19 @@ $$KL(f_{\boldsymbol{\theta}_1}\| f_{\boldsymbol{\theta}_2}) = \sum_{\boldsymbol{
 
 按照梯度下降法的思想，我们定义每一轮的迭代优化都要解决这样一个子问题：
 
-$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta} + \Delta\boldsymbol{\theta}) \\
+$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} \ell(\boldsymbol{\theta} + \Delta\boldsymbol{\theta}) \\
     s.t.  \ 	& \|\Delta\boldsymbol{\theta}\| < \epsilon
 \end{align}$$
 
 将损失函数进行一阶泰勒展开，问题就变为：
 
-$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
+$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} \ell(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}\ell(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
     s.t.  \ 	& \|\Delta\boldsymbol{\theta}\| < \epsilon
 \end{align}$$
 
 对目标函数求导，并对更新量做一定的限制，就可以得到梯度下降法。如果我们改为对模型的距离进行约束，就得到另一个优化问题：
 
-$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
+$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} \ell(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}\ell(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
     s.t.  \ 	& KL(f_{\boldsymbol{\theta}}\| f_{\boldsymbol{\theta} + \Delta\boldsymbol{\theta}}) < \epsilon
 \end{align}$$
 
@@ -290,7 +290,7 @@ $$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabl
 
 假设$$f_{\boldsymbol{\theta}}$$对于$\boldsymbol{\theta}$来说是连续、可导、有界、性质优良的函数，通过推演，可将优化问题化为：
 
-$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
+$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} \ell(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}\ell(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
     s.t.  \ 	& \frac{1}{2}\Delta\boldsymbol{\theta}^T\boldsymbol{I}_{f_{\boldsymbol{\theta}}}\Delta\boldsymbol{\theta} < \epsilon
 \end{align}$$
 
@@ -298,14 +298,14 @@ $$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabl
 
 此时，拉格朗日函数可表示为：
 
-$$L(\Delta\boldsymbol{\theta}, \lambda) = C(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} + \lambda[\frac{1}{2}\Delta\boldsymbol{\theta}^T\boldsymbol{I}_{f_{\boldsymbol{\theta}}}\Delta\boldsymbol{\theta} - \epsilon]$$
+$$L(\Delta\boldsymbol{\theta}, \lambda) = \ell(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}\ell(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} + \lambda[\frac{1}{2}\Delta\boldsymbol{\theta}^T\boldsymbol{I}_{f_{\boldsymbol{\theta}}}\Delta\boldsymbol{\theta} - \epsilon]$$
 
 对$$\Delta\boldsymbol{\theta}$$求导，并求解相应的极值点，可得：
 
-$$\nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) + \lambda\boldsymbol{I}_{f_{\boldsymbol{\theta}}}\Delta\boldsymbol{\theta} = 0$$
+$$\nabla_{\boldsymbol{\theta}}\ell(\boldsymbol{\theta}) + \lambda\boldsymbol{I}_{f_{\boldsymbol{\theta}}}\Delta\boldsymbol{\theta} = 0$$
 
 于是：
 
-$$\Delta\boldsymbol{\theta} = -\frac{1}{\lambda}\boldsymbol{I}_{f_{\boldsymbol{\theta}}}^{-1}\nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta})$$
+$$\Delta\boldsymbol{\theta} = -\frac{1}{\lambda}\boldsymbol{I}_{f_{\boldsymbol{\theta}}}^{-1}\nabla_{\boldsymbol{\theta}}\ell(\boldsymbol{\theta})$$
 
-公式中$$\frac{1}{\lambda}$$可以当作梯度下降法的学习率类似的分量，那么自然梯度下降法的优化方向就可以看作为$$\boldsymbol{I}_{f_{\boldsymbol{\theta}}}^{-1}\nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta})$$，与梯度下降法不同，它需要额外求解Fisher信息矩阵的逆。
+公式中$$\frac{1}{\lambda}$$可以当作梯度下降法的学习率类似的分量，那么自然梯度下降法的优化方向就可以看作为$$\boldsymbol{I}_{f_{\boldsymbol{\theta}}}^{-1}\nabla_{\boldsymbol{\theta}}\ell(\boldsymbol{\theta})$$，与梯度下降法不同，它需要额外求解Fisher信息矩阵的逆。
