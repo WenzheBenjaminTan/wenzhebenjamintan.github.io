@@ -599,7 +599,7 @@ $$\sum_a\pi(s,a)A^{\pi_{old}}(s,a) = \sum_a \pi_{old}(s,a)\frac{\pi(s,a)}{\pi_{o
 
 回顾一下，自然梯度法模型的标准形式为
 
-$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} C(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}C(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
+$$\begin{align} &\min_{\Delta\boldsymbol{\theta}} \ell(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}}\ell(\boldsymbol{\theta}) \Delta\boldsymbol{\theta} \\
     s.t.  \ 	& \frac{1}{2}\Delta\boldsymbol{\theta}^T\boldsymbol{I}_{f_{\boldsymbol{\theta}}}\Delta\boldsymbol{\theta} < \epsilon
 \end{align}$$
 
@@ -639,7 +639,7 @@ $$minimize_{\Delta\boldsymbol{\theta}} \frac{1}{N}\sum_{i=1}^N\frac{1}{2}\Delta\
 
 于是可得$$\boldsymbol{Q} = \frac{1}{N}\sum_{i=1}^N\boldsymbol{I}_{\pi_{old}(s^{(i)})}$$，$$\boldsymbol{b} = [\nabla_{\boldsymbol{\theta}}L_{\pi_{old}}(\pi_{old}; \boldsymbol{\theta}_{old})]^T$$。从而可以不断得到下一个共轭方向。
 
-再计算更新步长时，我们应该考虑原约束条件，其相当于给我们划定了一个置信区域（Trust Region），以保证我们的优化满足策略提升的要求。前面假设我们用共轭梯度法求出了更新方向$$\boldsymbol{d}$$，现在令最大步长为$\beta$，也就是说参数更新的最大值为$$\beta\boldsymbol{d}$$，于是可得到：
+在计算更新步长时，我们应该考虑原约束条件，其相当于给我们划定了一个置信区域（Trust Region），以保证我们的优化满足策略提升的要求。前面假设我们用共轭梯度法求出了更新方向$$\boldsymbol{d}$$，现在令最大步长为$\beta$，也就是说参数更新的最大值为$$\beta\boldsymbol{d}$$，于是可得到：
 
 $$ \frac{1}{N} \sum_{i=1}^N\frac{1}{2}\beta^2\boldsymbol{d}^T\boldsymbol{I}_{\pi_{old}(s^{(i)})}\boldsymbol{d} = \delta$$
 
@@ -649,7 +649,10 @@ $$\beta = \sqrt{\frac{2\delta}{ \frac{1}{N} \sum_{i=1}^N\boldsymbol{d}^T\boldsym
 
 这样我们就得到了满足约束条件的最大步长，然后可以采用backtrack的线搜索方法找到满足优化条件的合适步长。具体方法为：先尝试以$\beta$为步长的情况下，策略提升是否可以满足，如果已经满足则步长选择结束；如果无法满足，则将步长减少一半再进行测试，直到满足为止。
 
-### 2.5.2 PPO
+
+
+
+### 2.5.2 PPO 与 DPPO
 
 ### 2.5.3 ACER
 
