@@ -50,15 +50,15 @@ $D$ : 可观测数据集
 
 $Z$ : 隐藏的数据集
 
-$\boldsymbol{x}^{(i)}$ : 数据集的第$i$个样本输入
+$\boldsymbol{x}^{(i)}$ : 数据集的第$i$个样本输入，共有$N$个样本
 
-$y^{(i)}$ : 监督学习中与$\boldsymbol{x}^{(i)}$关联的标签输出
-
-$$C_i$$ : 分类问题中的第$i$个类，此时$$\mathcal{Y} = \{C_1,C_2,...,C_K\}$$
+$$x^{(i)}_j$$ : 样本输入$\boldsymbol{x}^{(i)}$的第$j$个分量，共有$d$个分量
 
 $\boldsymbol{X}$ : 大小为 $N \times d$ 的输入矩阵（或称设计矩阵），其中行$\boldsymbol{X}_{i,:}$为样本输入$\boldsymbol{x}^{(i)}$
 
-$$x^{(i)}_j$$ : 样本输入$\boldsymbol{x}^{(i)}$的第$j$个分量
+$y^{(i)}$ : 监督学习中与$\boldsymbol{x}^{(i)}$关联的标签输出
+
+$$C_i$$ : 分类问题中的第$i$个类，共有$K$个类，此时$$\mathcal{Y} = \{C_1,C_2,...,C_K\}$$
 
 $\boldsymbol{a}^{[l]}$：人工神经网络中，第$l$层的激活值向量
 
