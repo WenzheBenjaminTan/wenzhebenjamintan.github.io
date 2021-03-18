@@ -304,13 +304,13 @@ $$L(\mathbf{x},\mu) = f(\mathbf{x}) + \mu g(\mathbf{x})$$
 
 因此，在约束$g(\mathbf{x}) \leq 0$下最小化$f(\mathbf{x})$，可转化为如下约束情况下最小化拉格朗日函数$L(\mathbf{x},\mu)$：
 
-1）$g(\mathbf{x}) \leq 0$；
+1）$g(\mathbf{x}) \leq 0$ （可行性条件）；
 
-2）$\mu\geq 0$；
+2）$\mu\geq 0$ （非负约束）；
 
-3）$\nabla f(\mathbf{x}) + \mu\nabla g(\mathbf{x}) = \mathbf{0}$；
+3）$\nabla f(\mathbf{x}) + \mu\nabla g(\mathbf{x}) = \mathbf{0}$ （最优性条件）；
 
-4）$\mu g(\mathbf{x}) = 0$。
+4）$\mu g(\mathbf{x}) = 0$ （互补条件）。
 
 
 上面条件统称为Karush-Kuhn-Tucker（简称KKT）条件，其给出了某个点是约束问题局部极小点应该满足的一阶必要条件。
