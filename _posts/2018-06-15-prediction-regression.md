@@ -153,7 +153,7 @@ $$\ell(f_{\boldsymbol{\theta}}(\mathbf{x}_i), y_i) = -[y_i\log f_{\boldsymbol{\t
 
 5）对数损失函数
 
-当模型输出为$y$的条件概率$$P_{\boldsymbol{\theta}}(y\mid\mathbf{x}_i)$$时，可以使用对数损失函数：
+当模型输出为$y$的条件概率$$P_{\boldsymbol{\theta}}(y\mid\mathbf{x}_i)$$时，可以使用对数损失函数（等价于交叉熵损失函数）：
 
 $$\ell(P_{\boldsymbol{\theta}}(y\mid\mathbf{x}_i), y_i) = -\log P_{\boldsymbol{\theta}}(y_i\mid\mathbf{x}_i)$$
 

@@ -1,8 +1,11 @@
 ---
 layout: post
-title: "优化理论2" 
+title: "优化理论3" 
 ---
-# 1、无约束优化问题
+# 1、大规模问题分解
+
+
+# 2、列生成算法
 
 无约束优化问题可以表示为如下形式：
 
@@ -306,11 +309,11 @@ $$L(\mathbf{x},\mu) = f(\mathbf{x}) + \mu g(\mathbf{x})$$
 
 1）$g(\mathbf{x}) \leq 0$ （可行性条件）；
 
-2）$\nabla f(\mathbf{x}) + \mu\nabla g(\mathbf{x}) = \mathbf{0}$ （最优性条件）；
+2）$\mu\geq 0$ （非负约束）；
 
-3）$\mu g(\mathbf{x}) = 0$ （互补条件）；
+3）$\nabla f(\mathbf{x}) + \mu\nabla g(\mathbf{x}) = \mathbf{0}$ （最优性条件）；
 
-4）$\mu\geq 0$ （非负约束）。
+4）$\mu g(\mathbf{x}) = 0$ （互补条件）。
 
 
 上面条件统称为Karush-Kuhn-Tucker（简称KKT）条件，其给出了某个点是约束问题局部极小点应该满足的一阶必要条件。
@@ -335,11 +338,11 @@ $$\begin{equation}\label{3}L(\mathbf{x},\boldsymbol{\lambda},\boldsymbol{\mu}) =
 
 2）$g_j(\mathbf{x}) \leq 0$ （$j=1,2,...,p$）；
 
-3）$\nabla f(\mathbf{x}) + \sum_{i=1}^m\lambda_i\nabla h_i(\mathbf{x}) +\sum_{j=1}^p\mu_j\nabla g_j(\mathbf{x}) = \mathbf{0}$ ；
+3）$\mu_j\geq 0$ （$j=1,2,...,p$）；
 
-4）$\mu_j g_j(\mathbf{x}) = 0$ （$j=1,2,...,p$）；
+4）$\nabla f(\mathbf{x}) + \sum_{i=1}^m\lambda_i\nabla h_i(\mathbf{x}) +\sum_{j=1}^p\mu_j\nabla g_j(\mathbf{x}) = \mathbf{0}$ ；
 
-5）$\mu_j\geq 0$ （$j=1,2,...,p$）。
+5）$\mu_j g_j(\mathbf{x}) = 0$ （$j=1,2,...,p$）。
 
 ## 2.3 拉格朗日对偶问题
 
